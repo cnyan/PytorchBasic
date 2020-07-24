@@ -1,0 +1,29 @@
+
+# conda 环境
+pytorch
+numpy
+pandas
+matplotlib
+pytorchvision
+
+激活虚拟环境
+conda activate pytorch_venv_yan
+
+1）conda list 查看安装了哪些包。
+
+2）conda env list 或 conda info -e 查看当前存在哪些虚拟环境
+
+3）conda update conda 检查更新当前conda
+
+# 从清华源下载的话 去掉  -c pytorch
+conda install -n 虚拟环境名称  pytorch torchvision
+conda install -n 虚拟环境名称  pytorch torchvision -c pytorch
+
+# conda install pytorch-cpu -c pytorch    # CPU环境
+conda批量导出包含环境中所有组件的requirements.txt文件
+
+conda list -e > requirements_conda.txt
+1
+pip批量安装requirements.txt文件中包含的组件依赖
+
+conda install --yes --file requirements.txt
