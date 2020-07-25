@@ -21,9 +21,7 @@ import torch
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torch import nn, optim
-
 from torchvision import models
-
 from cnn_action_nn import ActionsDataSet, Action_Net_CNN
 from cnn_base_var import action_window_row, action_window_col
 import time
