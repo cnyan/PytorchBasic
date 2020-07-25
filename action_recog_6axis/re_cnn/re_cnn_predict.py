@@ -19,6 +19,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 # 通过混淆矩阵，分析错误的分类
 from sklearn.metrics import confusion_matrix
+import time
+
+
+class Timer:
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+
+    def __exit__(self, *args):
+        self.end = time.perf_counter()
+        self.interval = self.end - self.start
 
 
 class Cnn_Predict():
@@ -90,4 +101,6 @@ class Cnn_Predict():
 
 if __name__ == '__main__':
     cnn_predict = Cnn_Predict()
-    cnn_predict.predict()
+    with Timer() as t:
+        cnn_predict.predict()
+    print('predict time {0}'.format(str(t.interval)[:5]))
