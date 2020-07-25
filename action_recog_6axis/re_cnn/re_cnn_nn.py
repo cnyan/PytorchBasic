@@ -46,7 +46,7 @@ class Action_Net_CNN(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
-        x = F.dropout2d(x, p=0.5, training=self.training)
+        x = F.dropout2d(x, p=0.3, training=self.training)
         x = x.view(x.size(0), -1)
         x = self.layer1(x)
         x = self.layer2(x)

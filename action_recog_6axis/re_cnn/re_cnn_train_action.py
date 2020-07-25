@@ -10,8 +10,8 @@
         数据训练
 """
 
-from action_recog_6axis.re_cnn.cnn_nn import Action_Net_CNN
-from action_recog_6axis.re_cnn.cnn_data_input import Input_Data
+from re_cnn_nn import Action_Net_CNN
+from re_cnn_data_input import Input_Data
 from torch.utils.data import DataLoader
 import torch
 from torch import nn, optim
