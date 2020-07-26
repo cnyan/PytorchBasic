@@ -95,6 +95,7 @@ class Cnn_Predict():
         plt.gcf().subplots_adjust(bottom=0.15)
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
+        plt.savefig('plt_img/re_cnn_predict.jpg')
         plt.show()
 
 
