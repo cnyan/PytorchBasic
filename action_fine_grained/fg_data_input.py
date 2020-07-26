@@ -143,3 +143,4 @@ if __name__ == '__main__':
 
     input_data = Input_Data("src/nodeData/train/train_action_data_1.npy")
     print(input_data[0])
+
