@@ -70,7 +70,6 @@ class Cnn_Predict():
         score = torch.max(prob, 1)[0].data.numpy()[0]
         pred_idx = torch.max(predict, 1)[1]  # 最大值下标
         right = pred_idx.eq(label.data.view_as(pred_idx)).sum()  # 返回 0（false)，1(true)
-
         return right.data.item(), len(label), score, pred_idx.data.numpy()[0]
 
     # 混淆矩阵
