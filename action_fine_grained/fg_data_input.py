@@ -138,8 +138,8 @@ class Input_Data(Dataset):
 
 if __name__ == '__main__':
     # # 处理数据集合
-    # for data_model in ['train', 'valid', 'test']:
-    #     save_data(data_model)
+    for data_model in ['train', 'valid', 'test']:
+        save_data(data_model)
 
     input_data = Input_Data("src/nodeData/train/train_action_data_1.npy")
     print(input_data[0])
