@@ -62,7 +62,6 @@ class Action_Net_CNN(nn.Module):
         out = F.log_softmax(x, dim=1)
         return out
 
-
 if __name__ == '__main__':
     cnn = Action_Net_CNN()
     print(cnn)
