@@ -58,10 +58,10 @@ class Cnn_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 500
+        num_epochs = 200
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9, weight_decay=0.01)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=100, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=50, gamma=0.1)
 
         best_model_wts = self.model.state_dict()
         best_acc = 0.0
