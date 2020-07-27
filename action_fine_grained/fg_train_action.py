@@ -5,13 +5,12 @@
 @Author: 闫继龙
 @Version: ??
 @License: Apache Licence
-@CreateTime: 2020/7/24 17:52
+@CreateTime: 2020/7/27 15:45
 @Describe：
-        数据训练
-"""
 
-from re_cnn_nn import Action_Net_CNN
-from re_cnn_data_input import Input_Data
+"""
+from fg_cnn_nn import FG_Net_CNN
+from fg_data_input import Input_Data
 from torch.utils.data import DataLoader
 import torch
 from torch import nn, optim
@@ -21,20 +20,10 @@ import os
 import matplotlib.pyplot as plt
 
 
-class Timer:
-    def __enter__(self):
-        self.start = time.perf_counter()
-        return self
-
-    def __exit__(self, *args):
-        self.end = time.perf_counter()
-        self.interval = self.end - self.start
-
-
-class Cnn_train():
-    def __init__(self):
-        self.action_data_train_set = Input_Data("train_action_data.npy")
-        self.action_data_valid_set = Input_Data('valid_action_data.npy')
+class FG_train():
+    def __init__(self, model_name='1'):
+        self.action_data_train_set = Input_Data("src/nodeData/train/train_action_data_" + model_name + ".npy")
+        self.action_data_valid_set = Input_Data("src/nodeData/valid/valid_action_data_" + model_name + ".npy")
         print(f'train_data size:{len(self.action_data_train_set)}')
         print(f'valid_data size:{len(self.action_data_valid_set)}')
 
@@ -43,9 +32,9 @@ class Cnn_train():
                                                 num_workers=1)  # 分成数组（len/128）个batch，每个batch长度是128
         self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=128, shuffle=True,
                                                 num_workers=1)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.model = Action_Net_CNN()
+        self.model = FG_Net_CNN()
 
-    def train(self):
+    def train(self, model_name='1'):
         since = time.time()
 
         model_ft = self.model
@@ -143,23 +132,24 @@ class Cnn_train():
         # load best model weights
         model_ft.load_state_dict(best_model_wts)
 
-        if os.path.exists('src/re_cnn_model.pkl'):
-            os.remove('src/re_cnn_model.pkl')
-        torch.save(model_ft, 'src/re_cnn_model.pkl')
+        if os.path.exists('src/model/fg_cnn_model_' + model_name + '.pkl'):
+            os.remove(('src/model/fg_cnn_model_' + model_name + '.pkl'))
+        torch.save(model_ft, 'src/model/fg_cnn_model_' + model_name + '.pkl')
 
-        self.plt_image(train_loss, valid_loss, right_ratio)
+        self.plt_image(train_loss, valid_loss, right_ratio, model_name)
 
-    def plt_image(self, train_loss, valid_loss, right_ratio):
+    def plt_image(self, train_loss, valid_loss, right_ratio, model_name='1'):
         plt.plot(train_loss, label='Train Loss')
         plt.plot(valid_loss, label='Valid Loss')
         plt.plot(right_ratio, label='Valid Accuracy')
         plt.xlabel('Steps')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
-        plt.savefig("plt_img/cnn_train_loss.png")
+        plt.savefig("plt_img/cnn_train_loss_" + model_name + ".png")
         plt.show()
 
 
 if __name__ == '__main__':
-    cnn_train = Cnn_train()
-    cnn_train.train()
+    for i in ['1', '2', '3', '4', '6', '7', '10']:
+        fg_train = FG_train(model_name=i)
+        fg_train.train(model_name=i)
