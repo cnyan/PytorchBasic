@@ -22,6 +22,7 @@ from glob import glob
 action_window_row = 40
 action_window_col = 6
 
+
 def save_data(data_model='train'):
     print(data_model + 'data is precessing')
     action_root_path = "../action_recog_6axis/re_cnn/src/" + data_model + '_action_data.npy'
@@ -142,4 +143,3 @@ if __name__ == '__main__':
 
     input_data = Input_Data("src/nodeData/train/train_action_data_1.npy")
     print(input_data[0])
-

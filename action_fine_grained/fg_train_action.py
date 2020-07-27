@@ -151,5 +151,6 @@ class FG_train():
 
 if __name__ == '__main__':
     for i in ['1', '2', '3', '4', '6', '7', '10']:
+        print(f'action {i} training')
         fg_train = FG_train(model_name=i)
         fg_train.train(model_name=i)
