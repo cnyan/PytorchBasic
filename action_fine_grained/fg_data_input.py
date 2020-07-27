@@ -24,7 +24,7 @@ action_window_col = 6
 
 
 def save_data(data_model='train'):
-    print(data_model + '数据开始处理')
+    print(data_model + 'data is precessing')
     action_root_path = "../action_recog_6axis/re_cnn/src/" + data_model + '_action_data.npy'
 
     df_array = np.load(action_root_path)
