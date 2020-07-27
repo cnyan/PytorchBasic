@@ -71,8 +71,9 @@ class Cnn_train():
         right_ratio = []  # 正确率
 
         for epoch in range(num_epochs):
-            print('Epoch {}/{} '.format(epoch, num_epochs - 1))
             print('-' * 30)
+            print('Epoch {}/{} '.format(epoch, num_epochs - 1))
+            print(f"the lr is :{optimizer_ft.param_groups[0]['lr']}")
 
             # 每轮都有训练和验证过程
             for phase in ['train', 'valid']:
@@ -147,7 +148,6 @@ class Cnn_train():
         torch.save(model_ft, 'src/re_cnn_model.pkl')
 
         self.plt_image(train_loss, valid_loss, right_ratio)
-
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
         plt.plot(train_loss, label='Train Loss')
