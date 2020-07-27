@@ -7,7 +7,7 @@
 @License: Apache Licence
 @CreateTime: 2020/7/27 15:45
 @Describe：
-    训练
+    训练模式
 """
 from fg_cnn_nn import FG_Net_CNN
 from fg_data_input import Input_Data
