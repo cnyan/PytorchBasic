@@ -41,7 +41,7 @@ class Action_Net_CNN(nn.Module):
         # Relu层
         self.layer2 = nn.ReLU()
         # 分类线性层
-        self.layer3 = nn.Linear(1020, 5)
+        self.layer3 = nn.Linear(1020, 200)
         self.layer4 = nn.ReLU()
         self.layer5 = nn.Linear(200, 5)
 
