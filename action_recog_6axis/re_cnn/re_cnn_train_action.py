@@ -159,7 +159,6 @@ class Cnn_train():
         plt.show()
 
 
-
 if __name__ == '__main__':
     cnn_train = Cnn_train()
     cnn_train.train()
