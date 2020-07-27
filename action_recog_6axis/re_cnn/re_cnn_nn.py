@@ -41,16 +41,23 @@ class Action_Net_CNN(nn.Module):
         # Relu层
         self.layer2 = nn.ReLU()
         # 分类线性层
-        self.layer3 = nn.Linear(1020, 5)
+        self.layer3 = nn.Linear(1020, 200)
+        self.layer4 = nn.ReLU()
+        self.layer5 = nn.Linear(200, 5)
 
     def forward(self, x):
         x = self.conv1(x)
+        x = F.dropout2d(x, p=0.5, training=self.training)
         x = self.conv2(x)
-        x = F.dropout2d(x, p=0.3, training=self.training)
+        x = F.dropout2d(x, p=0.5, training=self.training)
         x = x.view(x.size(0), -1)
         x = self.layer1(x)
+        x = F.dropout2d(x, p=0.5, training=self.training)
         x = self.layer2(x)
         x = self.layer3(x)
+        x = F.dropout2d(x, p=0.5, training=self.training)
+        x = self.layer4(x)
+        x = self.layer5(x)
 
         out = F.log_softmax(x, dim=1)
         return out
