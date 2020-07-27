@@ -61,8 +61,8 @@ class Cnn_train():
         num_epochs = 200
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
-        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.01)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=100, gamma=0.1)
+        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.1, weight_decay=0.01)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 
         best_model_wts = self.model.state_dict()
         best_acc = 0.0
