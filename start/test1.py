@@ -16,6 +16,6 @@ import math
 
 import numpy as np
 
-df = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-print(df[0:4])
-print(df[4:8])
+df = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+str = ','.join(str(i) for i in df)
+print(str)

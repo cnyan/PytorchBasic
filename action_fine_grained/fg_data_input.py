@@ -100,9 +100,8 @@ def save_data(data_model='train'):
 class Input_Data(Dataset):
     def __init__(self, data_file_path):
         """
-        初始化
+        初始化全部数据
         :param data_file_name:  数据集路径,用于读取是验证机、训练集、测试集
-        :param action_root_path:
         """
         super(Input_Data, self).__init__()
         df_array = np.load(data_file_path)
