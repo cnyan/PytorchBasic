@@ -78,7 +78,7 @@ def save_data_sets(action_root_path=None, valid_size=0.20, test_size=0.05):
     split_num = -int(len(action_array) * test_size)
     test_action_data = action_array[split_num:]
     action_array = action_array[:split_num]
-    print(f'test_data size：{test_action_data.shape}')
+    print(f'test_data size:{test_action_data.shape}')
     if os.path.exists('src/test_action_data.npy'):
         os.remove('src/test_action_data.npy')
     np.save('src/test_action_data.npy', test_action_data)
