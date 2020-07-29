@@ -57,7 +57,7 @@ def save_data_sets(action_root_path=None, valid_size=0.20, test_size=0.05):
 
         df = df[:int(len(df) / action_window_row) * action_window_row, :]
 
-        data = np.reshape(df, (-1, action_window_row, action_window_col))
+        data = np.reshape(df, (-1, action_window_row, action_window_col))[:900, :]
         # print(data.shape)
         for i in range(len(data)):
             datamat.append(data[i].flatten())

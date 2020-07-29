@@ -47,7 +47,7 @@ class FG_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 100
+        num_epochs = 30
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.01)
