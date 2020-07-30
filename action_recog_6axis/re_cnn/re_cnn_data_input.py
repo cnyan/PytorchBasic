@@ -97,21 +97,6 @@ def save_data_sets(action_root_path=None, valid_size=0.20, test_size=0.05):
         os.remove('src/valid_action_data.npy')
     np.save('src/valid_action_data.npy', valid_action_data)
 
-    # if is_test:
-    #     split_num = -int(len(action_array) * 0.1)
-    #     action_array = action_array[:split_num]
-    #     test_action_data = action_array[split_num:]
-    #
-    # if os.path.exists('src/train_action_data.npy'):
-    #     os.remove('src/train_action_data.npy')
-    # np.save('src/train_action_data.npy', action_array)
-    #
-    # if is_test:
-    #     print(f'总的测试集数据：{len(test_action_data)}行')
-    #     if os.path.exists('src/test_action_data.npy'):
-    #         os.remove('src/test_action_data.npy')
-    #     np.save('src/test_action_data.npy', test_action_data)
-
 
 class Input_Data(Dataset):
     def __init__(self, data_file_path, action_root_path=None):
