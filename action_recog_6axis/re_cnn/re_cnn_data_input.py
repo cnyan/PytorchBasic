@@ -148,8 +148,8 @@ class Input_Data(Dataset):
 
     # 矩阵归一化
     def feature_normalize(self, df):
-        _range = np.max(df) - np.min(df)
-        df = (df - np.min(df)) / _range
+        _range = np.max(df, axis=0) - np.min(df, axis=0)
+        df = (df - np.min(df, axis=0)) / _range
         return df
 
 
