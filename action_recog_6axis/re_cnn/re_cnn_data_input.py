@@ -150,6 +150,7 @@ class Input_Data(Dataset):
     def feature_normalize(self, df):
         _range = np.max(df, axis=0) - np.min(df, axis=0)
         df = (df - np.min(df, axis=0)) / _range
+        df = np.nan_to_num(df)
         return df
 
 

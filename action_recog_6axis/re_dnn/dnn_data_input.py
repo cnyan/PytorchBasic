@@ -63,7 +63,8 @@ def save_data_sets(is_test=False):
         data = np.reshape(df, (-1, action_window_row, action_window_col))[:900, :]
         # print(data.shape)
         for i in range(len(data)):
-            datamat.append(data[i].flatten())
+            normal_data = feature_normalize(data[i])
+            datamat.append(normal_data.flatten())
             labels.append(label)
         print(np.array(datamat).shape)  # (行, 40*42)
 
@@ -76,10 +77,10 @@ def save_data_sets(is_test=False):
     print(f'总的数据量为：{action_array.shape}')  # (1299, 2521)   2521=col*row + 1
 
     # 正则化数据
-    scaler = preprocessing.Normalizer().fit(action_array[:, :-1])
-    scaler_path = 'src/normalize.pkl'
-    joblib.dump(scaler, scaler_path)
-    print('正则化建模完毕')
+    # scaler = preprocessing.Normalizer().fit(action_array[:, :-1])
+    # scaler_path = 'src/normalize.pkl'
+    # joblib.dump(scaler, scaler_path)
+    # print('正则化建模完毕')
 
     # 随机排序
     np.random.shuffle(action_array)
@@ -99,8 +100,14 @@ def save_data_sets(is_test=False):
             os.remove('src/test_action_data.npy')
         np.save('src/test_action_data.npy', test_action_data)
 
+# 矩阵归一化
+def feature_normalize(df):
+    _range = np.max(df, axis=0) - np.min(df, axis=0)
+    df = (df - np.min(df, axis=0)) / _range
+    df = np.nan_to_num(df)
+    return df
 
-# 不做正则化处理，在预测的时候，正则化
+# (第三方测试集)不做正则化处理，在预测的时候，正则化
 def save_data_test():
     # 导入数据 8 种动作，每种动作由7个节点数据构成
     file_list = glob.glob(os.path.join(ACTION_ROOT_PATH_TEST, '*'))
@@ -121,7 +128,8 @@ def save_data_test():
         data = np.reshape(df, (-1, action_window_row, action_window_col))
         # print(data.shape)
         for i in range(len(data)):
-            datamat.append(data[i].flatten())
+            normal_data = feature_normalize(data[i])
+            datamat.append(normal_data.flatten())
             labels.append(label)
         print(np.array(datamat).shape)
         # print(np.array(labels).shape)
@@ -164,9 +172,9 @@ def read_data_sets(file_path='src/train_action_data.npy', valid_size=0.2):
     df_data = df_array[:, :-1]
     df_labels = df_array[:, -1:]
 
-    # 正则化数据处理
-    normalize = joblib.load('src/normalize.pkl')
-    df_data = normalize.transform(df_data)
+    # # 正则化数据处理
+    # normalize = joblib.load('src/normalize.pkl')
+    # df_data = normalize.transform(df_data)
 
     # df_data = preprocessing.normalize(df_data)
 

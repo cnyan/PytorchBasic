@@ -115,7 +115,6 @@ class Predict():
         super().__init__()
         self.file_path = 'src/test_action_data.npy'
         self.mode_path = 'src/dnn_model.pkl'
-        self.scaler = joblib.load('src/normalize.pkl')
 
         self.model = Action_dnn_regular()
         # # 加载模型(GPU或CPU模型)
@@ -145,8 +144,7 @@ class Predict():
             x, y = data
 
             test_label.append(y)
-
-            x = self.scaler.transform(np.array([x])).flatten()  # 正则化数据
+              # 正则化数据
             x = torch.FloatTensor(x).view(1, -1)
             y = torch.LongTensor(y)
             # if torch.cuda.is_available():

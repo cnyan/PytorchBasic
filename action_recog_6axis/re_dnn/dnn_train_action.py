@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     # 20次循环
     losses = []
-    for epoch in range(300):
+    for epoch in range(200):
         for start in range(0, len(train_actions_data), batch_size):
             end = start + batch_size if start + batch_size < len(train_actions_data) else len(train_actions_data)
             x = torch.FloatTensor(train_actions_data[start:end])
