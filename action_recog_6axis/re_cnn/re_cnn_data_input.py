@@ -72,13 +72,13 @@ def save_data_sets(action_root_path=None, valid_size=0.20, test_size=0.05):
 
     # 随机排序
     np.random.shuffle(action_array)
-    print(f'all_data size:{action_array.shape}')
+    print(f'all_data size:{action_array.shape}')    # (4500, 1681)
 
     # 获得测试数据
     split_num = -int(len(action_array) * test_size)
     test_action_data = action_array[split_num:]
     action_array = action_array[:split_num]
-    print(f'test_data size:{test_action_data.shape}')
+    print(f'test_data size:{test_action_data.shape}') # (225, 1681)
     if os.path.exists('src/test_action_data.npy'):
         os.remove('src/test_action_data.npy')
     np.save('src/test_action_data.npy', test_action_data)
@@ -86,8 +86,8 @@ def save_data_sets(action_root_path=None, valid_size=0.20, test_size=0.05):
     split_num = -int(len(action_array) * valid_size)
     valid_action_data = action_array[split_num:]
     train_action_array = action_array[:split_num]
-    print(f'train_data size:{train_action_array.shape}')
-    print(f'valid_data size:{valid_action_data.shape}')
+    print(f'train_data size:{train_action_array.shape}') # (3420, 1681)
+    print(f'valid_data size:{valid_action_data.shape}') #(855, 1681)
 
     if os.path.exists('src/train_action_data.npy'):
         os.remove('src/train_action_data.npy')
