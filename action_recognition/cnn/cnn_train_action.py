@@ -8,6 +8,9 @@
 @CreateTime: 2019/9/29 10:02
 @Describe：
     读取图片，并转换为张量
+
+     需要指出的是，使用GPU训练出来的模型，如果后续用于分类的时候使用的是CPU，则需要将模型进行转化，否则会报错：
+    torch.load('tensors.pt', map_location='cpu')
 """
 import platform
 
