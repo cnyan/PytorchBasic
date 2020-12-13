@@ -144,69 +144,6 @@ def readDataAndPropressing(action_root_path, write_dir_name, SHOW_PLOT=False):
     print('动作窗口提取完毕')
 
 
-# 获得正则化函数
-# def get_normalize():
-#     """
-#     用于dnn_train正则化数据，和测试集的处理,以及基神经网络服务器程序的处理
-#     :return:
-#     """
-#     file_list = glob.glob('D:\\temp\\action_windows\\*.csv')
-#
-#     action_array = np.zeros(shape=(0, 63))
-#     for filename in file_list:
-#         df = np.array(pd.read_csv(filename, dtype=float)).round(6)[1:, 1:-1]
-#         df = df[:int(len(df) / ACTION_WINDOW_SIZE) * ACTION_WINDOW_SIZE, :]
-#
-#         # 纵向累加数据
-#         action_array = np.concatenate([action_array, df], axis=0)
-#
-#     # print(action_array.shape)  # (127980, 63)
-#     # 对数据进行正则化处理
-#     scaler = preprocessing.Normalizer().fit(action_array)
-#     # print(scaler)
-#     scaler_path = 'src/greater/pre/normalize.pkl'
-#     if os.path.exists(scaler_path):
-#         os.remove(scaler_path)
-#     joblib.dump(scaler, scaler_path)
-#     print('正则化建模完毕')
-
-
-def characteristicFunction(COMPONENTS, read_dir, write_all_feature_file, write_x_de_file):
-    file_list = []
-    for maindir, subdir, file_name_list in os.walk(read_dir):
-        for filename in file_name_list:
-            apath = os.path.join(maindir, filename)
-            file_list.append(apath)
-    print(f'特征提取文件{file_list}')
-    all_feature_data = DataFrame(columns=N_COLUMNS_SPE)  # 保存全部（动作）的特征变量
-    for file_name in file_list:
-        print('{}开始提取特征'.format(file_name))
-        # 对应动作类别 1.csv ,2.csv ^ 10.csv
-        action_spe = str(file_name.split('\\')[-1]).split('_')[-1].split('.')[0]
-
-        dataMat = DataFrame(pd.read_csv(file_name, names=O_COLUMNS_E)[1:],
-                            dtype=float).round(8).drop(['ER', 'ACC'], axis=1)
-
-        # 特征提取
-        X = Feature_process(dataMat, ACTION_WINDOW_SIZE, action=str(action_spe))
-
-        # 对特征进行归一化处理
-        x_columns = X.columns.values.tolist()
-        x_spe = np.array(X.SPE)
-        X = preprocessing.normalize(X)
-        X = DataFrame(X, columns=x_columns)
-        X['SPE'] = x_spe
-
-        # 获取全部的特征数据,然后训练归一化模型函数
-        all_feature_data = all_feature_data.append(X, ignore_index=True).round(6)
-    # end for
-    all_feature_data.to_csv(write_all_feature_file)
-
-    # 特征降维
-    X_de = decomposition(all_feature_data, de_str='PCA', n_components=COMPONENTS).round(6)
-    X_de.to_csv(write_x_de_file)
-    print('特征提取完毕')
-
 
 def dealwithdynamicdata(dataMat, actionDataWindow):
     # df = pd.read_csv('src/test/origin_data.csv', names=O_COLUMNS)
@@ -305,167 +242,6 @@ def isDnnDetect(array, model='a'):
             return False
 
 
-# 快速傅里叶变换
-def fft_T_function(dataMat):
-    '''
-    axis = 0 垂直 做变换
-    :param dataMat:
-    :return:
-    '''
-    dataMat = dataMat.T
-    dataF = dataMat.apply(np.fft.fft)
-    data = dataF.apply(lambda x: np.abs(x.real), axis=1)
-
-    df = []
-    for array in data:
-        df.append(np.max(array))
-    df = np.array(df).reshape(1, 7 * 9)  # 7个节点*9个轴数据
-    data = DataFrame(df, columns=O_COLUMNS)
-    data = Series(np.array(data)[0], index=O_COLUMNS)
-    return data
-
-
-# end 快速傅里叶变换
-
-
-# 特征处理
-def Feature_process(dataMat, action_data_size, action='1'):
-    '''
-    将数据集转换为特征矩阵，并标记标签。12一组，60/12=5 ，5个状态
-    （一个动作由5维数据表示） 45* 7 = 315 个特征值
-    A 均值，C 协方差，K 峰度，S 偏度， F 快速傅里叶（FFT值）
-    :param dataMat: 数据集
-    :param width: 每个窗口长度（帧数）
-    :return: X
-    '''
-    length = len(dataMat)
-    start = 0
-    end = action_data_size
-    X = DataFrame(columns=N_COLUMNS)
-
-    test_dataFFT = DataFrame()
-
-    while True:
-        if start >= length:
-            # print('特征处理完毕')
-            # 添加特征列
-            speceies = []
-            for _ in np.arange(len(X['aAXA'])):
-                speceies.append(action)
-            # 观测傅里叶系数
-            # test_dataFFT.to_csv('src/pre/data_fft/dataFFT' + str(action) + '.csv')
-            X['SPE'] = speceies
-            # print('特征提取完毕...')
-            return X
-            # break
-        else:
-            data = dataMat[start:end]
-
-            # 均值 A,协方差C，峰值K,偏度S，
-            dataA = data.apply(np.average)
-            dataC = data.apply(np.cov)
-            # 分别使用df.kurt()方法和df.skew()即可完成峰度he偏度计算
-            dataK = data.kurt()
-            dataS = data.skew()
-            # 使用fft函数对余弦波信号进行傅里叶变换。并取绝对值
-            dataF = fft_T_function(data)
-
-            # 保存傅里叶快速变化的值
-            test_dataFFT = test_dataFFT.append(data, ignore_index=True)
-
-            df = DataFrame(
-                [[dataA.aAX, dataA.aAY, dataA.aAZ, dataC.aAX, dataC.aAY, dataC.aAZ, dataK.aAX, dataK.aAY, dataK.aAZ,
-                  dataS.aAX, dataS.aAY, dataS.aAZ, dataF.aAX, dataF.aAY, dataF.aAZ,
-                  dataA.aWX, dataA.aWY, dataA.aWZ, dataC.aWX, dataC.aWY, dataC.aWZ, dataK.aWX, dataK.aWY, dataK.aWZ,
-                  dataS.aWX, dataS.aWY, dataS.aWZ, dataF.aWX, dataF.aWY, dataF.aWZ,
-                  dataA.aHX, dataA.aHY, dataA.aHZ, dataC.aHX, dataC.aHY, dataC.aHZ, dataK.aHX, dataK.aHY, dataK.aHZ,
-                  dataS.aHX, dataS.aHY, dataS.aHZ, dataF.aHX, dataF.aHY, dataF.aHZ,
-
-                  dataA.bAX, dataA.bAY, dataA.bAZ, dataC.bAX, dataC.bAY, dataC.bAZ, dataK.bAX, dataK.bAY, dataK.bAZ,
-                  dataS.bAX, dataS.bAY, dataS.bAZ, dataF.bAX, dataF.bAY, dataF.bAZ,
-                  dataA.bWX, dataA.bWY, dataA.bWZ, dataC.bWX, dataC.bWY, dataC.bWZ, dataK.bWX, dataK.bWY, dataK.bWZ,
-                  dataS.bWX, dataS.bWY, dataS.bWZ, dataF.bWX, dataF.bWY, dataF.bWZ,
-                  dataA.bHX, dataA.bHY, dataA.bHZ, dataC.bHX, dataC.bHY, dataC.bHZ, dataK.bHX, dataK.bHY, dataK.bHZ,
-                  dataS.bHX, dataS.bHY, dataS.bHZ, dataF.bHX, dataF.bHY, dataF.bHZ,
-
-                  dataA.cAX, dataA.cAY, dataA.cAZ, dataC.cAX, dataC.cAY, dataC.cAZ, dataK.cAX, dataK.cAY, dataK.cAZ,
-                  dataS.cAX, dataS.cAY, dataS.cAZ, dataF.cAX, dataF.cAY, dataF.cAZ,
-                  dataA.cWX, dataA.cWY, dataA.cWZ, dataC.cWX, dataC.cWY, dataC.cWZ, dataK.cWX, dataK.cWY, dataK.cWZ,
-                  dataS.cWX, dataS.cWY, dataS.cWZ, dataF.cWX, dataF.cWY, dataF.cWZ,
-                  dataA.cHX, dataA.cHY, dataA.cHZ, dataC.cHX, dataC.cHY, dataC.cHZ, dataK.cHX, dataK.cHY, dataK.cHZ,
-                  dataS.cHX, dataS.cHY, dataS.cHZ, dataF.cHX, dataF.cHY, dataF.cHZ,
-
-                  dataA.dAX, dataA.dAY, dataA.dAZ, dataC.dAX, dataC.dAY, dataC.dAZ, dataK.dAX, dataK.dAY, dataK.dAZ,
-                  dataS.dAX, dataS.dAY, dataS.dAZ, dataF.dAX, dataF.dAY, dataF.dAZ,
-                  dataA.dWX, dataA.dWY, dataA.dWZ, dataC.dWX, dataC.dWY, dataC.dWZ, dataK.dWX, dataK.dWY, dataK.dWZ,
-                  dataS.dWX, dataS.dWY, dataS.dWZ, dataF.dWX, dataF.dWY, dataF.dWZ,
-                  dataA.dHX, dataA.dHY, dataA.dHZ, dataC.dHX, dataC.dHY, dataC.dHZ, dataK.dHX, dataK.dHY, dataK.dHZ,
-                  dataS.dHX, dataS.dHY, dataS.dHZ, dataF.dHX, dataF.dHY, dataF.dHZ,
-
-                  dataA.eAX, dataA.eAY, dataA.eAZ, dataC.eAX, dataC.eAY, dataC.eAZ, dataK.eAX, dataK.eAY, dataK.eAZ,
-                  dataS.eAX, dataS.eAY, dataS.eAZ, dataF.eAX, dataF.eAY, dataF.eAZ,
-                  dataA.eWX, dataA.eWY, dataA.eWZ, dataC.eWX, dataC.eWY, dataC.eWZ, dataK.eWX, dataK.eWY, dataK.eWZ,
-                  dataS.eWX, dataS.eWY, dataS.eWZ, dataF.eWX, dataF.eWY, dataF.eWZ,
-                  dataA.eHX, dataA.eHY, dataA.eHZ, dataC.eHX, dataC.eHY, dataC.eHZ, dataK.eHX, dataK.eHY, dataK.eHZ,
-                  dataS.eHX, dataS.eHY, dataS.eHZ, dataF.eHX, dataF.eHY, dataF.eHZ,
-
-                  dataA.fAX, dataA.fAY, dataA.fAZ, dataC.fAX, dataC.fAY, dataC.fAZ, dataK.fAX, dataK.fAY, dataK.fAZ,
-                  dataS.fAX, dataS.fAY, dataS.fAZ, dataF.fAX, dataF.fAY, dataF.fAZ,
-                  dataA.fWX, dataA.fWY, dataA.fWZ, dataC.fWX, dataC.fWY, dataC.fWZ, dataK.fWX, dataK.fWY, dataK.fWZ,
-                  dataS.fWX, dataS.fWY, dataS.fWZ, dataF.fWX, dataF.fWY, dataF.fWZ,
-                  dataA.fHX, dataA.fHY, dataA.fHZ, dataC.fHX, dataC.fHY, dataC.fHZ, dataK.fHX, dataK.fHY, dataK.fHZ,
-                  dataS.fHX, dataS.fHY, dataS.fHZ, dataF.fHX, dataF.fHY, dataF.fHZ,
-
-                  dataA.gAX, dataA.gAY, dataA.gAZ, dataC.gAX, dataC.gAY, dataC.gAZ, dataK.gAX, dataK.gAY, dataK.gAZ,
-                  dataS.gAX, dataS.gAY, dataS.gAZ, dataF.gAX, dataF.gAY, dataF.gAZ,
-                  dataA.gWX, dataA.gWY, dataA.gWZ, dataC.gWX, dataC.gWY, dataC.gWZ, dataK.gWX, dataK.gWY, dataK.gWZ,
-                  dataS.gWX, dataS.gWY, dataS.gWZ, dataF.gWX, dataF.gWY, dataF.gWZ,
-                  dataA.gHX, dataA.gHY, dataA.gHZ, dataC.gHX, dataC.gHY, dataC.gHZ, dataK.gHX, dataK.gHY, dataK.gHZ,
-                  dataS.gHX, dataS.gHY, dataS.gHZ, dataF.gHX, dataF.gHY, dataF.gHZ,
-                  ]], columns=N_COLUMNS)
-
-            X = X.append(df)
-
-            start = start + action_data_size
-            end = end + action_data_size
-
-    # 特征处理 end
-
-
-# 数据降维
-def decomposition(X, de_str='PCA', n_components=5):
-    '''
-        对实验数据降维
-    :param X:数据集
-    :return:X_pca
-    '''
-
-    from sklearn.decomposition import PCA
-    from sklearn.decomposition import TruncatedSVD
-
-    if de_str == 'PCA':
-        de_model = PCA(n_components=n_components)
-    else:
-        de_model = TruncatedSVD(n_components=n_components, n_iter=7, random_state=42)
-
-    X = DataFrame().append(X, ignore_index=True)
-    X_data = X.drop('SPE', axis=1)
-    # all_decomp_data = DataFrame(columns=['pca0', 'pca1', 'pca2', 'pca3', 'pca4', 'SPE'])
-
-    de_model.fit(X_data)
-    X_de = de_model.transform(X_data)
-
-    X_de = DataFrame(X_de, columns=['pca' + str(i) for i in np.arange(n_components)])
-    X_de['SPE'] = X['SPE']
-
-    # 返回各个成分各自的方差百分比(贡献率) = 0.95
-    print('成分各自的方差百分比(贡献率):{}'.format(np.add.reduce(de_model.explained_variance_ratio_)))
-    print(de_model.explained_variance_ratio_)
-
-    # columns = ['pca0', 'pca1', 'pca2', 'pca3', 'pca4', 'SPE']
-
-    # print('特征降维处理完毕...')
-    return X_de
 
 
 class Timer:
@@ -482,9 +258,24 @@ if __name__ == '__main__':
     # 设定是否设置为测试模式
     is_test_data_process = False
 
+    """
+    # # 全部数据集
+    # if not is_test_data_process:
+    #     action_root_path = 'D:\\temp\\experiment\\person\\everyPerson\\actionData-6axis\\P6'
+    #     extract_action_windows_dir_name = 'D:\\temp\\experiment\\person\\everyPerson\\action_windows'  # 保存提取后的动作窗口路径
+    #     write_all_feature_file = 'src/greater/pre/all_feature_data_X-6axis.csv'  # 保存特征提取后的全部特征
+    #     write_x_de_file = 'src/greater/pre/action_X_de-6axis.csv'  # 保存特征提取后、特征降维后的全部数据
+    # 
+    # else:
+    #     action_root_path = 'D:\\temp\\actionData_test'
+    #     extract_action_windows_dir_name = 'D:/temp/action_windows_test'
+    #     write_all_feature_file = 'src/greater/pre/all_feature_data_X_test.csv'  # 保存特征提取后的全部特征
+    #     write_x_de_file = 'src/greater/pre/action_X_de_test.csv'  # 保存特征提取后、特征降维后的全部数据
+    """
+
     if not is_test_data_process:
-        action_root_path = 'D:\\temp\\experiment\\person\\everyPerson\\actionData-6axis\\P6'
-        extract_action_windows_dir_name = 'D:\\temp\\experiment\\person\\everyPerson\\action_windows'  # 保存提取后的动作窗口路径
+        action_root_path = 'D:\\temp\\actionData-6axis'
+        extract_action_windows_dir_name = 'D:/temp/action_windows-6axis'  # 保存提取后的动作窗口路径
         write_all_feature_file = 'src/greater/pre/all_feature_data_X-6axis.csv'  # 保存特征提取后的全部特征
         write_x_de_file = 'src/greater/pre/action_X_de-6axis.csv'  # 保存特征提取后、特征降维后的全部数据
 
@@ -494,27 +285,8 @@ if __name__ == '__main__':
         write_all_feature_file = 'src/greater/pre/all_feature_data_X_test.csv'  # 保存特征提取后的全部特征
         write_x_de_file = 'src/greater/pre/action_X_de_test.csv'  # 保存特征提取后、特征降维后的全部数据
 
+
     # 提取动作数据 action_window
     readDataAndPropressing(action_root_path, extract_action_windows_dir_name)
 
-    # 提取正则化函数,用于dnn_train正则化数据，和测试集的处理
-    # if not is_test_data_process:
-    #     get_normalize()
 
-    # 提取特征
-    # characteristicFunction(COMPONENTS=10, read_dir=extract_action_windows_dir_name,
-    #                       write_all_feature_file=write_all_feature_file, write_x_de_file=write_x_de_file)
-
-    """
-        if not is_test_data_process:
-            action_root_path = 'D:\\temp\\actionData-6axis'
-            extract_action_windows_dir_name = 'D:/temp/action_windows-6axis'  # 保存提取后的动作窗口路径
-            write_all_feature_file = 'src/greater/pre/all_feature_data_X-6axis.csv'  # 保存特征提取后的全部特征
-            write_x_de_file = 'src/greater/pre/action_X_de-6axis.csv'  # 保存特征提取后、特征降维后的全部数据
-
-        else:
-            action_root_path = 'D:\\temp\\actionData_test'
-            extract_action_windows_dir_name = 'D:/temp/action_windows_test'
-            write_all_feature_file = 'src/greater/pre/all_feature_data_X_test.csv'  # 保存特征提取后的全部特征
-            write_x_de_file = 'src/greater/pre/action_X_de_test.csv'  # 保存特征提取后、特征降维后的全部数据
-    """

@@ -79,10 +79,10 @@ if __name__ == '__main__':
     # 开始训练
     cost = torch.nn.NLLLoss()  # 交叉熵损失函数
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # 优化函数
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, weight_decay=0.001,momentum=0.8)  # 优化函数,加入L2正则化
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, weight_decay=0.001,momentum=0.9)  # 优化函数,加入L2正则化
     records = []
 
-    batch_size = 500
+    batch_size = 100
     # 20次循环
     losses = []
     for epoch in range(200):
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     if os.path.exists('src/dnn_action_model.pkl'):
         os.remove('src/dnn_action_model.pkl')
 
-    torch.save(model, 'src/dnn_action_model.pkl')
+    torch.save(model.state_dict(), 'src/dnn_action_model.pkl')
 
     # 绘制误差曲线
     a = [i[0] for i in records]

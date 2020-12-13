@@ -82,23 +82,35 @@ class read_csv:
         joblib.dump(scaler, scaler_path)
         print('正则化建模完毕')
 
-        x_train = train_data[:, :-1]
-        y_train = train_data[:, -1]
-        x_valid = valid_data[:, :-1]
-        y_valid = valid_data[:, -1]
+        x_train = train_data[:800, :-1]
+        y_train = train_data[:800, -1]
+        x_valid = valid_data[:200, :-1]
+        y_valid = valid_data[:200, -1]
+
 
         # 数据正则化处理
-        x_train = scaler.transform(x_train)
-        x_valid = scaler.transform(x_valid)
+        x_train = scaler.transform(x_train)[:]
+        x_valid = scaler.transform(x_valid)[:]
+
 
         print(f'训练集：{x_train.shape},验证集:{x_valid.shape}')
         y_train = y_train.reshape(-1, 1)  # 升高一个维度
         y_valid = y_valid.reshape(-1, 1)  # 升高一个维度
+
         return x_train, y_train, x_valid, y_valid
 
+    def get_test_data(self):
+        x_train, y_train, x_valid, y_valid = read_csv().split_data()
+        x_test = x_train[-200:]
+        y_test = y_train[-200:]
+
+        y_test = y_test.reshape(-1, 1)  # 升高一个维度
+        print(f'测试集：{x_test.shape},{y_test.shape}')
+        return x_test,y_test
 
 if __name__ == '__main__':
     ACTION_ROOT_PATH = 'D:\\temp\\action_windows-6axis'
     re = read_csv(ACTION_ROOT_PATH)
-    re.read()
-    re.split_data()
+    # re.read()
+    # re.split_data()
+    re.get_test_data()
