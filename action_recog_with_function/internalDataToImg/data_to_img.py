@@ -159,13 +159,24 @@ class DataToImg():
                     os.mkdir(folder_path)
         print('文件目录创建完毕')
 
+        # 将图片的一小部分子集复制到test文件夹中
+        for action_class in files_list:
+            actions_num = glob(os.path.join(action_class, "*.jpg"))
+            actions_num.sort(key=lambda x:int(x.split('\\')[-1].split('_')[-1].split('.')[0]))
+            # shuffle = np.random.permutation(actions_num)  # 乱序文件索引
+            test_len = int(len(actions_num) * test_size)
+            print(test_len)
+            for i in actions_num[0:test_len]:
+                if platform.system() == 'Windows':
+                    os.rename(i, os.path.join(img_path, 'test', i.split('\\')[-1]))
+                else:
+                    os.rename(i, os.path.join(img_path, 'test', i.split('/')[-1]))
+        print(f"test创建完成,test数目是：{len(glob(os.path.join(img_path, 'test', '*.jpg')))}")
+
         # 将图片的一小部分子集复制到valid文件夹中
         for action_class in files_list:
             actions_num = glob(os.path.join(action_class, "*.jpg"))
-
             shuffle = np.random.permutation(actions_num)  # 乱序文件索引
-            # print(shuffle)
-
             valid_len = int(len(shuffle) * valid_size)
             for i in shuffle[:valid_len]:
                 if platform.system() == 'Windows':
@@ -173,18 +184,6 @@ class DataToImg():
                 else:
                     os.rename(i, os.path.join(img_path, 'valid', action_class[-1], i.split('/')[-1]))
         print(f"valid创建完成,valid数目是：{len(glob(os.path.join(img_path, 'valid', '*/*.jpg')))}")
-
-        # 将图片的一小部分子集复制到test文件夹中
-        for action_class in files_list:
-            actions_num = glob(os.path.join(action_class, "*.jpg"))
-            shuffle = np.random.permutation(actions_num)  # 乱序文件索引
-            test_len = int(len(shuffle) * test_size)
-            for i in shuffle[:test_len]:
-                if platform.system() == 'Windows':
-                    os.rename(i, os.path.join(img_path, 'test', i.split('\\')[-1]))
-                else:
-                    os.rename(i, os.path.join(img_path, 'test', i.split('/')[-1]))
-        print(f"test创建完成,test数目是：{len(glob(os.path.join(img_path, 'test', '*.jpg')))}")
 
         # 将另一部图片复制到train文件夹中
         for action_class in files_list:
@@ -201,14 +200,15 @@ if __name__ == '__main__':
     if platform.system() == 'Windows':
         action_root_path = 'D:/temp/action_windows'
         action_image_path = 'D:/home/developer/TrainData/actionImage-9axis/allImage'
+        shutil.rmtree('D:/home/developer/TrainData/actionImage-9axis/')
     else:
         action_root_path = '/home/yanjilong/DataSets/action_windows'
         action_image_path = '/home/yanjilong/DataSets/actionImage-9axis/allImage'
+        shutil.rmtree('/home/yanjilong/DataSets/actionImage-9axis/')
 
     if not os.path.exists(action_image_path):
         os.makedirs(action_image_path)
 
-
     dataToImgCls = DataToImg(action_root_path, action_image_path, axis=9)
     dataToImgCls.readWindowsData(model='xyz')
-    dataToImgCls.create_train_valid(action_image_path, valid_size=0.15, test_size=0.1)
+    dataToImgCls.create_train_valid(action_image_path, valid_size=0.2, test_size=0.1)
