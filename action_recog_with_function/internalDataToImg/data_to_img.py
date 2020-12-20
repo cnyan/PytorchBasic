@@ -31,8 +31,30 @@ class DataToImg():
         self.action_window_col = self.internalNodeNum * axis
 
     def showImg(self, data):
-        plt.imshow(data)
+        # plt.imshow(data)
+        # plt.show()
+        # 可视化图像
+        plt.figure(figsize=(3, 3))
+        # plt.imshow(myim,cmap=plt.cm.gray)
+        plt.imshow(data, cmap=plt.cm.gray)
+        plt.axis('on')  # 不显示坐标
         plt.show()
+
+    def changeTo_org_img(self, dataMat, img_name):
+        """
+        原始图片数据L灰度
+        :param dataMat:
+        :return:
+        """
+        # df_max = dataMat.max()
+        # dataMat = dataMat * 255. / df_max
+
+        dataMat = np.uint8(dataMat).T
+        img_data = Image.fromarray(dataMat, mode='L')
+        if img_name[-6:-4] == '_0':
+            self.showImg(img_data)
+            print(np.array(img_data).shape)
+        img_data.save(img_name)
 
     def changeTo_awh_img(self, dataMat):
         """
@@ -90,9 +112,10 @@ class DataToImg():
         # r, g, b = pic.split()  # 分离三通道
         if img_name[-6:-4] == '_0':
             self.showImg(pic)
+            print(np.array(pic).shape)
         pic.save(img_name)
 
-    def readWindowsData(self, model='xyz'):
+    def readWindowsToImageData(self, model='xyz'):
         """
         读取窗口数据文件，并转为图像（x,y,z作为三个通道）
         :param model: xyz, awh
@@ -132,6 +155,8 @@ class DataToImg():
                     self.changeTo_xyz_img(df, img_name, self.axis)
                 elif model == 'awh':
                     self.changeTo_awh_img(df)
+                elif model == 'org':
+                    self.changeTo_org_img(df, img_name)
                 else:
                     raise
 
@@ -162,10 +187,10 @@ class DataToImg():
         # 将图片的一小部分子集复制到test文件夹中
         for action_class in files_list:
             actions_num = glob(os.path.join(action_class, "*.jpg"))
-            actions_num.sort(key=lambda x:int(x.split('\\')[-1].split('_')[-1].split('.')[0]))
+            actions_num.sort(key=lambda x: int(x.split('\\')[-1].split('_')[-1].split('.')[0]))
             # shuffle = np.random.permutation(actions_num)  # 乱序文件索引
             test_len = int(len(actions_num) * test_size)
-            print(test_len)
+
             for i in actions_num[0:test_len]:
                 if platform.system() == 'Windows':
                     os.rename(i, os.path.join(img_path, 'test', i.split('\\')[-1]))
@@ -197,18 +222,19 @@ class DataToImg():
 
 
 if __name__ == '__main__':
+    axis = 6
     if platform.system() == 'Windows':
         action_root_path = 'D:/temp/action_windows'
-        action_image_path = 'D:/home/developer/TrainData/actionImage-9axis/allImage'
-        shutil.rmtree('D:/home/developer/TrainData/actionImage-9axis/')
+        action_image_path = f'D:/home/developer/TrainData/actionImage-{axis}axis/allImage'
+        shutil.rmtree(f'D:/home/developer/TrainData/actionImage-{axis}axis/')
     else:
         action_root_path = '/home/yanjilong/DataSets/action_windows'
-        action_image_path = '/home/yanjilong/DataSets/actionImage-9axis/allImage'
-        shutil.rmtree('/home/yanjilong/DataSets/actionImage-9axis/')
+        action_image_path = f'/home/yanjilong/DataSets/actionImage-{axis}axis/allImage'
+        shutil.rmtree(f'/home/yanjilong/DataSets/actionImage-{axis}axis/')
 
     if not os.path.exists(action_image_path):
         os.makedirs(action_image_path)
 
-    dataToImgCls = DataToImg(action_root_path, action_image_path, axis=9)
-    dataToImgCls.readWindowsData(model='xyz')
-    dataToImgCls.create_train_valid(action_image_path, valid_size=0.2, test_size=0.1)
+    dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
+    dataToImgCls.readWindowsToImageData(model='org')
+    # dataToImgCls.create_train_valid(action_image_path, valid_size=0.25, test_size=0.2)
