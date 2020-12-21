@@ -222,19 +222,22 @@ class DataToImg():
 
 
 if __name__ == '__main__':
-    axis = 6
+    axis = 9  # 9轴和6轴
+    model = 'xyz'  # 三种模式 xyz awh org
     if platform.system() == 'Windows':
         action_root_path = 'D:/temp/action_windows'
-        action_image_path = f'D:/home/developer/TrainData/actionImage-{axis}axis/allImage'
-        shutil.rmtree(f'D:/home/developer/TrainData/actionImage-{axis}axis/')
+        action_image_path = f'D:/home/developer/TrainData/ppaction/{model}/actionImage-{axis}axis/allImage'
+        if os.path.exists(action_image_path):
+            shutil.rmtree(f'D:/home/developer/TrainData/ppaction/{model}/actionImage-{axis}axis/')
     else:
         action_root_path = '/home/yanjilong/DataSets/action_windows'
-        action_image_path = f'/home/yanjilong/DataSets/actionImage-{axis}axis/allImage'
-        shutil.rmtree(f'/home/yanjilong/DataSets/actionImage-{axis}axis/')
+        action_image_path = f'/home/yanjilong/DataSets/ppaction/{model}/actionImage-{axis}axis/allImage'
+        if os.path.exists(action_image_path):
+            shutil.rmtree(f'/home/yanjilong/DataSets/ppaction/{model}/actionImage-{axis}axis/')
 
     if not os.path.exists(action_image_path):
         os.makedirs(action_image_path)
 
     dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
-    dataToImgCls.readWindowsToImageData(model='org')
+    dataToImgCls.readWindowsToImageData(model=model)
     # dataToImgCls.create_train_valid(action_image_path, valid_size=0.25, test_size=0.2)
