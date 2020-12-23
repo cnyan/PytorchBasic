@@ -23,7 +23,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import AUtils
 
-from NN_Net import MyConvNet
+from NN_Net import MyConvNet, MyDnn
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -39,8 +39,10 @@ class Timer:
         self.interval = self.end - self.start
 
 
-class Cnn_train():
-    def __init__(self):
+class NN_train():
+    def __init__(self, modelNet, model_name):
+        super(NN_train, self).__init__()
+        self.model_name = model_name
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
         data_transforms = transforms.Compose([
@@ -65,7 +67,7 @@ class Cnn_train():
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=128, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.model = MyConvNet(3)
+        self.model = modelNet
         # self.model = MyDnn()
 
     def train(self):
@@ -164,9 +166,9 @@ class Cnn_train():
         # load best model weights
         model_ft.load_state_dict(best_model_wts)
 
-        if os.path.exists('src/model/mycnnNet_model.pkl'):
-            os.remove('src/model/mycnnNet_model.pkl')
-        torch.save(model_ft, 'src/model/mycnnNet_model.pkl')
+        if os.path.exists(f'src/model/{self.model_name}_model.pkl'):
+            os.remove(f'src/model/{self.model_name}_model.pkl')
+        torch.save(model_ft, f'src/model/{self.model_name}_model.pkl')
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
@@ -176,14 +178,16 @@ class Cnn_train():
         plt.xlabel('Steps')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
-        plt.savefig("src/plt_img/mycnn_train_loss.png")
+        plt.savefig(f"src/plt_img/{self.model_name}_train_loss.png")
         plt.show()
 
 
-class Cnn_Predict():
-    def __init__(self):
-        self.model = torch.load('src/model/mycnnNet_model.pkl')
+class NN_Predict():
+    def __init__(self, modelNet, model_name):
+        super(NN_Predict, self).__init__()
+        self.model = modelNet
         self.model.eval()
+        self.model_name = model_name
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
 
@@ -215,8 +219,9 @@ class Cnn_Predict():
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
         print("准确率：{:.3f},识别个数：{}".format(right_ratio, len(labels)))
+
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
-                                     classes=[0, 1, 2, 3, 4],savePath='src/plt_img/myCnn_predict.png')
+                                     classes=[0, 1, 2, 3, 4], savePath=f'src/plt_img/{self.model_name}_predict.png')
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
@@ -234,10 +239,16 @@ class Cnn_Predict():
 
 
 if __name__ == '__main__':
-    cnn_train = Cnn_train()
-    cnn_train.train()
+    mydnn = MyDnn()
+    mycnn = MyConvNet(3)
 
-    cnn_predict = Cnn_Predict()
-    with Timer() as t:
-        cnn_predict.predict()
-    print('predict time {0}'.format(str(t.interval)[:5]))
+    models = {'MyDnn':mydnn, 'MyCnn':mycnn}
+
+    for model_name,model in models.items():
+        nn_train = NN_train(model,model_name)
+        nn_train.train()
+
+        nn_predict = NN_Predict(model,model_name)
+        with Timer() as t:
+            nn_predict.predict()
+        print('predict time {0}'.format(str(t.interval)[:5]))
