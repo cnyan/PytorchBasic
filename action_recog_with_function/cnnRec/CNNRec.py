@@ -19,9 +19,12 @@ from torchvision import transforms
 import torch
 from torch.utils.data import DataLoader
 from torch import optim, nn
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import AUtils
 
-from NN_Net import MyConvNet,MyDnn
+
+from NN_Net import MyConvNet, MyDnn
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -178,6 +181,64 @@ class Cnn_train():
         plt.show()
 
 
+class Cnn_Predict():
+    def __init__(self):
+        self.model = torch.load('src/model/mycnnNet_model.pkl')
+        self.model.eval()
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+
+        data_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+        if platform.system() == 'Windows':
+            test_dir = r'D:/home/DataRec/actionImage/xyz-9/train'
+        else:
+            test_dir = r'/home/yanjilong/dataSets/DataRec/actionImage/xyz-9/test'
+
+        self.test_action_data_set = ImageFolder(test_dir, transform=data_transforms)
+        print(f'test_data size:{len(self.test_action_data_set)}')
+
+    def predict(self):
+        rights = []
+        labels = []
+        for data, label in self.test_action_data_set:
+            data = data.unsqueeze(0)  # 扩展一个维度
+            label = torch.LongTensor([int(label)])
+
+            labels.append(label)
+            output = self.model(data)
+
+            right = self.rightness(output, label)
+            rights.append(right)
+
+        # 计算校验集的平均准确度
+        right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
+        print("准确率：{:.3f},识别个数：{}".format(right_ratio, len(labels)))
+        AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
+                                   classes=[0, 1, 2, 3, 4])
+
+    # 自定义计算准确度的函数
+    def rightness(self, predict, label):
+        '''
+        计算准确度
+        :param predict:
+        :param label:
+        :return: right,len(label),score,pred_idx
+        '''
+        prob = F.softmax(predict, dim=1)
+        score = torch.max(prob, 1)[0].data.numpy()[0]
+        pred_idx = torch.max(predict, 1)[1]  # 最大值下标
+        right = pred_idx.eq(label.data.view_as(pred_idx)).sum()  # 返回 0（false)，1(true)
+        return right.data.item(), len(label), score, pred_idx.data.numpy()[0]
+
+
 if __name__ == '__main__':
     cnn_train = Cnn_train()
     cnn_train.train()
+
+    cnn_predict = Cnn_Predict()
+    with Timer() as t:
+        cnn_predict.predict()
+    print('predict time {0}'.format(str(t.interval)[:5]))
