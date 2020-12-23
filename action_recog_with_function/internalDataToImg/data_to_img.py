@@ -26,7 +26,7 @@ class DataToImg():
         self.windowDataFoldPath = windowDataFoldPath
         self.imgDataFoldPath = imgDataFoldPath
         self.internalNodeNum = 7
-        self.action_window_row = 40  # 窗口长度
+        self.action_window_row = 36  # 窗口长度
         self.axis = axis
         self.action_window_col = self.internalNodeNum * axis
 
@@ -35,7 +35,6 @@ class DataToImg():
         # plt.show()
         # 可视化图像
         plt.figure(figsize=(3, 3))
-        # plt.imshow(myim,cmap=plt.cm.gray)
         plt.imshow(data, cmap=plt.cm.gray)
         plt.axis('on')  # 不显示坐标
         plt.show()
@@ -50,13 +49,16 @@ class DataToImg():
         # dataMat = dataMat * 255. / df_max
 
         dataMat = np.uint8(dataMat).T
-        img_data = Image.fromarray(dataMat, mode='L')
-        if img_name[-6:-4] == '_0':
-            self.showImg(img_data)
-            print(np.array(img_data).shape)
-        img_data.save(img_name)
+        img_data = Image.fromarray(dataMat)
+        pic = Image.merge('RGB', (img_data, img_data, img_data))
 
-    def changeTo_awh_img(self, dataMat):
+        if img_name[-6:-4] == '_0':
+            self.showImg(pic)
+            print(np.array(img_data).shape)
+            print(np.array(pic).shape)
+        pic.save(img_name)
+
+    def changeTo_awh_img(self, dataMat, img_name):
         """
         按照 加速度，角速度，磁场 重构3维数据
         :param dataMat:
@@ -83,7 +85,10 @@ class DataToImg():
 
         pic = Image.merge('RGB', (r, g, b))  # 合并三通道
         # r, g, b = pic.split()  # 分离三通道
-        self.showImg(pic)
+        if img_name[-6:-4] == '_0':
+            self.showImg(pic)
+            print(np.array(pic).shape)
+        pic.save(img_name)
 
     def changeTo_xyz_img(self, dataMat, img_name, axis=9):
         """
@@ -143,6 +148,8 @@ class DataToImg():
 
             data_mat = data_mat[:int(len(data_mat) / self.action_window_row) * self.action_window_row, :]  # 确保是30的倍数
             data_mat = np.reshape(data_mat, (-1, self.action_window_row, self.action_window_col))
+            # print(data_mat.shape)
+
             data_mat = data_mat[:1600, :, ]  # 每个动作取1600个 (1600, 40, 63)
 
             # print(data_mat.shape)
@@ -154,7 +161,7 @@ class DataToImg():
                 if model == 'xyz':
                     self.changeTo_xyz_img(df, img_name, self.axis)
                 elif model == 'awh':
-                    self.changeTo_awh_img(df)
+                    self.changeTo_awh_img(df, img_name)
                 elif model == 'org':
                     self.changeTo_org_img(df, img_name)
                 else:
@@ -174,10 +181,16 @@ class DataToImg():
 
         # 创建目录
         for t in ['train', 'valid', 'test']:
-            if not os.path.exists(os.path.join(img_path, t)):
-                os.mkdir(os.path.join(img_path, t))
+            mkdir_path = os.path.join(img_path, t)
+            if os.path.exists(mkdir_path):
+                shutil.rmtree(mkdir_path)
+                os.makedirs(os.path.join(img_path, t))
+            else:
+                os.makedirs(os.path.join(img_path, t))
+
             if t == 'test':
                 continue
+
             for folder in [i[-1] for i in files_list]:
                 folder_path = os.path.join(img_path, t, folder)
                 if not os.path.exists(folder_path):
@@ -224,20 +237,28 @@ class DataToImg():
 if __name__ == '__main__':
     axis = 9  # 9轴和6轴
     model = 'xyz'  # 三种模式 xyz awh org
+    """
+    窗口长度 36
+    xyz 6 (14, 36, 3)
+    xyz 9 (21, 36, 3)
+    awh 9 (21, 36, 3)
+    org 6 (42, 36, 3)
+    org 9 (63, 36, 3)
+    """
     if platform.system() == 'Windows':
-        action_root_path = 'D:/temp/action_windows'
-        action_image_path = f'D:/home/developer/TrainData/ppaction/{model}/actionImage-{axis}axis/allImage'
+        action_root_path = 'D:/home/DataRec/action_windows'
+        action_image_path = f'D:/home/DataRec/actionImage/{model}-{axis}/allImage'
         if os.path.exists(action_image_path):
-            shutil.rmtree(f'D:/home/developer/TrainData/ppaction/{model}/actionImage-{axis}axis/')
+            shutil.rmtree(action_image_path)
     else:
-        action_root_path = '/home/yanjilong/DataSets/action_windows'
-        action_image_path = f'/home/yanjilong/DataSets/ppaction/{model}/actionImage-{axis}axis/allImage'
+        action_root_path = '/home/yanjilong/dataSets/DataRec/action_windows'
+        action_image_path = f'/home/yanjilong/dataSets/DataRec/actionImage/{model}-{axis}/allImage'
         if os.path.exists(action_image_path):
-            shutil.rmtree(f'/home/yanjilong/DataSets/ppaction/{model}/actionImage-{axis}axis/')
+            shutil.rmtree(action_image_path)
 
     if not os.path.exists(action_image_path):
         os.makedirs(action_image_path)
 
     dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
     dataToImgCls.readWindowsToImageData(model=model)
-    # dataToImgCls.create_train_valid(action_image_path, valid_size=0.25, test_size=0.2)
+    dataToImgCls.create_train_valid(action_image_path, valid_size=0.2, test_size=0.1)

@@ -6,6 +6,8 @@ pandas
 matplotlib
 pytorchvision
 
+conda create -n your_env_name python=X.X（2.7、3.6等)
+
 激活虚拟环境
 conda activate pytorch_venv_yan
 
