@@ -211,6 +211,9 @@ class NN_Predict():
         for data, label in self.test_action_data_set:
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
+            if torch.cuda.is_available():
+                data=data.cuda()
+                label=label.cuda()
 
             labels.append(label)
             output = self.model(data)
