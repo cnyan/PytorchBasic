@@ -248,7 +248,7 @@ if __name__ == '__main__':
 
     for model_name,model in models.items():
         nn_train = NN_train(model,model_name)
-        # nn_train.train()
+        nn_train.train()
 
         nn_predict = NN_Predict(model,model_name)
         with Timer() as t:
