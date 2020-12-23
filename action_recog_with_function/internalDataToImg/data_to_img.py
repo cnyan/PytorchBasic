@@ -261,4 +261,4 @@ if __name__ == '__main__':
 
     dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
     dataToImgCls.readWindowsToImageData(model=model)
-    dataToImgCls.create_train_valid(action_image_path, valid_size=0.2, test_size=0.1)
+    dataToImgCls.create_train_valid(action_image_path, valid_size=0.23, test_size=0.1)
