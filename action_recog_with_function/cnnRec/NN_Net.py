@@ -59,30 +59,30 @@ class MyConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 32, 3, 1, 1),
-            nn.ReLU(),
-            # nn.Dropout2d(p=0.5)
+            nn.Dropout2d(p=0.5),
+            nn.ReLU()
         )  # （32，12，7）
 
         self.conv3 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, 1, 1),
+            nn.Conv2d(32, 64, 2, 1, 1),
             nn.ReLU(),
-            nn.MaxPool2d(3, 3)
-        )  # (64,4,2)
+            nn.MaxPool2d(2, 2)
+        )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * 4 * 2, 512),
+            nn.Linear(64 * 6 * 4, 2048),
             nn.ReLU(),
-            nn.Linear(512, 256),
+            nn.Linear(2048, 2048),
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Linear(2048, 512),
             nn.ReLU(),
-            nn.Linear(128, 5),
+            nn.Linear(512, 5),
         )
 
     def forward(self, x):
         x_1 = self.conv1(x)
-        # x_2 = self.conv2(x_1)
-        x_3 = self.conv3(x_1)
+        x_2 = self.conv2(x_1)
+        x_3 = self.conv3(x_2)
         out = x_3.view(x_3.size(0), -1)
         output = self.classifier(out)
         return output
