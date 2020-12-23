@@ -168,7 +168,7 @@ class NN_train():
 
         if os.path.exists(f'src/model/{self.model_name}_model.pkl'):
             os.remove(f'src/model/{self.model_name}_model.pkl')
-        torch.save(model_ft, f'src/model/{self.model_name}_model.pkl')
+        torch.save(best_model_wts.state_dict(), f'src/model/{self.model_name}_model.pkl')
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
@@ -186,6 +186,8 @@ class NN_Predict():
     def __init__(self, modelNet, model_name):
         super(NN_Predict, self).__init__()
         self.model = modelNet
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_model.pkl'))
+
         self.model.eval()
         self.model_name = model_name
         mean = [0.485, 0.456, 0.406]
@@ -246,7 +248,7 @@ if __name__ == '__main__':
 
     for model_name,model in models.items():
         nn_train = NN_train(model,model_name)
-        nn_train.train()
+        # nn_train.train()
 
         nn_predict = NN_Predict(model,model_name)
         with Timer() as t:
