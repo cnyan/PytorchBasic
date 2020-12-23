@@ -132,8 +132,8 @@ class DataToImg():
         for file_name in files_list:
             print(file_name)
             # 创建保存动作图片的文件夹
-            image_dir_num = file_name[-5]
-            img_save_path = os.path.join(self.imgDataFoldPath, image_dir_num)  # 存储路径
+            image_dir_num = int(file_name[-5]) - 1
+            img_save_path = os.path.join(self.imgDataFoldPath, str(image_dir_num))  # 存储路径
             if not os.path.exists(img_save_path):
                 os.mkdir(img_save_path)
 
@@ -155,7 +155,7 @@ class DataToImg():
             # print(data_mat.shape)
 
             for i, df in enumerate(data_mat):
-                img_name = image_dir_num + '_' + str(i) + '.jpg'
+                img_name = str(image_dir_num) + '_' + str(i) + '.jpg'
                 img_name = os.path.join(img_save_path, img_name)
 
                 if model == 'xyz':
