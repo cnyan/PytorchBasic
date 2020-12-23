@@ -69,3 +69,4 @@ def metrics(ytest, y_predict):
     print('动作分类预测精确度：%s' % precision)
     print('动作分类预测F1：%s' % f1)
     print('动作分类召回率：%s' % recall)
+

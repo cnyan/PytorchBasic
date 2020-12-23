@@ -23,8 +23,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import AUtils
 
-
-from NN_Net import MyConvNet, MyDnn
+from NN_Net import MyConvNet
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -217,7 +216,7 @@ class Cnn_Predict():
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
         print("准确率：{:.3f},识别个数：{}".format(right_ratio, len(labels)))
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
-                                   classes=[0, 1, 2, 3, 4])
+                                     classes=[0, 1, 2, 3, 4],savePath='src/plt_img/myCnn_predict.png')
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
