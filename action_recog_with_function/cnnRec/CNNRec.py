@@ -168,7 +168,7 @@ class NN_train():
 
         if os.path.exists(f'src/model/{self.model_name}_model.pkl'):
             os.remove(f'src/model/{self.model_name}_model.pkl')
-        torch.save(best_model_wts.state_dict(), f'src/model/{self.model_name}_model.pkl')
+        torch.save(model_ft.state_dict(), f'src/model/{self.model_name}_model.pkl')
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
