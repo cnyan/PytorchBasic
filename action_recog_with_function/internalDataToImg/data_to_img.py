@@ -188,9 +188,6 @@ class DataToImg():
             else:
                 os.makedirs(os.path.join(img_path, t))
 
-            if t == 'test':
-                continue
-
             for folder in [i[-1] for i in files_list]:
                 folder_path = os.path.join(img_path, t, folder)
                 if not os.path.exists(folder_path):
@@ -206,10 +203,10 @@ class DataToImg():
 
             for i in actions_num[0:test_len]:
                 if platform.system() == 'Windows':
-                    os.rename(i, os.path.join(img_path, 'test', i.split('\\')[-1]))
+                    os.rename(i, os.path.join(img_path, 'test', action_class[-1], i.split('\\')[-1]))
                 else:
                     os.rename(i, os.path.join(img_path, 'test', i.split('/')[-1]))
-        print(f"test创建完成,test数目是：{len(glob(os.path.join(img_path, 'test', '*.jpg')))}")
+        print(f"test创建完成,test数目是：{len(glob(os.path.join(img_path, 'test', '*/*.jpg')))}")
 
         # 将图片的一小部分子集复制到valid文件夹中
         for action_class in files_list:

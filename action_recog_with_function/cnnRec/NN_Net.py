@@ -65,6 +65,7 @@ class MyConvNet(nn.Module):
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(32, 64, 2, 1, 1),
+            nn.Dropout2d(p=0.5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )  # (64,6,3)

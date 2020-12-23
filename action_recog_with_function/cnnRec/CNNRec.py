@@ -196,7 +196,7 @@ class NN_Predict():
             transforms.Normalize(mean, std)
         ])
         if platform.system() == 'Windows':
-            test_dir = r'D:/home/DataRec/actionImage/xyz-9/train'
+            test_dir = r'D:/home/DataRec/actionImage/xyz-9/test'
         else:
             test_dir = r'/home/yanjilong/dataSets/DataRec/actionImage/xyz-9/test'
 
