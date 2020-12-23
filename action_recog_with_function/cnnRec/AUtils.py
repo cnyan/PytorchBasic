@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import numpy as np
 import itertools
+import platform
 
 
 def plot_confusion_matrix(y_label, y_predict, classes, savePath,
@@ -45,7 +46,8 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.savefig(savePath)
-    plt.show()
+    if platform.system()=='Windows':
+        plt.show()
 
 
 def metrics(ytest, y_predict):

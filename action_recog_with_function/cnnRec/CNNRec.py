@@ -213,7 +213,6 @@ class NN_Predict():
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
                 data=data.cuda()
-                label=label.cuda()
 
             labels.append(label)
             output = self.model(data)
@@ -236,11 +235,12 @@ class NN_Predict():
         :param label:
         :return: right,len(label),score,pred_idx
         '''
+
         prob = F.softmax(predict, dim=1)
-        score = torch.max(prob, 1)[0].data.numpy()[0]
-        pred_idx = torch.max(predict, 1)[1]  # 最大值下标
+        score = torch.max(prob, 1)[0].cpu().data.numpy()[0]
+        pred_idx = torch.max(predict, 1)[1].cpu()  # 最大值下标(类别)
         right = pred_idx.eq(label.data.view_as(pred_idx)).sum()  # 返回 0（false)，1(true)
-        return right.data.item(), len(label), score, pred_idx.data.numpy()[0]
+        return right.data.item(), len(label), score, pred_idx.cpu().data.numpy()[0]
 
 
 if __name__ == '__main__':
@@ -251,7 +251,7 @@ if __name__ == '__main__':
 
     for model_name,model in models.items():
         nn_train = NN_train(model,model_name)
-        nn_train.train()
+        # nn_train.train()
 
         nn_predict = NN_Predict(model,model_name)
         with Timer() as t:
