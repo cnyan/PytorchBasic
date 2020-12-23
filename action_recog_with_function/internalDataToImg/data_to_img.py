@@ -205,7 +205,7 @@ class DataToImg():
                 if platform.system() == 'Windows':
                     os.rename(i, os.path.join(img_path, 'test', action_class[-1], i.split('\\')[-1]))
                 else:
-                    os.rename(i, os.path.join(img_path, 'test', i.split('/')[-1]))
+                    os.rename(i, os.path.join(img_path, 'test', action_class[-1], i.split('/')[-1]))
         print(f"test创建完成,test数目是：{len(glob(os.path.join(img_path, 'test', '*/*.jpg')))}")
 
         # 将图片的一小部分子集复制到valid文件夹中
