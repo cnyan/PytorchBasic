@@ -150,7 +150,7 @@ class DataToImg():
             data_mat = np.reshape(data_mat, (-1, self.action_window_row, self.action_window_col))
             # print(data_mat.shape)
 
-            data_mat = data_mat[:1600, :, ]  # 每个动作取1600个 (1600, 40, 63)
+            data_mat = data_mat[:2000, :, ]  # 每个动作取1600个 (1600, 40, 63)
 
             # print(data_mat.shape)
 
