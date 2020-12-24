@@ -33,7 +33,7 @@ class MyDnn(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.layer1(x)
         x = self.layer2(x)
-        x = self.dropout(x)
+        x = nn.functional.dropout2d(x,p=0.5,training=self.training)
         x = self.layer3(x)
         x = self.layer4(x)
         x = self.dropout(x)
