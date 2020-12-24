@@ -23,7 +23,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import AUtils
 import datetime
-from NN_Net import MyConvNet, MyDnn
+
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -174,10 +174,11 @@ class NN_train():
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
+        plt.title=f'{self.model_name}_{self.cls} training'
         plt.plot(train_loss, label='Train Loss')
         plt.plot(valid_loss, label='Valid Loss')
         plt.plot(right_ratio, label='Valid Accuracy')
-        plt.xlabel('Steps')
+        plt.xlabel('epoch')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
         plt.savefig(f"src/plt_img/{self.model_name}_{self.cls}_train_loss.png")
@@ -215,8 +216,8 @@ class NN_Predict():
         for data, label in self.test_action_data_set:
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
-            if torch.cuda.is_available():
-                data = data.cuda()
+            # if torch.cuda.is_available():
+            #     data = data.cuda()
 
             labels.append(label)
             output = self.model(data)
@@ -230,7 +231,8 @@ class NN_Predict():
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
-                                     savePath=f'src/plt_img/{self.model_name}_{self.cls}_predict.png')
+                                     savePath=f'src/plt_img/{self.model_name}_{self.cls}_predict.png',
+                                     title=f'{self.model_name}_{self.cls}_predict')
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
@@ -258,6 +260,7 @@ if __name__ == '__main__':
     org 9 (36, 63, 3)
     """
     from AUtils import make_print_to_file
+    from NN_Net import MyConvNet, MyDnn,MyDilConvNet
     make_print_to_file()
 
     acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
@@ -265,10 +268,11 @@ if __name__ == '__main__':
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        mydnn = MyDnn(scale[0] * scale[1] * scale[2])
-        mycnn = MyConvNet(scale[0], (scale[1], scale[2]))
+        myDnn = MyDnn(scale[0] * scale[1] * scale[2])
+        myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
+        myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
-        models = {'MyDnn': mydnn, 'MyCnn': mycnn}
+        models = {'MyDnn': myDnn, 'MyCnn': myCnn,'MyDilCnn': myDilCnn}
 
         for model_name, model in models.items():
             print('===================********begin begin begin*********=================')
