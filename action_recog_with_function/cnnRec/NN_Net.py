@@ -85,9 +85,9 @@ class MyConvNet(nn.Module):
     def forward(self, x):
         x_1 = self.conv1(x)
         # print(x_1.shape)
-        x_2 = self.conv2(x_1)
+        #x_2 = self.conv2(x_1)
         # print(x_2.shape)
-        x_3 = self.conv3(x_2)
+        x_3 = self.conv3(x_1)
         # print(x_3.shape)
         out = x_3.view(x_3.size(0), -1)
         output = self.classifier(out)
@@ -136,9 +136,9 @@ class MyDilConvNet(nn.Module):
     def forward(self, x):
         x_1 = self.conv1(x)
         # print(x_1.shape)
-        x_2 = self.conv2(x_1)
+        #x_2 = self.conv2(x_1)
         # print(x_2.shape)
-        x_3 = self.conv3(x_2)
+        x_3 = self.conv3(x_1)
         # print(x_3.shape)
         out = x_3.view(x_3.size(0), -1)
         output = self.classifier(out)
