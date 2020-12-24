@@ -165,7 +165,7 @@ class NN_train():
         print('Best val Acc: {:4f}'.format(best_acc))
 
         # load best model weights
-        model_ft.load_state_dict(best_model_wts)
+        # model_ft.load_state_dict(best_model_wts)
 
         if os.path.exists(f'src/model/{self.model_name}_{self.cls}_model.pkl'):
             os.remove(f'src/model/{self.model_name}_{self.cls}_model.pkl')
@@ -277,6 +277,7 @@ if __name__ == '__main__':
         myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
         models = {'MyDnn': myDnn, 'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
+        # models = {'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
 
         for model_name, model in models.items():
             print('===================********begin begin begin*********=================')
