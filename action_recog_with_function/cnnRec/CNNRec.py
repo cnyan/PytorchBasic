@@ -192,7 +192,8 @@ class NN_Predict():
         self.model = modelNet
         self.cls = cls
         self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl',map_location='cpu'))
-
+        if torch.cuda.is_available():
+            self.model.cuda()
         self.model.eval()
         self.model_name = model_name
         mean = [0.485, 0.456, 0.406]
@@ -216,8 +217,8 @@ class NN_Predict():
         for data, label in self.test_action_data_set:
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
-            # if torch.cuda.is_available():
-            #     data = data.cuda()
+            if torch.cuda.is_available():
+                data = data.cuda()
 
             labels.append(label)
             output = self.model(data)
