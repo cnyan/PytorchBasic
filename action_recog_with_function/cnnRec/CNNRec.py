@@ -191,11 +191,14 @@ class NN_Predict():
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.cls = cls
+
         self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl',map_location='cpu'))
         if torch.cuda.is_available():
             self.model.cuda()
         self.model.eval()
+
         self.model_name = model_name
+
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
 
