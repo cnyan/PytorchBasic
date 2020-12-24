@@ -281,6 +281,8 @@ if __name__ == '__main__':
 
         for model_name, model in models.items():
             print('===================********begin begin begin*********=================')
+            if hasattr(torch.cuda, 'empty_cache'):
+                torch.cuda.empty_cache()
 
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
             nn_train = NN_train(model, model_name, cls)
