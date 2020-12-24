@@ -30,7 +30,7 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 
-    plt.title=title
+    plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     # plt.xticks(tick_marks, classes, rotation=45)  # 参数： rotation=45，label倾斜45°

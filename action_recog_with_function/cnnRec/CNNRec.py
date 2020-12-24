@@ -29,7 +29,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-
 class Timer:
     def __enter__(self):
         self.start = time.perf_counter()
@@ -174,7 +173,7 @@ class NN_train():
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
-        plt.title=f'{self.model_name}_{self.cls} training'
+        plt.title(f'{self.model_name}_{self.cls} training')
         plt.plot(train_loss, label='Train Loss')
         plt.plot(valid_loss, label='Valid Loss')
         plt.plot(right_ratio, label='Valid Accuracy')
@@ -192,7 +191,7 @@ class NN_Predict():
         self.model = modelNet
         self.cls = cls
 
-        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl',map_location='cpu'))
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl', map_location='cpu'))
         if torch.cuda.is_available():
             self.model.cuda()
         self.model.eval()
@@ -264,7 +263,8 @@ if __name__ == '__main__':
     org 9 (36, 63, 3)
     """
     from AUtils import make_print_to_file
-    from NN_Net import MyConvNet, MyDnn,MyDilConvNet
+    from NN_Net import MyConvNet, MyDnn, MyDilConvNet
+
     make_print_to_file()
 
     acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
@@ -276,7 +276,7 @@ if __name__ == '__main__':
         myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
         myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
-        models = {'MyDnn': myDnn, 'MyCnn': myCnn,'MyDilCnn': myDilCnn}
+        models = {'MyDnn': myDnn, 'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
 
         for model_name, model in models.items():
             print('===================********begin begin begin*********=================')
@@ -287,7 +287,6 @@ if __name__ == '__main__':
             with Timer() as t:
                 nn_train.train()
             print('training time {0}'.format(str(t.interval)[:5]))
-
 
             nn_predict = NN_Predict(model, model_name, cls)
             with Timer() as t:
