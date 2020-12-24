@@ -46,8 +46,9 @@ class MyDnn(nn.Module):
 class MyConvNet(nn.Module):
     def __init__(self, in_chanels, inputsize):
         super(MyConvNet, self).__init__()
-        width = (math.ceil(math.ceil(inputsize[0] // 3) // 2))
-        height = (math.ceil(math.ceil(inputsize[1] // 3) / 2))
+        width = (math.ceil(math.ceil(inputsize[0] / 3) / 2))
+        height = (math.ceil(math.ceil(inputsize[1] / 3) / 2))
+         #print(width,height)
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=in_chanels,
@@ -83,8 +84,11 @@ class MyConvNet(nn.Module):
 
     def forward(self, x):
         x_1 = self.conv1(x)
+        # print(x_1.shape)
         x_2 = self.conv2(x_1)
+        # print(x_2.shape)
         x_3 = self.conv3(x_2)
+        # print(x_3.shape)
         out = x_3.view(x_3.size(0), -1)
         output = self.classifier(out)
         return output
@@ -94,9 +98,9 @@ class MyDilConvNet(nn.Module):
     def __init__(self, in_chanels, inputsize):
         super(MyDilConvNet, self).__init__()
         width = int((math.ceil(math.ceil((inputsize[0]-2) // 3)-2) // 2))
-        height = int((math.ceil(math.ceil((inputsize[1]-2) // 3)-2) / 2))
+        height = int((math.ceil(math.ceil((inputsize[1]-2) // 3)-2) // 2))
         # print(width,height)
-        # 输入 3*36*21
+        # 输入 3*21*36
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=in_chanels,
                       out_channels=32,
@@ -131,7 +135,7 @@ class MyDilConvNet(nn.Module):
 
     def forward(self, x):
         x_1 = self.conv1(x)
-         #print(x_1.shape)
+        # print(x_1.shape)
         x_2 = self.conv2(x_1)
         # print(x_2.shape)
         x_3 = self.conv3(x_2)
