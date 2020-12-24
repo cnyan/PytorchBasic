@@ -73,13 +73,13 @@ class MyConvNet(nn.Module):
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * width * height, 2048),
+            nn.Linear(64 * width * height, 512),
             nn.ReLU(),
-            nn.Linear(2048, 2048),
+            nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(2048, 512),
+            nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(512, 5),
+            nn.Linear(128, 5),
         )
 
     def forward(self, x):
@@ -124,13 +124,13 @@ class MyDilConvNet(nn.Module):
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * width * height, 2048),
+            nn.Linear(64 * width * height, 512),
             nn.ReLU(),
-            nn.Linear(2048, 2048),
+            nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(2048, 512),
+            nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(512, 5),
+            nn.Linear(128, 5),
         )
 
     def forward(self, x):
