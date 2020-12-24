@@ -280,7 +280,10 @@ if __name__ == '__main__':
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
             nn_train = NN_train(model, model_name, cls)
             # if model_name == 'MyCnn':
-            nn_train.train()
+            with Timer() as t:
+                nn_train.train()
+            print('training time {0}'.format(str(t.interval)[:5]))
+
 
             nn_predict = NN_Predict(model, model_name, cls)
             with Timer() as t:
