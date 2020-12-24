@@ -243,7 +243,7 @@ if __name__ == '__main__':
     for model in models:
         for axis in axiss:
 
-            if model == 'awu' and axis == '-6axis':
+            if model == 'awh' and axis == '-6axis':
                 continue
 
             if platform.system() == 'Windows':
