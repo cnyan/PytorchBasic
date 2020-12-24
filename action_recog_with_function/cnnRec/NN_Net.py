@@ -62,7 +62,7 @@ class MyConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 32, 3, 1, 1),
-            nn.Dropout2d(0.5),
+           # nn.Dropout2d(0.5),
             nn.ReLU()
         )  # （32，12，7）
 
@@ -113,7 +113,7 @@ class MyDilConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 32, 3, 1, 1,dilation=2),
-            nn.Dropout2d(0.5),
+           # nn.Dropout2d(0.5),
             nn.ReLU()
         )  # （32，12，7）
 
