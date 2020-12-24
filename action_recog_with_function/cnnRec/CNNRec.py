@@ -182,6 +182,7 @@ class NN_train():
         plt.legend()
         plt.savefig(f"src/plt_img/{self.model_name}_{self.cls}_train_loss.png")
         plt.show()
+        plt.close()
 
 
 class NN_Predict():
@@ -189,7 +190,7 @@ class NN_Predict():
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.cls = cls
-        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl'))
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl',map_location='cpu'))
 
         self.model.eval()
         self.model_name = model_name

@@ -48,6 +48,7 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
     plt.savefig(savePath)
     # if platform.system()=='Windows':
     plt.show()
+    plt.close()
 
 
 def metrics(ytest, y_predict):
