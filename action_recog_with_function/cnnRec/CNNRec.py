@@ -294,8 +294,8 @@ if __name__ == '__main__':
 
     make_print_to_file()
 
-    acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
-    acls_scale = [(3, 21, 36), (3, 14, 36), (3, 63, 36), (3, 42, 36), (3, 21, 36)]
+    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis',  'org-9axis','awh-9axis']
+    acls_scale = [ (3, 14, 36),(3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]

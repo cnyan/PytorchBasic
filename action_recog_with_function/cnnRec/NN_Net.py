@@ -46,9 +46,9 @@ class MyDnn(nn.Module):
 class MyConvNet(nn.Module):
     def __init__(self, in_chanels, inputsize):
         super(MyConvNet, self).__init__()
-        width = (math.ceil(math.ceil(inputsize[0] / 3) / 2))
-        height = (math.ceil(math.ceil(inputsize[1] / 3) / 2))
-         #print(width,height)
+        width = (math.ceil(math.ceil(inputsize[0] // 3) / 2))
+        height = (math.ceil(math.ceil(inputsize[1] // 3) / 2))
+        # print(width,height)
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=in_chanels,
