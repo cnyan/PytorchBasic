@@ -261,6 +261,7 @@ if __name__ == '__main__':
 
     acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
     acls_scale = [(3, 36, 21), (3, 36, 14), (3, 36, 63), (3, 36, 42), (3, 36, 21)]
+
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
         mydnn = MyDnn(scale[0] * scale[1] * scale[2])
