@@ -38,6 +38,7 @@ class DataToImg():
         plt.imshow(data, cmap=plt.cm.gray)
         plt.axis('on')  # 不显示坐标
         plt.show()
+        plt.close()
 
     def changeTo_org_img(self, dataMat, img_name):
         """
@@ -48,7 +49,7 @@ class DataToImg():
         # df_max = dataMat.max()
         # dataMat = dataMat * 255. / df_max
 
-        dataMat = np.uint8(dataMat)
+        dataMat = np.uint8(dataMat).T
         img_data = Image.fromarray(dataMat)
         pic = Image.merge('RGB', (img_data, img_data, img_data))
 
@@ -75,9 +76,9 @@ class DataToImg():
         W = [x + 3 for x in A]  # 7个节点的 角速度集合，7*3
         H = [x + 3 for x in W]  # 7个节点的 磁场集合，7*3
 
-        RA = dataMat[:, A]
-        GW = dataMat[:, W]
-        BH = dataMat[:, H]
+        RA = dataMat[:, A].T
+        GW = dataMat[:, W].T
+        BH = dataMat[:, H].T
 
         r = Image.fromarray(RA, mode='L')
         g = Image.fromarray(GW, mode='L')
@@ -105,9 +106,9 @@ class DataToImg():
         Y = [x * 3 + 1 for x in range(0, (int(self.axis[1]) // 3) * 7)]
         Z = [x * 3 + 2 for x in range(0, (int(self.axis[1]) // 3) * 7)]
 
-        RX = dataMat[:, X]  # AWH的X轴集合 3*7
-        GY = dataMat[:, Y]  # AWH的Y轴集合 3*7
-        BZ = dataMat[:, Z]  # AWH的Z轴集合 3*7
+        RX = dataMat[:, X].T  # AWH的X轴集合 3*7
+        GY = dataMat[:, Y].T  # AWH的Y轴集合 3*7
+        BZ = dataMat[:, Z].T  # AWH的Z轴集合 3*7
 
         r = Image.fromarray(RX, mode='L')
         g = Image.fromarray(GY, mode='L')
@@ -234,11 +235,11 @@ if __name__ == '__main__':
     models = ['xyz', 'org', 'awh']  # 三种模式 xyz awh org
     """
     窗口长度 36
-    xyz 6 (36, 14, 3)
-    xyz 9 (36, 21, 3)
-    awh 9 (36, 21, 3)
-    org 6 (36, 42, 3)
-    org 9 (36, 63, 3)
+    xyz 6 (14, 36, 3)
+    xyz 9 (21, 36, 3)
+    awh 9 (21, 36, 3)
+    org 6 (42, 36, 3)
+    org 9 (63, 36, 3)
     """
     for model in models:
         for axis in axiss:

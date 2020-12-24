@@ -44,11 +44,11 @@ class NN_train():
         super(NN_train, self).__init__()
         self.model_name = model_name
         self.cls = cls
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
+        self.mean = [0.485, 0.456, 0.406]
+        self.std = [0.229, 0.224, 0.225]
         data_transforms = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean, std)
+            transforms.Normalize(self.mean, self.std)
         ])
 
         if platform.system() == 'Windows':
@@ -112,8 +112,26 @@ class NN_train():
                 running_loss = 0.0
                 running_corrects = 0  # correct 修正，改正
 
-                for data in dataloaders[phase]:
+                for i, data in enumerate(dataloaders[phase]):
                     inputs, labels = data  # 获取输入
+
+                    # ==========  BEGIN 图片显示 BEGIN =============
+                    if epoch == 0 and i == 0:
+                        # print(inputs.shape)
+                        plt.figure(figsize=(12, 6))
+                        for ii in np.arange(16):
+                            plt.subplot(4, 4, ii + 1)
+                            image = inputs[ii, :, :, :].numpy().transpose((1, 2, 0))
+                            image = self.std * image + self.mean
+                            image = np.clip(image, 0, 1)
+                            plt.imshow(image)
+                            plt.title(labels[ii].data.numpy())
+                            plt.axis('off')
+                        plt.subplots_adjust(hspace=0.3)
+                        plt.show()
+                        plt.close()
+                    # ==========  END 图片显示 END =============
+
                     # 封装成变量
                     if torch.cuda.is_available():
                         inputs = inputs.cuda()
@@ -183,6 +201,15 @@ class NN_train():
         plt.savefig(f"src/plt_img/{self.model_name}_{self.cls}_train_loss.png")
         plt.show()
         plt.close()
+
+    def showImg(self, data):
+        # plt.imshow(data)
+        # plt.show()
+        # 可视化图像
+        plt.figure(figsize=(3, 3))
+        plt.imshow(data, cmap=plt.cm.gray)
+        plt.axis('on')  # 不显示坐标
+        plt.show()
 
 
 class NN_Predict():
@@ -256,11 +283,11 @@ if __name__ == '__main__':
 
     """
     窗口长度 36
-    xyz 6 (36, 14, 3)
-    xyz 9 (36, 21, 3)
-    awh 9 (36, 21, 3)
-    org 6 (36, 42, 3)
-    org 9 (36, 63, 3)
+    xyz 6 (14, 36, 3)
+    xyz 9 (21, 36, 3)
+    awh 9 (21, 36, 3)
+    org 6 (42, 36, 3)
+    org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file
     from NN_Net import MyConvNet, MyDnn, MyDilConvNet
@@ -268,7 +295,7 @@ if __name__ == '__main__':
     make_print_to_file()
 
     acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
-    acls_scale = [(3, 36, 21), (3, 36, 14), (3, 36, 63), (3, 36, 42), (3, 36, 21)]
+    acls_scale = [(3, 21, 36), (3, 14, 36), (3, 63, 36), (3, 42, 36), (3, 21, 36)]
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
