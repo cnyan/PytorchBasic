@@ -22,11 +22,12 @@ from torch import optim, nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import AUtils
-
+import datetime
 from NN_Net import MyConvNet, MyDnn
 import warnings
 
 warnings.filterwarnings('ignore')
+
 
 
 class Timer:
@@ -40,9 +41,10 @@ class Timer:
 
 
 class NN_train():
-    def __init__(self, modelNet, model_name):
+    def __init__(self, modelNet, model_name, cls):
         super(NN_train, self).__init__()
         self.model_name = model_name
+        self.cls = cls
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
         data_transforms = transforms.Compose([
@@ -51,11 +53,11 @@ class NN_train():
         ])
 
         if platform.system() == 'Windows':
-            train_dir = r'D:/home/DataRec/actionImage/xyz-9/train'
-            valid_dir = r'D:/home/DataRec/actionImage/xyz-9/valid'
+            train_dir = fr'D:/home/DataRec/actionImage/{cls}/train'
+            valid_dir = fr'D:/home/DataRec/actionImage/{cls}/valid'
         else:
-            train_dir = r'/home/yanjilong/dataSets/DataRec/actionImage/xyz-9/train'
-            valid_dir = r'/home/yanjilong/dataSets//DataRec/actionImage/xyz-9/valid'
+            train_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{cls}/train'
+            valid_dir = fr'/home/yanjilong/dataSets//DataRec/actionImage/{cls}/valid'
 
         self.action_data_train_set = ImageFolder(train_dir, transform=data_transforms)
         self.action_data_valid_set = ImageFolder(valid_dir, transform=data_transforms)
@@ -166,9 +168,9 @@ class NN_train():
         # load best model weights
         model_ft.load_state_dict(best_model_wts)
 
-        if os.path.exists(f'src/model/{self.model_name}_model.pkl'):
-            os.remove(f'src/model/{self.model_name}_model.pkl')
-        torch.save(model_ft.state_dict(), f'src/model/{self.model_name}_model.pkl')
+        if os.path.exists(f'src/model/{self.model_name}_{self.cls}_model.pkl'):
+            os.remove(f'src/model/{self.model_name}_{self.cls}_model.pkl')
+        torch.save(model_ft.state_dict(), f'src/model/{self.model_name}_{self.cls}_model.pkl')
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
@@ -178,15 +180,16 @@ class NN_train():
         plt.xlabel('Steps')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
-        plt.savefig(f"src/plt_img/{self.model_name}_train_loss.png")
+        plt.savefig(f"src/plt_img/{self.model_name}_{self.cls}_train_loss.png")
         plt.show()
 
 
 class NN_Predict():
-    def __init__(self, modelNet, model_name):
+    def __init__(self, modelNet, model_name, cls):
         super(NN_Predict, self).__init__()
         self.model = modelNet
-        self.model.load_state_dict(torch.load(f'src/model/{model_name}_model.pkl'))
+        self.cls = cls
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl'))
 
         self.model.eval()
         self.model_name = model_name
@@ -198,9 +201,9 @@ class NN_Predict():
             transforms.Normalize(mean, std)
         ])
         if platform.system() == 'Windows':
-            test_dir = r'D:/home/DataRec/actionImage/xyz-9/test'
+            test_dir = fr'D:/home/DataRec/actionImage/{cls}/test'
         else:
-            test_dir = r'/home/yanjilong/dataSets/DataRec/actionImage/xyz-9/test'
+            test_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{cls}/test'
 
         self.test_action_data_set = ImageFolder(test_dir, transform=data_transforms)
         print(f'test_data size:{len(self.test_action_data_set)}')
@@ -225,7 +228,8 @@ class NN_Predict():
         print("准确率：{:.3f},识别个数：{}".format(right_ratio, len(labels)))
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
-                                     classes=[0, 1, 2, 3, 4], savePath=f'src/plt_img/{self.model_name}_predict.png')
+                                     classes=[0, 1, 2, 3, 4],
+                                     savePath=f'src/plt_img/{self.model_name}_{self.cls}_predict.png')
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
@@ -235,7 +239,6 @@ class NN_Predict():
         :param label:
         :return: right,len(label),score,pred_idx
         '''
-
         prob = F.softmax(predict, dim=1)
         score = torch.max(prob, 1)[0].cpu().data.numpy()[0]
         pred_idx = torch.max(predict, 1)[1].cpu()  # 最大值下标(类别)
@@ -244,19 +247,38 @@ class NN_Predict():
 
 
 if __name__ == '__main__':
-    mydnn = MyDnn(3 * 36 * 21)
-    mycnn = MyConvNet(3, (36, 21))
 
-    models = 'xyz-9'
+    """
+    窗口长度 36
+    xyz 6 (36, 14, 3)
+    xyz 9 (36, 21, 3)
+    awh 9 (36, 21, 3)
+    org 6 (36, 42, 3)
+    org 9 (36, 63, 3)
+    """
+    from AUtils import make_print_to_file
+    make_print_to_file()
 
-    models = {'MyDnn': mydnn, 'MyCnn': mycnn}
+    acls = ['xyz-9axis', 'xyz-6axis', 'org-9axis', 'org-6axis', 'awh-9axis']
+    acls_scale = [(3, 36, 21), (3, 36, 14), (3, 36, 63), (3, 36, 42), (3, 36, 21)]
+    for i, cls in enumerate(acls):
+        scale = acls_scale[i]
+        mydnn = MyDnn(scale[0] * scale[1] * scale[2])
+        mycnn = MyConvNet(scale[0], (scale[1], scale[2]))
 
-    for model_name, model in models.items():
-        nn_train = NN_train(model, model_name)
-        if model_name=='MyCnn':
+        models = {'MyDnn': mydnn, 'MyCnn': mycnn}
+
+        for model_name, model in models.items():
+            print('===================********begin begin begin*********=================')
+
+            print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
+            nn_train = NN_train(model, model_name, cls)
+            # if model_name == 'MyCnn':
             nn_train.train()
 
-        nn_predict = NN_Predict(model, model_name)
-        with Timer() as t:
-            nn_predict.predict()
-        print('predict time {0}'.format(str(t.interval)[:5]))
+            nn_predict = NN_Predict(model, model_name, cls)
+            with Timer() as t:
+                nn_predict.predict()
+            print('predict time {0}'.format(str(t.interval)[:5]))
+
+            print('===================********end  end  end  *********=================')
