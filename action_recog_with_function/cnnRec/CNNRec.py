@@ -44,8 +44,8 @@ class NN_train():
         super(NN_train, self).__init__()
         self.model_name = model_name
         self.cls = cls
-        self.mean = [0.485, 0.456, 0.406]
-        self.std = [0.229, 0.224, 0.225]
+        self.mean = [0.5, 0.5, 0.5]
+        self.std = [0.5, 0.5, 0.5]
         data_transforms = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(self.mean, self.std)
@@ -64,9 +64,9 @@ class NN_train():
         print(f'valid_data size:{len(self.action_data_valid_set)}')
 
         # 按批加载 pyTorch张量
-        self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=128, shuffle=True,
+        self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=128, shuffle=True,
+        self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         self.model = modelNet
         # self.model = MyDnn()
@@ -88,7 +88,7 @@ class NN_train():
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.01)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=10, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
         best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -225,8 +225,8 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
+        mean = [0.5, 0.5, 0.5]
+        std = [0.5, 0.5, 0.5]
 
         data_transforms = transforms.Compose([
             transforms.ToTensor(),
