@@ -22,13 +22,13 @@ np.set_printoptions(suppress=True)
 
 
 class DataToImg():
-    def __init__(self, windowDataFoldPath, imgDataFoldPath, axis=9):
+    def __init__(self, windowDataFoldPath, imgDataFoldPath, axis='9axis'):
         self.windowDataFoldPath = windowDataFoldPath
         self.imgDataFoldPath = imgDataFoldPath
         self.internalNodeNum = 7
         self.action_window_row = 36  # 窗口长度
         self.axis = axis
-        self.action_window_col = self.internalNodeNum * axis
+        self.action_window_col = self.internalNodeNum * int(axis[1])
 
     def showImg(self, data):
         # plt.imshow(data)
@@ -48,7 +48,7 @@ class DataToImg():
         # df_max = dataMat.max()
         # dataMat = dataMat * 255. / df_max
 
-        dataMat = np.uint8(dataMat).T
+        dataMat = np.uint8(dataMat)
         img_data = Image.fromarray(dataMat)
         pic = Image.merge('RGB', (img_data, img_data, img_data))
 
@@ -75,9 +75,9 @@ class DataToImg():
         W = [x + 3 for x in A]  # 7个节点的 角速度集合，7*3
         H = [x + 3 for x in W]  # 7个节点的 磁场集合，7*3
 
-        RA = dataMat[:, A].T
-        GW = dataMat[:, W].T
-        BH = dataMat[:, H].T
+        RA = dataMat[:, A]
+        GW = dataMat[:, W]
+        BH = dataMat[:, H]
 
         r = Image.fromarray(RA, mode='L')
         g = Image.fromarray(GW, mode='L')
@@ -90,7 +90,7 @@ class DataToImg():
             print(np.array(pic).shape)
         pic.save(img_name)
 
-    def changeTo_xyz_img(self, dataMat, img_name, axis=9):
+    def changeTo_xyz_img(self, dataMat, img_name):
         """
         按照 X,Y,Z轴 重构3维数据
         :param dataMat:
@@ -101,13 +101,13 @@ class DataToImg():
 
         dataMat = np.uint8(dataMat)
 
-        X = [x * 3 for x in range(0, (axis // 3) * 7)]
-        Y = [x * 3 + 1 for x in range(0, (axis // 3) * 7)]
-        Z = [x * 3 + 2 for x in range(0, (axis // 3) * 7)]
+        X = [x * 3 for x in range(0, (int(self.axis[1]) // 3) * 7)]
+        Y = [x * 3 + 1 for x in range(0, (int(self.axis[1]) // 3) * 7)]
+        Z = [x * 3 + 2 for x in range(0, (int(self.axis[1]) // 3) * 7)]
 
-        RX = dataMat[:, X].T  # AWH的X轴集合 3*7
-        GY = dataMat[:, Y].T  # AWH的Y轴集合 3*7
-        BZ = dataMat[:, Z].T  # AWH的Z轴集合 3*7
+        RX = dataMat[:, X]  # AWH的X轴集合 3*7
+        GY = dataMat[:, Y]  # AWH的Y轴集合 3*7
+        BZ = dataMat[:, Z]  # AWH的Z轴集合 3*7
 
         r = Image.fromarray(RX, mode='L')
         g = Image.fromarray(GY, mode='L')
@@ -126,7 +126,6 @@ class DataToImg():
         :param model: xyz, awh
         :return:
         """
-        print(f'当前参数是：model={model},axis={self.axis}')
         files_list = glob(os.path.join(self.windowDataFoldPath, '*.csv'))
 
         for file_name in files_list:
@@ -138,18 +137,17 @@ class DataToImg():
                 os.mkdir(img_save_path)
 
             data_mat = pd.read_csv(file_name, dtype=float, header=0).round(3)
-
-            if self.axis == 6:
-                drop_col = ['aHX', 'aHY', 'aHZ', 'bHX', 'bHY', 'bHZ', 'cHX', 'cHY', 'cHZ', 'dHX', 'dHY', 'dHZ', 'eHX',
-                            'eHY', 'eHZ', 'fHX', 'fHY', 'fHZ', 'gHX', 'gHY', 'gHZ', ]
-                data_mat = np.array(data_mat.drop(drop_col, axis=1))[:, 1:-1]  # 删除第一列序号列和ACC列
-            else:
-                data_mat = np.array(data_mat)[:, 1:-1]
+            data_mat = np.array(data_mat)[:, 1:-1]
+            # if self.axis == '-6axis':
+            #     drop_col = ['aHX', 'aHY', 'aHZ', 'bHX', 'bHY', 'bHZ', 'cHX', 'cHY', 'cHZ', 'dHX', 'dHY', 'dHZ', 'eHX',
+            #                 'eHY', 'eHZ', 'fHX', 'fHY', 'fHZ', 'gHX', 'gHY', 'gHZ', ]
+            #     data_mat = np.array(data_mat.drop(drop_col, axis=1))[:, 1:-1]  # 删除第一列序号列和ACC列
+            # else:
+            #     data_mat = np.array(data_mat)[:, 1:-1]
 
             data_mat = data_mat[:int(len(data_mat) / self.action_window_row) * self.action_window_row, :]  # 确保是30的倍数
-            data_mat = np.reshape(data_mat, (-1, self.action_window_row, self.action_window_col))
+            data_mat = np.reshape(data_mat, (-1, int(self.action_window_row), int(self.action_window_col)))
             # print(data_mat.shape)
-
             data_mat = data_mat[:2000, :, ]  # 每个动作取1600个 (1600, 40, 63)
 
             # print(data_mat.shape)
@@ -159,7 +157,7 @@ class DataToImg():
                 img_name = os.path.join(img_save_path, img_name)
 
                 if model == 'xyz':
-                    self.changeTo_xyz_img(df, img_name, self.axis)
+                    self.changeTo_xyz_img(df, img_name)
                 elif model == 'awh':
                     self.changeTo_awh_img(df, img_name)
                 elif model == 'org':
@@ -232,30 +230,37 @@ class DataToImg():
 
 
 if __name__ == '__main__':
-    axis = 9  # 9轴和6轴
-    model = 'xyz'  # 三种模式 xyz awh org
+    axiss = ['-6axis', '-9axis']  # 9轴和6轴
+    models = ['xyz', 'org', 'awh']  # 三种模式 xyz awh org
     """
     窗口长度 36
-    xyz 6 (14, 36, 3)
-    xyz 9 (21, 36, 3)
-    awh 9 (21, 36, 3)
-    org 6 (42, 36, 3)
-    org 9 (63, 36, 3)
+    xyz 6 (36, 14, 3)
+    xyz 9 (36, 21, 3)
+    awh 9 (36, 21, 3)
+    org 6 (36, 42, 3)
+    org 9 (36, 63, 3)
     """
-    if platform.system() == 'Windows':
-        action_root_path = 'D:/home/DataRec/action_windows'
-        action_image_path = f'D:/home/DataRec/actionImage/{model}-{axis}/allImage'
-        if os.path.exists(action_image_path):
-            shutil.rmtree(action_image_path)
-    else:
-        action_root_path = '/home/yanjilong/dataSets/DataRec/action_windows'
-        action_image_path = f'/home/yanjilong/dataSets/DataRec/actionImage/{model}-{axis}/allImage'
-        if os.path.exists(action_image_path):
-            shutil.rmtree(action_image_path)
+    for model in models:
+        for axis in axiss:
 
-    if not os.path.exists(action_image_path):
-        os.makedirs(action_image_path)
+            if model == 'awu' and axis == '-6axis':
+                continue
 
-    dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
-    dataToImgCls.readWindowsToImageData(model=model)
-    dataToImgCls.create_train_valid(action_image_path, valid_size=0.23, test_size=0.1)
+            if platform.system() == 'Windows':
+                action_root_path = f'D:/home/DataRec/action_windows{axis}'
+                action_image_path = f'D:/home/DataRec/actionImage/{model}{axis}/allImage'
+                if os.path.exists(action_image_path):
+                    shutil.rmtree(action_image_path)
+            else:
+                action_root_path = f'/home/yanjilong/dataSets/DataRec/action_windows{axis}'
+                action_image_path = f'/home/yanjilong/dataSets/DataRec/actionImage/{model}{axis}/allImage'
+                if os.path.exists(action_image_path):
+                    shutil.rmtree(action_image_path)
+
+            if not os.path.exists(action_image_path):
+                os.makedirs(action_image_path)
+
+            dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
+            dataToImgCls.readWindowsToImageData(model=model)
+            print(f'当前状态：modl={model},axis={axis}')
+            dataToImgCls.create_train_valid(action_image_path, valid_size=0.222, test_size=0.1)

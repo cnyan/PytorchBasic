@@ -9,7 +9,7 @@
 @Describe：
 
 """
-
+import math
 import torch
 import torch.nn as nn
 import numpy as np
@@ -17,9 +17,9 @@ import torch.nn.functional as F
 
 
 class MyDnn(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size):
         super(MyDnn, self).__init__()
-        self.layer1 = nn.Linear(3 * 36 * 21, 512)
+        self.layer1 = nn.Linear(input_size, 512)
         self.layer2 = nn.ReLU()
         self.dropout = nn.Dropout2d(p=0.5)
         self.layer3 = nn.Linear(512, 256)
@@ -44,8 +44,10 @@ class MyDnn(nn.Module):
 
 
 class MyConvNet(nn.Module):
-    def __init__(self, in_chanels):
+    def __init__(self, in_chanels, inputsize):
         super(MyConvNet, self).__init__()
+        width = (math.ceil(math.ceil(inputsize[0] // 3) // 2))
+        height = (math.ceil(math.ceil(inputsize[1] // 3) / 2))
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=in_chanels,
@@ -59,7 +61,7 @@ class MyConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 32, 3, 1, 1),
-            nn.Dropout2d(p=0.5),
+            # nn.Dropout2d(p=0.5),
             nn.ReLU()
         )  # （32，12，7）
 
@@ -70,7 +72,7 @@ class MyConvNet(nn.Module):
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * 6 * 4, 2048),
+            nn.Linear(64 * width * height, 2048),
             nn.ReLU(),
             nn.Linear(2048, 2048),
             nn.ReLU(),

@@ -212,7 +212,7 @@ class NN_Predict():
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
-                data=data.cuda()
+                data = data.cuda()
 
             labels.append(label)
             output = self.model(data)
@@ -244,16 +244,19 @@ class NN_Predict():
 
 
 if __name__ == '__main__':
-    mydnn = MyDnn()
-    mycnn = MyConvNet(3)
+    mydnn = MyDnn(3 * 36 * 21)
+    mycnn = MyConvNet(3, (36, 21))
 
-    models = {'MyDnn':mydnn, 'MyCnn':mycnn}
+    models = 'xyz-9'
 
-    for model_name,model in models.items():
-        nn_train = NN_train(model,model_name)
-        nn_train.train()
+    models = {'MyDnn': mydnn, 'MyCnn': mycnn}
 
-        nn_predict = NN_Predict(model,model_name)
+    for model_name, model in models.items():
+        nn_train = NN_train(model, model_name)
+        if model_name=='MyCnn':
+            nn_train.train()
+
+        nn_predict = NN_Predict(model, model_name)
         with Timer() as t:
             nn_predict.predict()
         print('predict time {0}'.format(str(t.interval)[:5]))
