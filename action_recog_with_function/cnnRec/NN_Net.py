@@ -19,13 +19,11 @@ import torch.nn.functional as F
 class MyDnn(nn.Module):
     def __init__(self, input_size):
         super(MyDnn, self).__init__()
-        self.layer1 = nn.Linear(input_size, 512)
+        self.layer1 = nn.Linear(input_size, 1024)
         self.layer2 = nn.ReLU()
         self.dropout = nn.Dropout2d(p=0.5)
-        self.layer3 = nn.Linear(512, 256)
-        self.layer4 = nn.ReLU()
-        self.layer5 = nn.Linear(256, 128)
-        self.layer6 = nn.Linear(128, 5)
+        self.layer3 = nn.Linear(1024, 256)
+        self.layer4 = nn.Linear(256, 5)
 
     def forward(self, x):
         # x = x.detach().numpy().flatten()
@@ -35,9 +33,6 @@ class MyDnn(nn.Module):
         x = nn.functional.dropout2d(x, p=0.5, training=self.training)
         x = self.layer3(x)
         x = self.layer4(x)
-        x = self.dropout(x)
-        x = self.layer5(x)
-        x = self.layer6(x)
         return x
 
 
@@ -56,7 +51,7 @@ class MyConvNet(nn.Module):
                       padding=1),
             nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(3, 3)
+            nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
@@ -111,7 +106,7 @@ class MyDilConvNet(nn.Module):
                       padding=1, dilation=dilation),
             nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(3, 3)
+            nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
