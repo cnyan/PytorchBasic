@@ -164,9 +164,9 @@ class NN_train():
                 else:
                     valid_loss.append(epoch_loss)
                     right_ratio.append(epoch_acc)
-
-                print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-                    phase, epoch_loss, epoch_acc))
+                if epoch % 10 == 0:
+                    print('{} Loss: {:.4f} Acc: {:.4f}'.format(
+                        phase, epoch_loss, epoch_acc))
 
                 # 深度复制模型
                 if phase == 'valid' and epoch_acc > best_acc:
