@@ -322,8 +322,8 @@ if __name__ == '__main__':
             print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
-            # with Timer() as t:
-            #     nn_predict.predict()
-            # print('predict time {0}'.format(str(t.interval)[:5]))
+            with Timer() as t:
+                nn_predict.predict()
+            print('predict time {0}'.format(str(t.interval)[:5]))
 
             print('===================********end  end  end  *********=================')
