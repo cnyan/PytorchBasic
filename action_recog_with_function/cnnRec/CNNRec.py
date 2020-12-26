@@ -40,12 +40,12 @@ class Timer:
 
 
 class NN_train():
-    def __init__(self, modelNet, model_name, cls):
+    def __init__(self, modelNet, model_name, cls, mean_std):
         super(NN_train, self).__init__()
         self.model_name = model_name
         self.cls = cls
-        self.mean = [0.5, 0.5, 0.5]
-        self.std = [0.5, 0.5, 0.5]
+        self.mean = mean_std[0]
+        self.std = mean_std[1]
         data_transforms = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(self.mean, self.std)
@@ -128,7 +128,7 @@ class NN_train():
                             plt.title(labels[ii].data.numpy())
                             plt.axis('off')
                         plt.subplots_adjust(hspace=0.3)
-                        plt.show()
+                        # plt.show()
                         plt.close()
                     # ==========  END 图片显示 END =============
 
@@ -139,12 +139,12 @@ class NN_train():
                     else:
                         inputs, labels = inputs, labels
 
-                    # 梯度参数清0
-                    optimizer_ft.zero_grad()
                     # 前向算法
                     outputs = model_ft(inputs)
                     _, preds = torch.max(outputs.data, 1)
                     loss = criterion(outputs, labels)  # 损失函数
+                    # 梯度参数清0
+                    optimizer_ft.zero_grad()
 
                     # 只在训练阶段反向优化
                     if phase == 'train':
@@ -213,7 +213,7 @@ class NN_train():
 
 
 class NN_Predict():
-    def __init__(self, modelNet, model_name, cls):
+    def __init__(self, modelNet, model_name, cls, mean_std):
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.cls = cls
@@ -225,8 +225,8 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        mean = [0.5, 0.5, 0.5]
-        std = [0.5, 0.5, 0.5]
+        mean = mean_std[0]
+        std = mean_std[1]
 
         data_transforms = transforms.Compose([
             transforms.ToTensor(),
@@ -294,8 +294,11 @@ if __name__ == '__main__':
 
     make_print_to_file()
 
-    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis',  'org-9axis','awh-9axis']
-    acls_scale = [ (3, 14, 36),(3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
+    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
+    acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
+    mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
+                 ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
+                 ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
@@ -304,7 +307,7 @@ if __name__ == '__main__':
         myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
         models = {'MyDnn': myDnn, 'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
-        # models = {'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
+        # models = {'MyCnn': myCnn}
 
         for model_name, model in models.items():
             print('===================********begin begin begin*********=================')
@@ -312,15 +315,15 @@ if __name__ == '__main__':
                 torch.cuda.empty_cache()
 
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
-            nn_train = NN_train(model, model_name, cls)
+            nn_train = NN_train(model, model_name, cls, mean_stds[i])
             # if model_name == 'MyCnn':
             with Timer() as t:
                 nn_train.train()
             print('training time {0}'.format(str(t.interval)[:5]))
 
-            nn_predict = NN_Predict(model, model_name, cls)
-            with Timer() as t:
-                nn_predict.predict()
-            print('predict time {0}'.format(str(t.interval)[:5]))
+            nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
+            # with Timer() as t:
+            #     nn_predict.predict()
+            # print('predict time {0}'.format(str(t.interval)[:5]))
 
             print('===================********end  end  end  *********=================')
