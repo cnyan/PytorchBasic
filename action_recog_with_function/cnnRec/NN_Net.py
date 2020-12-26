@@ -39,8 +39,10 @@ class MyDnn(nn.Module):
 class MyConvNet(nn.Module):
     def __init__(self, in_chanels, inputsize):
         super(MyConvNet, self).__init__()
-        width = (int(int(inputsize[0] // 3) / 2))
-        height = (int(int(inputsize[1] // 3) / 2))
+        # width = (int(int(inputsize[0] // 3) / 2))
+        # height = (int(int(inputsize[1] // 3) / 2))
+        width = int(inputsize[0] / 3)
+        height = int(inputsize[1] / 3)
         # print(width,height)
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
@@ -49,7 +51,7 @@ class MyConvNet(nn.Module):
                       kernel_size=3,
                       stride=1,
                       padding=1),
-            #nn.Dropout2d(0.5),
+            nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
@@ -62,7 +64,7 @@ class MyConvNet(nn.Module):
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * width * height, 512),
+            nn.Linear(32 * width * height, 512),
             nn.Linear(512, 5),
         )
         # self.initialize_weights()
@@ -70,9 +72,9 @@ class MyConvNet(nn.Module):
     def forward(self, x):
         x_1 = self.conv1(x)
         # print(x_1.shape)
-        x_2 = self.conv2(x_1)
+        # x_2 = self.conv2(x_1)
         # print(x_2.shape)
-        out = x_2.view(x_2.size(0), -1)
+        out = x_1.view(x_1.size(0), -1)
         output = self.classifier(out)
         return output
 
@@ -94,8 +96,8 @@ class MyDilConvNet(nn.Module):
     def __init__(self, in_chanels, inputsize):
         super(MyDilConvNet, self).__init__()
         dilation = 1
-        width = math.ceil(((inputsize[0]  // 3) ) / 2)
-        height =math.ceil(((inputsize[1] // 3) ) / 2)
+        width = int(inputsize[0] / 3)
+        height = int(inputsize[1] / 3)
         # print(width,height)
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
@@ -104,7 +106,7 @@ class MyDilConvNet(nn.Module):
                       kernel_size=3,
                       stride=1,
                       padding=1, dilation=dilation),
-            #nn.Dropout2d(0.5),
+            nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
@@ -117,7 +119,7 @@ class MyDilConvNet(nn.Module):
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(64 * width * height, 512),
+            nn.Linear(32 * width * height, 512),
             nn.Linear(512, 5),
         )
         # self.initialize_weights()
@@ -125,9 +127,9 @@ class MyDilConvNet(nn.Module):
     def forward(self, x):
         x_1 = self.conv1(x)
         # print(x_1.shape)
-        x_2 = self.conv2(x_1)
+        # x_2 = self.conv2(x_1)
         # print(x_2.shape)
-        out = x_2.view(x_2.size(0), -1)
+        out = x_1.view(x_1.size(0), -1)
         output = self.classifier(out)
         return output
 
