@@ -49,14 +49,14 @@ class MyConvNet(nn.Module):
                       kernel_size=3,
                       stride=1,
                       padding=1),
-            nn.Dropout2d(0.5),
+            #nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 3, 1, 1),
-            nn.Dropout2d(0.5),
+            #nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )  # (64,6,3)
@@ -104,14 +104,14 @@ class MyDilConvNet(nn.Module):
                       kernel_size=3,
                       stride=1,
                       padding=1, dilation=dilation),
-            nn.Dropout2d(0.5),
+            #nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 2, 1, 1, dilation=dilation),
-            nn.Dropout2d(0.5),
+            #nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )  # (64,6,3)
