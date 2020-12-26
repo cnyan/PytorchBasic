@@ -99,7 +99,7 @@ class NN_train():
 
         for epoch in range(num_epochs):
             print('-' * 30)
-            print('Epoch {}/{} '.format(epoch, num_epochs - 1))
+            print('{},Epoch {}/{} '.format(self.model_name,epoch, num_epochs - 1))
             print(f"the lr is :{optimizer_ft.param_groups[0]['lr']}")
 
             # 每轮都有训练和验证过程
@@ -257,7 +257,7 @@ class NN_Predict():
 
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
-        print("准确率：{:.3f},识别个数：{}".format(right_ratio, len(labels)))
+        print("模式{},准确率：{:.3f},识别个数：{}".format(model_name,right_ratio, len(labels)))
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
