@@ -291,7 +291,7 @@ if __name__ == '__main__':
     org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file
-    from Multi__NN_Net import Multi_MyVgg16Net
+    from Multi_NN_Net import Multi_MyVgg16Net
 
     make_print_to_file()
 
