@@ -67,12 +67,7 @@ class MyConvNet(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Linear(32 * width * height, 512),
-            nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(256, 5)
+            nn.Linear(512, 5)
         )
         # self.initialize_weights()
 
@@ -127,12 +122,7 @@ class MyDilConvNet(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Linear(32 * width * height, 512),
-            nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(256, 5)
+            nn.Linear(512, 5)
         )
         # self.initialize_weights()
 
