@@ -84,7 +84,7 @@ class NN_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 200
+        num_epochs = 100
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
@@ -174,8 +174,8 @@ class NN_train():
                     # best_model_wts = model_ft.state_dict()
                     best_model_wts = copy.deepcopy(model_ft.state_dict())
 
-                if phase == 'train':
-                    exp_lr_scheduler.step()
+                # if phase == 'train':
+                #     exp_lr_scheduler.step()
 
         time_elapsed = time.time() - since
         print('-' * 30)
