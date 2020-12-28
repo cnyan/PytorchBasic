@@ -14,25 +14,27 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
+from torchvision import models
 
 
 class MyDnn(nn.Module):
     def __init__(self, input_size):
         super(MyDnn, self).__init__()
-        self.layer1 = nn.Linear(input_size, 1024)
-        self.layer2 = nn.ReLU()
-        self.dropout = nn.Dropout2d(p=0.5)
-        self.layer3 = nn.Linear(1024, 256)
-        self.layer4 = nn.Linear(256, 5)
+
+        self.classifier = nn.Sequential(
+            nn.Linear(input_size, 512),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(256, 5)
+        )
 
     def forward(self, x):
         # x = x.detach().numpy().flatten()
         x = x.view(x.size(0), -1)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = nn.functional.dropout2d(x, p=0.5, training=self.training)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        x = self.classifier(x)
         return x
 
 
@@ -58,14 +60,19 @@ class MyConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 3, 1, 1),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
             nn.Linear(32 * width * height, 512),
-            nn.Linear(512, 5),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(256, 5)
         )
         # self.initialize_weights()
 
@@ -113,14 +120,19 @@ class MyDilConvNet(nn.Module):
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 2, 1, 1, dilation=dilation),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
             nn.Linear(32 * width * height, 512),
-            nn.Linear(512, 5),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(256, 5)
         )
         # self.initialize_weights()
 
@@ -134,6 +146,31 @@ class MyDilConvNet(nn.Module):
         return output
 
 
+class MyVgg16Net(nn.Module):
+    def __init__(self):
+        super(MyVgg16Net, self).__init__()
+        # 预训练的vgg特征提取层
+        vgg16 = models.vgg16(pretrained=True)
+        vgg16 = vgg16.features
+        for param in vgg16.parameters():
+            param.requires_grad_(False)
+        self.vgg16 = vgg16
+        # 新的全连接层次
+        self.classifier = nn.Sequential(
+            nn.Linear(25088, 512),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout2d(p=0.5),
+            nn.Linear(256, 5)
+        )
+
+    def forward(self, x):
+        x = self.vgg16(x)
+        x = x.view(x.size(0), -1)
+        output = self.classifier(x)
+        return output
 
 
 if __name__ == '__main__':
@@ -148,8 +185,10 @@ if __name__ == '__main__':
     # myConvnet_dot.directory = r'src/model_img/'
     # myConvnet_dot.view()
 
-    import hiddenlayer as hl
-
-    my_hl = hl.build_graph(myDnn, torch.zeros([1, 3, 36, 21]))
-    my_hl.theme = hl.graph.THEMES['blue'].copy()
-    my_hl.save('src/model_img/my_DNN.png', format='png')
+    # import hiddenlayer as hl
+    #
+    # my_hl = hl.build_graph(myDnn, torch.zeros([1, 3, 36, 21]))
+    # my_hl.theme = hl.graph.THEMES['blue'].copy()
+    # my_hl.save('src/model_img/my_DNN.png', format='png')
+    myvgg = MyVgg16Net()
+    print(myvgg)
