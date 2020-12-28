@@ -27,9 +27,10 @@ class Multi_MyVgg16Net(nn.Module):
         for param in vgg16.parameters():
             param.requires_grad_(False)
         self.vgg16 = vgg16
+
         # 新的全连接层次
         self.classifier = nn.Sequential(
-            nn.Linear(25088, 512),
+            nn.Linear(512*1*1, 512),
             nn.ReLU(),
             nn.Dropout2d(p=0.5),
             nn.Linear(512, 256),
@@ -40,6 +41,7 @@ class Multi_MyVgg16Net(nn.Module):
 
     def forward(self, x):
         x = self.vgg16(x)
+        # print(x.shape)
         x = x.view(x.size(0), -1)
         output = self.classifier(x)
         return output
@@ -48,5 +50,5 @@ class Multi_MyVgg16Net(nn.Module):
 
 if __name__ == '__main__':
 
-    myvgg = Multi_MyVgg16Net()
-    print(myvgg)
+    multi_myvgg = Multi_MyVgg16Net()
+    print(multi_myvgg)
