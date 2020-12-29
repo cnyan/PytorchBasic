@@ -51,9 +51,9 @@ class Multi_MyConvNet(nn.Module):
 
     def forward(self, x):
         x_1 = self.conv1(x)
-        print(x_1.shape)
+        # print(x_1.shape)
         x_2 = self.conv2(x_1)
-        print(x_2.shape)
+        # print(x_2.shape)
         out = x_2.view(x_2.size(0), -1)
         output = self.classifier(out)
         return output
