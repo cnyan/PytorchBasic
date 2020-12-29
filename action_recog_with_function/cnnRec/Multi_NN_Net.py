@@ -30,16 +30,15 @@ class Multi_MyConvNet(nn.Module):
                       padding=1),
             # nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(3,3),stride=3)
+            nn.MaxPool2d(kernel_size=(3, 3), stride=3)
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, 1,1),
+            nn.Conv2d(32, 64, 3, 1, 1),
             # nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,stride=2)
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )  # (64,6,3)
-
 
         self.classifier = nn.Sequential(
             nn.Linear(int(
@@ -61,34 +60,56 @@ class Multi_MyConvNet(nn.Module):
 
 
 class Multi_MyVgg16Net(nn.Module):
-    def __init__(self):
+    def __init__(self, width_height_axis_pools):
         super(Multi_MyVgg16Net, self).__init__()
         # 预训练的vgg特征提取层
-        vgg16 = models.vgg16(pretrained=True)
-        vgg16 = vgg16.features
-        for param in vgg16.parameters():
-            param.requires_grad_(False)
-        self.vgg16 = vgg16
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(3, 64, 3, 1, 1),
+            # nn.Dropout2d(0.5),
+            nn.ReLU(inplace=True),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(64, 64, 3, 1, 1),
+            # nn.Dropout2d(0.5),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2, dilation=1)
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(64, 128, 3, 1, 1),
+            # nn.Dropout2d(0.5),
+            nn.ReLU(inplace=True),
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(128, 128, 3, 1, 1),
+            # nn.Dropout2d(0.5),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2, dilation=1)
+        )
 
         # 新的全连接层次
         self.classifier = nn.Sequential(
-            nn.Linear(512 * 1 * 1, 512),
+            nn.Linear(128 * width_height_axis_pools['width'] * width_height_axis_pools['height'], 2048),
             nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout2d(p=0.5),
-            nn.Linear(256, 5)
+            # nn.Dropout2d(p=0.5),
+            nn.Linear(2048, 512),
+            # nn.Dropout2d(p=0.5),
+            nn.Linear(512, 5)
+
         )
 
     def forward(self, x):
-        x = self.vgg16(x)
-        # print(x.shape)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        print(x.shape)
         x = x.view(x.size(0), -1)
         output = self.classifier(x)
         return output
 
 
 if __name__ == '__main__':
+    vgg16 = models.vgg16(pretrained=False)
+    print(vgg16)
     multi_myvgg = Multi_MyVgg16Net()
     print(multi_myvgg)
