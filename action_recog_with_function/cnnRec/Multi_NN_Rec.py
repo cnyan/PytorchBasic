@@ -84,7 +84,7 @@ class NN_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 60
+        num_epochs = 1
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
@@ -297,20 +297,21 @@ if __name__ == '__main__':
 
     acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis','awh-9axis']
     acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
+
     mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
                  ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
                  ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
-    width_height_axis_conv_pool = {
-        'xyz-6axis': {'multi_myCnn': {'width': 3, 'height': 6, 'axis': 6, 'conv1kernel': 2, 'pool2kernel': 1}},
-        'xyz-9axis': {'multi_myCnn': {'width': 3, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 1}},
-        'org-6axis': {'multi_myCnn': {'width': 5, 'height': 4, 'axis': 6, 'conv1kernel': 3, 'pool2kernel': 2}},
-        'org-9axis': {'multi_myCnn': {'width': 7, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 3}},
-        'awh-9axis': {'multi_myCnn': {'width': 3, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 1}},
+    width_height_axis_pools = {
+        'xyz-6axis': {'multi_myCnn': {'width': 6, 'height': 6, 'axis': 6,'pool1':(1,3),'pool2':(2,2)}}, # 6*6
+        'xyz-9axis': {'multi_myCnn': {'width': 6, 'height': 6, 'axis': 9,'pool1':(1,2),'pool2':(3,3)}}, # 6*6
+        'org-6axis': {'multi_myCnn': {'width': 7, 'height': 6, 'axis': 6,'pool1':(3,2),'pool2':(2,2)}}, # 7*6
+        'org-9axis': {'multi_myCnn': {'width': 10, 'height': 8, 'axis': 9,'pool1':(3,2),'pool2':(2,2)}}, # 10*8
+        'awh-9axis': {'multi_myCnn': {'width': 9, 'height': 6, 'axis': 9,'pool1':(1,3),'pool2':(2,2)}}, # 9*6
     }
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        multi_myCnn = Multi_MyConvNet(width_height_axis_conv_pool[cls]['multi_myCnn'])
+        multi_myCnn = Multi_MyConvNet(width_height_axis_pools[cls]['multi_myCnn'])
 
         models = {'multi_myCnn': multi_myCnn}
         # models = {'MyCnn': myCnn}
@@ -327,9 +328,9 @@ if __name__ == '__main__':
                 nn_train.train()
             print('training time {0}'.format(str(t.interval)[:5]))
 
-            nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
-            with Timer() as t:
-                nn_predict.predict()
-            print('predict time {0}'.format(str(t.interval)[:5]))
+            # nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
+            # with Timer() as t:
+            #     nn_predict.predict()
+            # print('predict time {0}'.format(str(t.interval)[:5]))
 
             print('===================********end  end  end  *********=================')
