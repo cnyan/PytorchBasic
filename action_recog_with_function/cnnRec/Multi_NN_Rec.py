@@ -84,7 +84,7 @@ class NN_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 100
+        num_epochs = 60
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
@@ -291,19 +291,27 @@ if __name__ == '__main__':
     org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file
-    from Multi_NN_Net import Multi_MyVgg16Net
+    from Multi_NN_Net import Multi_MyVgg16Net, Multi_MyConvNet
 
     make_print_to_file()
 
-    acls = ['org-6axis', 'org-9axis']
-    acls_scale = [(3, 42, 36), (3, 63, 36)]
-    mean_stds = [([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39])]
+    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
+    acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
+    mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
+                 ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
+                 ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
+    width_height={'xyz-6axis':{'multi_myCnn':(3,8)},
+                  'xyz-9axis':{'multi_myCnn':(5,8)},
+                  'org-6axis':{'multi_myCnn':(10,8)},
+                  'org-9axis':{'multi_myCnn':(15,8)},
+                  'awh-9axis':{'multi_myCnn':(5,8)},
+                  }
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        multi_myVgg = Multi_MyVgg16Net()
+        multi_myCnn = Multi_MyConvNet(width_height[cls]['multi_myCnn'])
 
-        models = {'multi_myVgg': multi_myVgg}
+        models = {'multi_myCnn': multi_myCnn}
         # models = {'MyCnn': myCnn}
 
         for model_name, model in models.items():

@@ -303,11 +303,11 @@ if __name__ == '__main__':
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        myDnn = MyDnn(scale[0] * scale[1] * scale[2])
-        myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
-        myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
+        single_myDnn = MyDnn(scale[0] * scale[1] * scale[2])
+        single_myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
+        single_myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
-        models = {'MyDnn': myDnn, 'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
+        models = {'single_myDnn': single_myDnn, 'single_myCnn': single_myCnn, 'single_myDilCnn': single_myDilCnn}
         # models = {'MyCnn': myCnn}
 
         for model_name, model in models.items():
