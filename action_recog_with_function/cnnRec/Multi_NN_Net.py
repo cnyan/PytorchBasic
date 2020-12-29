@@ -19,29 +19,30 @@ from torchvision import models
 
 
 class Multi_MyConvNet(nn.Module):
-    def __init__(self, width_height):
+    def __init__(self, width_height_axis_conv_pool):
         super(Multi_MyConvNet, self).__init__()
         # 输入 3*36*21
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=3,
                       out_channels=32,
-                      kernel_size=3,
+                      kernel_size=width_height_axis_conv_pool['conv1kernel'],
                       stride=1,
                       padding=1),
             nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=2)
+            nn.MaxPool2d(width_height_axis_conv_pool['conv1kernel'])
         )  # （32，12，7）
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 3, 1, 1),
             nn.Dropout2d(0.5),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,stride=2)
+            nn.MaxPool2d((width_height_axis_conv_pool['pool2kernel'], 3), 3)
         )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(int(64 * width_height[0] * width_height[1]), 512),
+            nn.Linear(int(
+                64 * width_height_axis_conv_pool['width'] * width_height_axis_conv_pool['height']), 512),
             nn.ReLU(),
             nn.Linear(512, 128),
             nn.Linear(128, 5)
@@ -50,9 +51,9 @@ class Multi_MyConvNet(nn.Module):
 
     def forward(self, x):
         x_1 = self.conv1(x)
-        # print(x_1.shape)
+        print(x_1.shape)
         x_2 = self.conv2(x_1)
-        # print(x_2.shape)
+        print(x_2.shape)
         out = x_2.view(x_2.size(0), -1)
         output = self.classifier(out)
         return output

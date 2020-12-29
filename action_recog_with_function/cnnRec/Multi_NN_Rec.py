@@ -295,21 +295,22 @@ if __name__ == '__main__':
 
     make_print_to_file()
 
-    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
+    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis','awh-9axis']
     acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
     mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
                  ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
                  ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
-    width_height={'xyz-6axis':{'multi_myCnn':(3,8)},
-                  'xyz-9axis':{'multi_myCnn':(5,8)},
-                  'org-6axis':{'multi_myCnn':(10,8)},
-                  'org-9axis':{'multi_myCnn':(15,8)},
-                  'awh-9axis':{'multi_myCnn':(5,8)},
-                  }
+    width_height_axis_conv_pool = {
+        'xyz-6axis': {'multi_myCnn': {'width': 3, 'height': 6, 'axis': 6, 'conv1kernel': 2, 'pool2kernel': 1}},
+        'xyz-9axis': {'multi_myCnn': {'width': 3, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 1}},
+        'org-6axis': {'multi_myCnn': {'width': 5, 'height': 4, 'axis': 6, 'conv1kernel': 3, 'pool2kernel': 2}},
+        'org-9axis': {'multi_myCnn': {'width': 7, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 3}},
+        'awh-9axis': {'multi_myCnn': {'width': 3, 'height': 4, 'axis': 9, 'conv1kernel': 3, 'pool2kernel': 1}},
+    }
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        multi_myCnn = Multi_MyConvNet(width_height[cls]['multi_myCnn'])
+        multi_myCnn = Multi_MyConvNet(width_height_axis_conv_pool[cls]['multi_myCnn'])
 
         models = {'multi_myCnn': multi_myCnn}
         # models = {'MyCnn': myCnn}
