@@ -60,8 +60,8 @@ class NN_train():
 
         self.action_data_train_set = ImageFolder(train_dir, transform=data_transforms)
         self.action_data_valid_set = ImageFolder(valid_dir, transform=data_transforms)
-        print(f'train_data size:{len(self.action_data_train_set)}')
-        print(f'valid_data size:{len(self.action_data_valid_set)}')
+        print(f'train_data size:{self.action_data_train_set[0][0].shape}, len:{len(self.action_data_train_set)}')
+        print(f'valid_data size:{self.action_data_valid_set[0][0].shape}, len:{len(self.action_data_valid_set)}')
 
         # 按批加载 pyTorch张量
         self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
@@ -339,7 +339,7 @@ if __name__ == '__main__':
                 try:
                     nn_train.train()
                 except Exception as exs:
-                    print(exs.args)
+                    print('error:{}'.format(exs.args))
             print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])

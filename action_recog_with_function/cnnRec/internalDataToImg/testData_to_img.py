@@ -50,14 +50,12 @@ class DataToImg():
         # dataMat = dataMat * 255. / df_max
 
         dataMat = np.uint8(dataMat).T
-        img_data = Image.fromarray(dataMat)
-        pic = Image.merge('RGB', (img_data, img_data, img_data))
+        img_data = Image.fromarray(dataMat).convert('L')
 
         if img_name[-6:-4] == '_0':
-            self.showImg(pic)
-            # print(np.array(img_data).shape)
-            print(np.array(pic).shape)
-        pic.save(img_name)
+            self.showImg(img_data)
+            print(np.array(img_data).shape)
+        img_data.save(img_name)
 
     def changeTo_awh_img(self, dataMat, img_name):
         """
@@ -220,8 +218,8 @@ if __name__ == '__main__':
     xyz 6 (14, 36, 3)
     xyz 9 (21, 36, 3)
     awh 9 (21, 36, 3)
-    org 6 (42, 36, 3)
-    org 9 (63, 36, 3)
+    org 6 (42, 36, 1)
+    org 9 (63, 36, 1)
     """
     for model in models:
         for axis in axiss:

@@ -50,14 +50,14 @@ class DataToImg():
         # dataMat = dataMat * 255. / df_max
 
         dataMat = np.uint8(dataMat).T
-        img_data = Image.fromarray(dataMat)
-        pic = Image.merge('RGB', (img_data, img_data, img_data))
+        img_data = Image.fromarray(dataMat).convert('L')
+        # pic = Image.merge('RGB', (img_data, img_data, img_data))
 
         if img_name[-6:-4] == '_0':
-            self.showImg(pic)
+            self.showImg(img_data)
             print(np.array(img_data).shape)
-            print(np.array(pic).shape)
-        pic.save(img_name)
+
+        img_data.save(img_name)
 
     def changeTo_awh_img(self, dataMat, img_name):
         """
