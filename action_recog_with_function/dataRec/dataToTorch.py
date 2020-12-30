@@ -95,7 +95,7 @@ if __name__ == '__main__':
             action_root_path = f'/home/yanjilong/dataSets/DataRec/action_windows{axis}'
 
         dataToTorch = DataToTorch(action_root_path, axis)
-        # dataToTorch.readWindowsToTorchData()
+        dataToTorch.readWindowsToTorchData()
 
     train_data_path = 'src/torchData/trainingData/train/train_torch_mat-9axis.npy'
     valid_data_path = 'src/torchData/trainingData/valid/valid_torch_mat-9axis.npy'
