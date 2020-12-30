@@ -16,11 +16,16 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
+import torch
 
 np.set_printoptions(suppress=True)
 
 
 class DataToTorch():
+    """
+    将窗口数据转为训练集和数据集、测试集
+    """
+
     def __init__(self, windowDataFoldPath, axis):
         super().__init__()
         self.internalNodeNum = 7
@@ -69,6 +74,10 @@ class DataToTorch():
 
 
 class ActionDataSets(Dataset):
+    """
+    封装数据集为DataSet
+    """
+
     def __init__(self, torch_data_path):
         super(ActionDataSets, self).__init__()
         self.torch_data = np.load(torch_data_path)
@@ -101,9 +110,12 @@ if __name__ == '__main__':
     valid_data_path = 'src/torchData/trainingData/valid/valid_torch_mat-9axis.npy'
     test_data_path = 'src/torchData/trainingData/test/test_torch_mat-9axis.npy'
     # 读取数据
-    action_data_sets = ActionDataSets(train_data_path)
-    print(len(action_data_sets))
-    for X, y in action_data_sets:
-        print(X)
-        print(y)
-        break
+    train_action_data_sets = ActionDataSets(train_data_path)
+    train_action_data_loader = DataLoader(train_action_data_sets,batch_size=64,shuffle=True,num_workers=2)
+
+    for  batch_data in train_action_data_loader:
+        inputs, labels = batch_data
+        # label = torch.LongTensor([int(labels[0])])
+        # print(labels)
+        # print(labels.data)
+
