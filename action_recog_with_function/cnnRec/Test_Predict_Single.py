@@ -84,7 +84,7 @@ class NN_Predict():
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
         print("模式{}-{},准确率：{:.3f},识别个数：{}".format(model_name,cls,right_ratio, len(labels)))
-
+        AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
                                      savePath=f'src/test_plt_img/{self.model_name}_{self.cls}_predict.png',

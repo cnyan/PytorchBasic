@@ -105,17 +105,16 @@ if __name__ == '__main__':
 
         dataToTorch = DataToTorch(action_root_path, axis)
         dataToTorch.readWindowsToTorchData()
-
-    train_data_path = 'src/torchData/trainingData/train/train_torch_mat-9axis.npy'
-    valid_data_path = 'src/torchData/trainingData/valid/valid_torch_mat-9axis.npy'
-    test_data_path = 'src/torchData/trainingData/test/test_torch_mat-9axis.npy'
+    axis = 9
+    train_data_path = f'src/torchData/trainingData/train/train_torch_mat-{axis}axis.npy'
+    valid_data_path = f'src/torchData/trainingData/valid/valid_torch_mat-{axis}axis.npy'
+    test_data_path = f'src/torchData/trainingData/test/test_torch_mat-{axis}axis.npy'
     # 读取数据
     train_action_data_sets = ActionDataSets(train_data_path)
-    train_action_data_loader = DataLoader(train_action_data_sets,batch_size=64,shuffle=True,num_workers=2)
+    train_action_data_loader = DataLoader(train_action_data_sets, batch_size=64, shuffle=True, num_workers=2)
 
-    for  batch_data in train_action_data_loader:
+    for batch_data in train_action_data_loader:
         inputs, labels = batch_data
-        # label = torch.LongTensor([int(labels[0])])
-        # print(labels)
-        # print(labels.data)
-
+        label = torch.LongTensor([int(labels[0])])
+        print(inputs)
+        print(labels.data)

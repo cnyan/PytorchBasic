@@ -108,3 +108,4 @@ def make_print_to_file(path='src/logs'):
     #############################################################
     record_time = datetime.datetime.now().strftime('day' + '%Y_%m_%d %H:%M:%S')
     print(record_time.center(60, '*'))
+

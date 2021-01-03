@@ -97,10 +97,10 @@ class NN_train():
         valid_loss = []
         right_ratio = []  # 正确率
 
-        for epoch in range(1,num_epochs+1):
-            if epoch%10==0:
+        for epoch in range(1, num_epochs + 1):
+            if epoch % 10 == 0:
                 print('-' * 30)
-                print('{}-{},Epoch {}/{} '.format(self.model_name,self.cls,epoch, num_epochs))
+                print('{}-{},Epoch {}/{} '.format(self.model_name, self.cls, epoch, num_epochs))
                 print(f"the lr is :{optimizer_ft.param_groups[0]['lr']}")
 
             # 每轮都有训练和验证过程
@@ -258,7 +258,9 @@ class NN_Predict():
 
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
-        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(model_name,cls,right_ratio, len(labels)))
+        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.cls, right_ratio, len(labels)))
+
+        AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
@@ -318,9 +320,9 @@ if __name__ == '__main__':
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
             nn_train = NN_train(model, model_name, cls, mean_stds[i])
             # if model_name == 'MyCnn':
-            with Timer() as t:
-                nn_train.train()
-            print('training time {0}'.format(str(t.interval)[:5]))
+            # with Timer() as t:
+            #     nn_train.train()
+            # print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
             with Timer() as t:

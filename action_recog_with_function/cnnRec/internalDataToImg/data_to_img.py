@@ -167,7 +167,7 @@ class DataToImg():
                     raise
 
     # 构造训练集和验证机
-    def create_train_valid(self, action_image_path, valid_size=0.1, test_size=0.1):
+    def create_train_valid(self, action_image_path, valid_size=0.2, test_size=0.1):
         """
         创建训练集、测试仪、验证集合
         :param action_image_path:
@@ -211,7 +211,7 @@ class DataToImg():
         for action_class in files_list:
             actions_num = glob(os.path.join(action_class, "*.jpg"))
             shuffle = np.random.permutation(actions_num)  # 乱序文件索引
-            valid_len = int(len(shuffle) * valid_size)
+            valid_len = int((len(shuffle) + test_len) * valid_size)
             for i in shuffle[:valid_len]:
                 if platform.system() == 'Windows':
                     os.rename(i, os.path.join(img_path, 'valid', action_class[-1], i.split('\\')[-1]))
@@ -264,4 +264,4 @@ if __name__ == '__main__':
             dataToImgCls = DataToImg(action_root_path, action_image_path, axis=axis)
             dataToImgCls.readWindowsToImageData(model=model)
             print(f'当前状态：modl={model},axis={axis}')
-            dataToImgCls.create_train_valid(action_image_path, valid_size=0.222, test_size=0.1)
+            dataToImgCls.create_train_valid(action_image_path, valid_size=0.2, test_size=0.1)
