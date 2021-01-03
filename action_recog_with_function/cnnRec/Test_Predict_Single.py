@@ -43,13 +43,14 @@ class NN_Predict():
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.cls = cls
+        self.model_name = model_name
 
         self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl', map_location='cpu'))
         if torch.cuda.is_available():
             self.model.cuda()
         self.model.eval()
 
-        self.model_name = model_name
+
 
         mean = mean_std[0]
         std = mean_std[1]
@@ -128,11 +129,11 @@ if __name__ == '__main__':
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        myDnn = MyDnn(scale[0] * scale[1] * scale[2])
-        myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
-        myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
+        single_myDnn = MyDnn(scale[0] * scale[1] * scale[2])
+        single_myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
+        single_myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
-        models = {'MyDnn': myDnn, 'MyCnn': myCnn, 'MyDilCnn': myDilCnn}
+        models = {'single_myDnn': single_myDnn, 'single_myCnn': single_myCnn, 'single_myDilCnn': single_myDilCnn}
         # models = {'MyCnn': myCnn}
 
         for model_name, model in models.items():
