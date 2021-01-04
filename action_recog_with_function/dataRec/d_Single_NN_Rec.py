@@ -46,9 +46,9 @@ class NN_train():
         action_data_valid_set = ActionDataSets('valid', axis)
 
         # 按批加载 pyTorch张量
-        self.action_train_data_gen = DataLoader(action_data_train_set, batch_size=64, shuffle=True,
+        self.action_train_data_gen = DataLoader(action_data_train_set, batch_size=32, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.action_valid_data_gen = DataLoader(action_data_valid_set, batch_size=64, shuffle=True,
+        self.action_valid_data_gen = DataLoader(action_data_valid_set, batch_size=32, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         print(f'train_data shape: ({len(action_data_train_set)}{(action_data_train_set.data_shape())})')
         print(f'valid_data shape: ({len(action_data_valid_set)}{(action_data_valid_set.data_shape())})')
