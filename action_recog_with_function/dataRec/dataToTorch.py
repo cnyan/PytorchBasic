@@ -68,7 +68,7 @@ class DataToTorch():
         valid_torch_mat = all_torch_mat[:valid_size, :]
         train_torch_mat = all_torch_mat[valid_size:, :]
 
-        np.save(str(os.path.join(self.data_torch_path, f'test/test_torch_data{self.axis}.npy')), test_torch_mat)
+        np.save(str(os.path.join(self.data_torch_path, f'test/test_torch_mat{self.axis}.npy')), test_torch_mat)
         np.save(str(os.path.join(self.data_torch_path, f'valid/valid_torch_mat{self.axis}.npy')), valid_torch_mat)
         np.save(str(os.path.join(self.data_torch_path, f'train/train_torch_mat{self.axis}.npy')), train_torch_mat)
 
@@ -96,7 +96,7 @@ class ActionDataSets(Dataset):
             elif sets_model == 'valid':
                 torch_data_path = f'src/torchData/trainingData/valid/valid_torch_mat-{axis}.npy'
             else:  # sets_model == test
-                torch_data_path = f'src/torchData/trainingData/test/test_torch_mat-{axis}axis.npy'
+                torch_data_path = f'src/torchData/trainingData/test/test_torch_mat-{axis}.npy'
         else:
             torch_data_path = torch_data_path
 

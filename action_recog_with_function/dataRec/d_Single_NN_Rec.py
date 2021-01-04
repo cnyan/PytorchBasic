@@ -196,13 +196,9 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        if platform.system() == 'Windows':
-            test_dir = fr'D:/home/DataRec/actionImage/{axis}/test'
-        else:
-            test_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{axis}/test'
-
-        self.test_action_data_set = DataLoader()
-        print(f'test_data size:{len(self.test_action_data_set)}')
+        action_data_test_set = ActionDataSets('test', axis)
+        self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
+        print(f'test_data shape: ({len(self.test_action_data_set)}{(action_data_test_set.data_shape())})')
 
     def predict(self):
         rights = []
