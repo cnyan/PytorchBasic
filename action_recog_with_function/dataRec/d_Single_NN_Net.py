@@ -34,6 +34,7 @@ class MyDnnNet(nn.Module):
 class MyConvNet(nn.Module):
     def __init__(self, axis):
         super(MyConvNet, self).__init__()
+
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels=7 * axis,
                       out_channels=128,
