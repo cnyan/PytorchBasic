@@ -117,7 +117,7 @@ if __name__ == '__main__':
         dataToTorch.readWindowsToTorchData()
 
     # 读取数据
-    train_action_data_sets = ActionTestDataSets(sets_model='test', axis='9axis')
+    train_action_data_sets = ActionTestDataSets(axis=axis)
     for data, label in train_action_data_sets:
         print(data.shape)
         print(label)
