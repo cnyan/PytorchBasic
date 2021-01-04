@@ -186,14 +186,16 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        action_data_test_set = ActionDataSets('test', axis)
-        self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
-        print(f'test_data shape: ({len(action_data_test_set)}{(action_data_test_set.data_shape())})')
+        self.action_data_test_set = ActionDataSets('test', axis)
+
+        # self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
+        print(f'test_data shape: ({len(self.action_data_test_set)}{(self.action_data_test_set.data_shape())})')
 
     def predict(self):
         rights = []
         labels = []
-        for data, label in self.test_action_data_set:
+        for data, label in self.action_data_test_set:
+            data = torch.tensor(data)
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
