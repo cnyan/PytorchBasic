@@ -85,10 +85,11 @@ class NN_train():
 
         # 构建模型:损失函数和优化模型
         num_epochs = 60
+        optim_step_size = 20  # 优化函数，每隔20个epoch更新一次参数
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=optim_step_size, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
         best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -169,7 +170,7 @@ class NN_train():
                         phase, epoch_loss, epoch_acc))
 
                 # 深度复制模型
-                if phase == 'valid' and epoch_acc > best_acc:
+                if phase == 'valid' and epoch_acc > best_acc and epoch > optim_step_size:
                     best_acc = epoch_acc
                     # best_model_wts = model_ft.state_dict()
                     best_model_wts = copy.deepcopy(model_ft.state_dict())
