@@ -41,16 +41,16 @@ class NN_train():
         self.model_name = model_name
         self.axis = axis
 
-        self.action_data_train_set = ActionDataSets('train', axis)
-        self.action_data_valid_set = ActionDataSets('valid', axis)
+        action_data_train_set = ActionDataSets('train', axis)
+        action_data_valid_set = ActionDataSets('valid', axis)
 
         # 按批加载 pyTorch张量
-        self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
+        self.action_train_data_gen = DataLoader(action_data_train_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=64, shuffle=True,
+        self.action_valid_data_gen = DataLoader(action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        print(f'train_data shape: ({len(self.action_data_train_set)}{(self.action_data_train_set.data_shape())})')
-        print(f'valid_data shape: ({len(self.action_data_valid_set)}{(self.action_data_valid_set.data_shape())})')
+        print(f'train_data shape: ({len(action_data_train_set)}{(action_data_train_set.data_shape())})')
+        print(f'valid_data shape: ({len(action_data_valid_set)}{(action_data_valid_set.data_shape())})')
 
         self.model = copy.deepcopy(modelNet)
 
@@ -70,7 +70,7 @@ class NN_train():
         num_epochs = 60
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
-        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
+        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.10)
         exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
@@ -185,7 +185,7 @@ class NN_Predict():
 
         action_data_test_set = ActionDataSets('test', axis)
         self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
-        print(f'test_data shape: ({len(self.action_data_test_set)}{(action_data_test_set.data_shape())})')
+        print(f'test_data shape: ({len(action_data_test_set)}{(action_data_test_set.data_shape())})')
 
     def predict(self):
         rights = []

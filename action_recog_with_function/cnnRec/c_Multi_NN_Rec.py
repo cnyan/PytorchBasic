@@ -88,7 +88,7 @@ class NN_train():
         optim_step_size = 20  # 优化函数，每隔20个epoch更新一次参数
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
-        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
+        optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.10)
         exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=optim_step_size, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()

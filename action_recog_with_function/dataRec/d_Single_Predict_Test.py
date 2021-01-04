@@ -71,7 +71,7 @@ class NN_Predict():
         AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
-                                     savePath=f'src/plt_img/{self.model_name}_{self.axis}_predict.png',
+                                     savePath=f'src/test_plt_img/{self.model_name}_{self.axis}_predict.png',
                                      title=f'{self.model_name}_{self.axis}_predict')
 
     # 自定义计算准确度的函数
