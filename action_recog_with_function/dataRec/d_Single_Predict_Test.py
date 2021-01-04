@@ -38,7 +38,7 @@ class NN_Predict():
         self.model = modelNet
         self.axis = axis
 
-        # self.model.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
         if torch.cuda.is_available():
             self.model.cuda()
         self.model.eval()
