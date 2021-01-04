@@ -54,6 +54,7 @@ class NN_train():
         print(f'valid_data shape: ({len(action_data_valid_set)}{(action_data_valid_set.data_shape())})')
 
         self.model = copy.deepcopy(modelNet)
+        self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
     def train(self):
         since = time.time()
@@ -61,7 +62,7 @@ class NN_train():
         model_ft = self.model
 
         if torch.cuda.is_available():
-            model_ft = model_ft.cuda()  # 告知 pyTorch 在Gpu上运行
+            model_ft = model_ft.to(self.device)  # 告知 pyTorch 在Gpu上运行
 
         dataset_sizes = {'train': len(self.action_train_data_gen.dataset),
                          'valid': len(self.action_valid_data_gen.dataset)}
@@ -102,8 +103,8 @@ class NN_train():
                     # print(inputs.shape)
                     # 封装成变量
                     if torch.cuda.is_available():
-                        inputs = inputs.cuda()
-                        labels = labels.cuda()
+                        inputs = inputs.to(self.device)
+                        labels = labels.to(self.device)
                     else:
                         inputs, labels = inputs, labels
 
@@ -176,10 +177,11 @@ class NN_Predict():
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.axis = axis
+        self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
         self.model.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
         if torch.cuda.is_available():
-            self.model.cuda()
+            self.model.to(self.device)
         self.model.eval()
 
         self.model_name = model_name
@@ -195,7 +197,7 @@ class NN_Predict():
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
-                data = data.cuda()
+                data = data.to(self.device)
 
             labels.append(label)
             output = self.model(data)
