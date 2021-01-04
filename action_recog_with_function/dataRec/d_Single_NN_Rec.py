@@ -240,6 +240,7 @@ if __name__ == '__main__':
     org 6 (42, 36, 3)
     org 9 (63, 36, 3)
     """
+    need_train = True
     from AUtils import make_print_to_file  # 打印日志
     from d_Single_NN_Net import MyDnnNet, MyConvNet
 
@@ -262,10 +263,11 @@ if __name__ == '__main__':
             if hasattr(torch.cuda, 'empty_cache'):
                 torch.cuda.empty_cache()
 
-            nn_train = NN_train(model, model_name, axis=axis)
-            with Timer() as t:
-                nn_train.train()
-            print('training time {0}'.format(str(t.interval)[:5]))
+            if need_train:
+                nn_train = NN_train(model, model_name, axis=axis)
+                with Timer() as t:
+                    nn_train.train()
+                print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, axis=axis)
             with Timer() as t:
