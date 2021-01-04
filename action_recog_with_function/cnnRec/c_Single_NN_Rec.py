@@ -5,7 +5,7 @@
 @Author: 闫继龙
 @Version: ??
 @License: Apache Licence
-@CreateTime: 2020/12/28 17:26
+@CreateTime: 2020/12/23 19:07
 @Describe：
 
 """
@@ -60,8 +60,8 @@ class NN_train():
 
         self.action_data_train_set = ImageFolder(train_dir, transform=data_transforms)
         self.action_data_valid_set = ImageFolder(valid_dir, transform=data_transforms)
-        print(f'train_data size:{self.action_data_train_set[0][0].shape}, len:{len(self.action_data_train_set)}')
-        print(f'valid_data size:{self.action_data_valid_set[0][0].shape}, len:{len(self.action_data_valid_set)}')
+        print(f'train_data size:{len(self.action_data_train_set)}')
+        print(f'valid_data size:{len(self.action_data_valid_set)}')
 
         # 按批加载 pyTorch张量
         self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
@@ -85,10 +85,11 @@ class NN_train():
 
         # 构建模型:损失函数和优化模型
         num_epochs = 60
+        optim_step_size = 20  # 优化函数，每隔20个epoch更新一次参数
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=optim_step_size, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
         best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -169,7 +170,7 @@ class NN_train():
                         phase, epoch_loss, epoch_acc))
 
                 # 深度复制模型
-                if phase == 'valid' and epoch_acc > best_acc:
+                if phase == 'valid' and epoch_acc > best_acc and epoch > optim_step_size:
                     best_acc = epoch_acc
                     # best_model_wts = model_ft.state_dict()
                     best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -184,7 +185,7 @@ class NN_train():
         print('Best val Acc: {:4f}'.format(best_acc))
 
         # load best model weights
-        # model_ft.load_state_dict(best_model_wts)
+        model_ft.load_state_dict(best_model_wts)
 
         if os.path.exists(f'src/model/{self.model_name}_{self.cls}_model.pkl'):
             os.remove(f'src/model/{self.model_name}_{self.cls}_model.pkl')
@@ -258,9 +259,10 @@ class NN_Predict():
 
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
-        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(model_name, cls, right_ratio, len(labels)))
+        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.cls, right_ratio, len(labels)))
 
         AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
+
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
                                      savePath=f'src/plt_img/{self.model_name}_{self.cls}_predict.png',
@@ -286,46 +288,29 @@ if __name__ == '__main__':
     """
     窗口长度 36
     xyz 6 (14, 36, 3)
-    xyz 9 (21, 36, 3) 
+    xyz 9 (21, 36, 3)
     awh 9 (21, 36, 3)
     org 6 (42, 36, 3)
     org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file
-    from Multi_NN_Net import Multi_MyVgg16Net, Multi_MyConvNet
+    from c_Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
 
     make_print_to_file()
 
     acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
     acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
-
     mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
                  ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
                  ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
-    width_height_axis_pools = {
-        'xyz-6axis': {'multi_myCnn': {'width': 2, 'height': 6, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)},
-                      'multi_myVgg': {'width': 3, 'height': 9, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)}},
-
-        'xyz-9axis': {'multi_myCnn': {'width': 3, 'height': 6, 'axis': 9, 'pool1': (1, 2), 'pool2': (3, 3)},
-                      'multi_myVgg': {'width': 5, 'height': 9, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)}},
-
-        'org-6axis': {'multi_myCnn': {'width': 7, 'height': 6, 'axis': 6, 'pool1': (3, 2), 'pool2': (2, 2)},
-                      'multi_myVgg': {'width': 10, 'height': 9, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)}},
-
-        'org-9axis': {'multi_myCnn': {'width': 10, 'height': 6, 'axis': 9, 'pool1': (3, 2), 'pool2': (2, 2)},
-                      'multi_myVgg': {'width': 15, 'height': 9, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)}},
-
-        'awh-9axis': {'multi_myCnn': {'width': 3, 'height': 6, 'axis': 9, 'pool1': (1, 3), 'pool2': (2, 2)},
-                      'multi_myVgg': {'width': 5, 'height': 9, 'axis': 6, 'pool1': (1, 3), 'pool2': (2, 2)}},
-
-    }
 
     for i, cls in enumerate(acls):
         scale = acls_scale[i]
-        multi_myCnn = Multi_MyConvNet(width_height_axis_pools[cls]['multi_myCnn'])
-        multi_myVgg = Multi_MyVgg16Net(width_height_axis_pools[cls]['multi_myVgg'])
+        single_myDnn = MyDnn(scale[0] * scale[1] * scale[2])
+        single_myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
+        single_myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
 
-        models = {'multi_myCnn': multi_myCnn, 'multi_myVgg': multi_myVgg}
+        models = {'single_myDnn': single_myDnn, 'single_myCnn': single_myCnn, 'single_myDilCnn': single_myDilCnn}
         # models = {'MyCnn': myCnn}
 
         for model_name, model in models.items():
@@ -334,14 +319,10 @@ if __name__ == '__main__':
                 torch.cuda.empty_cache()
 
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
-
             # 识别过程
             nn_train = NN_train(model, model_name, cls, mean_stds[i])
             with Timer() as t:
-                try:
-                    nn_train.train()
-                except Exception as exs:
-                    print('error:{}'.format(exs.args))
+                nn_train.train()
             print('training time {0}'.format(str(t.interval)[:5]))
 
             # predict过程test数据集

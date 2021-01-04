@@ -5,7 +5,7 @@
 @Author: 闫继龙
 @Version: ??
 @License: Apache Licence
-@CreateTime: 2020/12/23 19:07
+@CreateTime: 2020/12/30 20:24
 @Describe：
 
 """
@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader
 from torch import optim, nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from dataToTorch import ActionDataSets
 import AUtils
 import datetime
 
@@ -40,36 +41,22 @@ class Timer:
 
 
 class NN_train():
-    def __init__(self, modelNet, model_name, cls, mean_std):
+    def __init__(self, modelNet, model_name, axis='9axis'):
         super(NN_train, self).__init__()
         self.model_name = model_name
-        self.cls = cls
-        self.mean = mean_std[0]
-        self.std = mean_std[1]
-        data_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(self.mean, self.std)
-        ])
+        self.axis = axis
 
-        if platform.system() == 'Windows':
-            train_dir = fr'D:/home/DataRec/actionImage/{cls}/train'
-            valid_dir = fr'D:/home/DataRec/actionImage/{cls}/valid'
-        else:
-            train_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{cls}/train'
-            valid_dir = fr'/home/yanjilong/dataSets//DataRec/actionImage/{cls}/valid'
-
-        self.action_data_train_set = ImageFolder(train_dir, transform=data_transforms)
-        self.action_data_valid_set = ImageFolder(valid_dir, transform=data_transforms)
-        print(f'train_data size:{len(self.action_data_train_set)}')
-        print(f'valid_data size:{len(self.action_data_valid_set)}')
+        self.action_data_train_set = ActionDataSets('train', axis)
+        self.action_data_valid_set = ActionDataSets('valid', axis)
+        print(f'train_data shape: {(self.action_data_train_set.data_shape())}')
+        print(f'valid_data shape: {(self.action_data_valid_set.data_shape())}')
 
         # 按批加载 pyTorch张量
         self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.model = modelNet
-        # self.model = MyDnn()
+        self.model = copy.deepcopy(modelNet)
 
     def train(self):
         since = time.time()
@@ -85,11 +72,10 @@ class NN_train():
 
         # 构建模型:损失函数和优化模型
         num_epochs = 60
-        optim_step_size = 20  # 优化函数，每隔20个epoch更新一次参数
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.01, weight_decay=0.10)
-        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=optim_step_size, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
         best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -101,7 +87,7 @@ class NN_train():
         for epoch in range(1, num_epochs + 1):
             if epoch % 10 == 0:
                 print('-' * 30)
-                print('{}-{},Epoch {}/{} '.format(self.model_name, self.cls, epoch, num_epochs))
+                print('{}-{},Epoch {}/{} '.format(self.model_name, self.axis, epoch, num_epochs))
                 print(f"the lr is :{optimizer_ft.param_groups[0]['lr']}")
 
             # 每轮都有训练和验证过程
@@ -116,23 +102,6 @@ class NN_train():
 
                 for i, data in enumerate(dataloaders[phase]):
                     inputs, labels = data  # 获取输入
-
-                    # ==========  BEGIN 图片显示 BEGIN =============
-                    if epoch == 0 and i == 0:
-                        # print(inputs.shape)
-                        plt.figure(figsize=(12, 6))
-                        for ii in np.arange(16):
-                            plt.subplot(4, 4, ii + 1)
-                            image = inputs[ii, :, :, :].numpy().transpose((1, 2, 0))
-                            image = self.std * image + self.mean
-                            image = np.clip(image, 0, 1)
-                            plt.imshow(image)
-                            plt.title(labels[ii].data.numpy())
-                            plt.axis('off')
-                        plt.subplots_adjust(hspace=0.3)
-                        # plt.show()
-                        plt.close()
-                    # ==========  END 图片显示 END =============
 
                     # 封装成变量
                     if torch.cuda.is_available():
@@ -170,7 +139,7 @@ class NN_train():
                         phase, epoch_loss, epoch_acc))
 
                 # 深度复制模型
-                if phase == 'valid' and epoch_acc > best_acc and epoch > optim_step_size:
+                if phase == 'valid' and epoch_acc > best_acc:
                     best_acc = epoch_acc
                     # best_model_wts = model_ft.state_dict()
                     best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -185,22 +154,22 @@ class NN_train():
         print('Best val Acc: {:4f}'.format(best_acc))
 
         # load best model weights
-        model_ft.load_state_dict(best_model_wts)
+        # model_ft.load_state_dict(best_model_wts)
 
-        if os.path.exists(f'src/model/{self.model_name}_{self.cls}_model.pkl'):
-            os.remove(f'src/model/{self.model_name}_{self.cls}_model.pkl')
-        torch.save(model_ft.state_dict(), f'src/model/{self.model_name}_{self.cls}_model.pkl')
+        if os.path.exists(f'src/model/{self.model_name}_{self.axis}_model.pkl'):
+            os.remove(f'src/model/{self.model_name}_{self.axis}_model.pkl')
+        torch.save(model_ft.state_dict(), f'src/model/{self.model_name}_{self.axis}_model.pkl')
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
-        plt.title(f'{self.model_name}_{self.cls} training')
+        plt.title(f'{self.model_name}_{self.axis} training')
         plt.plot(train_loss, label='Train Loss')
         plt.plot(valid_loss, label='Valid Loss')
         plt.plot(right_ratio, label='Valid Accuracy')
         plt.xlabel('epoch')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
-        plt.savefig(f"src/plt_img/{self.model_name}_{self.cls}_train_loss.png")
+        plt.savefig(f"src/plt_img/{self.model_name}_{self.axis}_train_loss.png")
         plt.show()
         plt.close()
 
@@ -227,19 +196,12 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        mean = mean_std[0]
-        std = mean_std[1]
-
-        data_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean, std)
-        ])
         if platform.system() == 'Windows':
             test_dir = fr'D:/home/DataRec/actionImage/{cls}/test'
         else:
             test_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{cls}/test'
 
-        self.test_action_data_set = ImageFolder(test_dir, transform=data_transforms)
+        self.test_action_data_set = DataLoader()
         print(f'test_data size:{len(self.test_action_data_set)}')
 
     def predict(self):
@@ -260,8 +222,6 @@ class NN_Predict():
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
         print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.cls, right_ratio, len(labels)))
-
-        AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
@@ -284,7 +244,6 @@ class NN_Predict():
 
 
 if __name__ == '__main__':
-
     """
     窗口长度 36
     xyz 6 (14, 36, 3)
@@ -293,42 +252,13 @@ if __name__ == '__main__':
     org 6 (42, 36, 3)
     org 9 (63, 36, 3)
     """
-    from AUtils import make_print_to_file
-    from Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
+    from AUtils import make_print_to_file  # 打印日志
+    from d_Single_NN_Net import MyDnnNet
 
     make_print_to_file()
+    axis = ['9axis', '6axis']
 
-    acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
-    acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
-    mean_stds = [([0.3, 0.47, 0.46], [0.26, 0.35, 0.32]), ([0.34, 0.49, 0.47], [0.26, 0.32, 0.31]),
-                 ([0.4, 0.4, 0.4], [0.42, 0.42, 0.42]), ([0.43, 0.43, 0.43], [0.39, 0.39, 0.39]),
-                 ([0.33, 0.49, 0.49], [0.31, 0.32, 0.27])]
+    myDnnNet = MyDnnNet(63 * 36)
 
-    for i, cls in enumerate(acls):
-        scale = acls_scale[i]
-        single_myDnn = MyDnn(scale[0] * scale[1] * scale[2])
-        single_myCnn = MyConvNet(scale[0], (scale[1], scale[2]))
-        single_myDilCnn = MyDilConvNet(scale[0], (scale[1], scale[2]))
-
-        models = {'single_myDnn': single_myDnn, 'single_myCnn': single_myCnn, 'single_myDilCnn': single_myDilCnn}
-        # models = {'MyCnn': myCnn}
-
-        for model_name, model in models.items():
-            print('===================********begin begin begin*********=================')
-            if hasattr(torch.cuda, 'empty_cache'):
-                torch.cuda.empty_cache()
-
-            print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
-            # 识别过程
-            nn_train = NN_train(model, model_name, cls, mean_stds[i])
-            with Timer() as t:
-                nn_train.train()
-            print('training time {0}'.format(str(t.interval)[:5]))
-
-            # predict过程test数据集
-            nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
-            with Timer() as t:
-                nn_predict.predict()
-            print('predict time {0}'.format(str(t.interval)[:5]))
-
-            print('===================********end  end  end  *********=================')
+    action_train = NN_train(myDnnNet, 'myDnnNet', axis='9axis')
+    action_train.train()

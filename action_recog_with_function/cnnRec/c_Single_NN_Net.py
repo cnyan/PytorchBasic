@@ -156,5 +156,5 @@ if __name__ == '__main__':
     # my_hl = hl.build_graph(myDnn, torch.zeros([1, 3, 36, 21]))
     # my_hl.theme = hl.graph.THEMES['blue'].copy()
     # my_hl.save('src/model_img/my_DNN.png', format='png')
-    myvgg = MyVgg16Net()
+    myvgg = MyDilConvNet()
     print(myvgg)

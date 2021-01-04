@@ -117,7 +117,7 @@ if __name__ == '__main__':
     org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file
-    from Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
+    from c_Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
 
     make_print_to_file()
 
