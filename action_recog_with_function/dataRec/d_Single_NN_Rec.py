@@ -184,12 +184,12 @@ class NN_train():
 
 
 class NN_Predict():
-    def __init__(self, modelNet, model_name, cls, mean_std):
+    def __init__(self, modelNet, model_name,axis):
         super(NN_Predict, self).__init__()
         self.model = modelNet
-        self.cls = cls
+        self.axis = axis
 
-        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{cls}_model.pkl', map_location='cpu'))
+        self.model.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
         if torch.cuda.is_available():
             self.model.cuda()
         self.model.eval()
@@ -197,9 +197,9 @@ class NN_Predict():
         self.model_name = model_name
 
         if platform.system() == 'Windows':
-            test_dir = fr'D:/home/DataRec/actionImage/{cls}/test'
+            test_dir = fr'D:/home/DataRec/actionImage/{axis}/test'
         else:
-            test_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{cls}/test'
+            test_dir = fr'/home/yanjilong/dataSets/DataRec/actionImage/{axis}/test'
 
         self.test_action_data_set = DataLoader()
         print(f'test_data size:{len(self.test_action_data_set)}')
@@ -221,12 +221,12 @@ class NN_Predict():
 
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
-        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.cls, right_ratio, len(labels)))
+        print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.axis, right_ratio, len(labels)))
 
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
-                                     savePath=f'src/plt_img/{self.model_name}_{self.cls}_predict.png',
-                                     title=f'{self.model_name}_{self.cls}_predict')
+                                     savePath=f'src/plt_img/{self.model_name}_{self.axis}_predict.png',
+                                     title=f'{self.model_name}_{self.axis}_predict')
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
