@@ -5,10 +5,11 @@
 @Author: 闫继龙
 @Version: ??
 @License: Apache Licence
-@CreateTime: 2020/12/30 15:53
+@CreateTime: 2021/1/4 13:09
 @Describe：
 
 """
+
 import platform
 from glob import glob
 import os
@@ -30,16 +31,14 @@ class DataToTorch():
         super().__init__()
         self.internalNodeNum = 7
         self.action_window_row = 36  # 窗口长度
-        self.num_of_windows = 2000  # 每个动作提取多少
+        self.num_of_windows = 180  # 每个动作提取多少
         self.axis = axis
         self.action_window_col = self.internalNodeNum * int(axis[0])
         self.windowDataFoldPath = windowDataFoldPath
-        self.data_torch_path = f'src/torchData/trainingData/'
+        self.data_torch_path = f'src/torchData/otherTestData'
 
-    def readWindowsToTorchData(self, test_size=0.1, valid_size=0.2):
+    def readWindowsToTorchData(self):
         files_list = glob(os.path.join(self.windowDataFoldPath, '*.csv'))
-        test_size = int(self.num_of_windows * test_size)
-        valid_size = int(self.num_of_windows * 5 * valid_size)
 
         all_torch_mat = []  # 总的数据集
         test_torch_mat = []
@@ -57,46 +56,30 @@ class DataToTorch():
             for i, df in enumerate(data_mat):
                 df = df.flatten()
                 df = np.append(df, label)
-                if i > test_size - 1:
-                    all_torch_mat.append(df)
-                else:
-                    test_torch_mat.append(df)
+                all_torch_mat.append(df)
 
         all_torch_mat = np.array(all_torch_mat)
-        test_torch_mat = np.array(test_torch_mat)
         all_torch_mat = np.random.permutation(all_torch_mat)
-        valid_torch_mat = all_torch_mat[:valid_size, :]
-        train_torch_mat = all_torch_mat[valid_size:, :]
 
-        np.save(str(os.path.join(self.data_torch_path, f'test/test_torch_mat-{self.axis}.npy')), test_torch_mat)
-        np.save(str(os.path.join(self.data_torch_path, f'valid/valid_torch_mat-{self.axis}.npy')), valid_torch_mat)
-        np.save(str(os.path.join(self.data_torch_path, f'train/train_torch_mat-{self.axis}.npy')), train_torch_mat)
+        np.save(str(os.path.join(self.data_torch_path, f'other_test_torch_mat-{self.axis}.npy')), all_torch_mat)
 
-        print('{} train size:{}'.format(axis, train_torch_mat.shape))
-        print('{} valid size:{}'.format(axis, valid_torch_mat.shape))
-        print('{} test size:{}'.format(axis, test_torch_mat.shape))
+        print('{} other_test size:{}'.format(axis, all_torch_mat.shape))
 
 
-class ActionDataSets(Dataset):
+class ActionTestDataSets(Dataset):
     """
     封装数据集为DataSet
     """
 
-    def __init__(self, sets_model='train', axis='9axis', torch_data_path=None):
+    def __init__(self, axis='9axis', torch_data_path=None):
         """
         初始化函数
-        :param sets_model: 数据集模式，有三种 train valid test
         :param axis: 几个轴的数据集，9axis 6axis
         :param torch_data_path: 默认数据集路径，如果为空则根据sets_model和axis加载数据集
         """
-        super(ActionDataSets, self).__init__()
+        super(ActionTestDataSets, self).__init__()
         if torch_data_path == None:
-            if sets_model == 'train':
-                torch_data_path = f'src/torchData/trainingData/train/train_torch_mat-{axis}.npy'
-            elif sets_model == 'valid':
-                torch_data_path = f'src/torchData/trainingData/valid/valid_torch_mat-{axis}.npy'
-            else:  # sets_model == test
-                torch_data_path = f'src/torchData/trainingData/test/test_torch_mat-{axis}.npy'
+            torch_data_path = f'src/torchData/otherTestData/other_test_torch_mat-{axis}.npy'
         else:
             torch_data_path = torch_data_path
 
@@ -126,15 +109,15 @@ if __name__ == '__main__':
     axiss = ['6axis', '9axis']  # 36,42  36,63
     for axis in axiss:
         if platform.system() == 'Windows':
-            action_root_path = f'D:/home/DataRec/action_windows-{axis}'
+            action_root_path = f'D:/home/DataRec/Action_Test/action_windows-{axis}'
         else:
-            action_root_path = f'/home/yanjilong/dataSets/DataRec/action_windows-{axis}'
+            action_root_path = f'/home/yanjilong/dataSets/DataRec/Action_Test/action_windows-{axis}'
 
         dataToTorch = DataToTorch(action_root_path, axis)
         dataToTorch.readWindowsToTorchData()
 
     # 读取数据
-    train_action_data_sets = ActionDataSets(sets_model='train', axis='9axis')
+    train_action_data_sets = ActionTestDataSets(sets_model='test', axis='9axis')
     for data, label in train_action_data_sets:
         print(data.shape)
         print(label)

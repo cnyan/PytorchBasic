@@ -13,9 +13,7 @@ import os
 import copy
 import numpy as np
 import time
-import platform
-from torchvision.datasets import ImageFolder
-from torchvision import transforms
+
 import torch
 from torch.utils.data import DataLoader
 from torch import optim, nn
@@ -23,10 +21,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from dataToTorch import ActionDataSets
 import AUtils
-import datetime
-
 import warnings
-
 warnings.filterwarnings('ignore')
 
 
@@ -54,8 +49,8 @@ class NN_train():
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        print(f'train_data shape: ({len(self.action_train_data_gen)}{(self.action_data_train_set.data_shape())})')
-        print(f'valid_data shape: ({len(self.action_valid_data_gen)}{(self.action_data_valid_set.data_shape())})')
+        print(f'train_data shape: ({len(self.action_data_train_set)}{(self.action_data_train_set.data_shape())})')
+        print(f'valid_data shape: ({len(self.action_data_valid_set)}{(self.action_data_valid_set.data_shape())})')
 
         self.model = copy.deepcopy(modelNet)
 
@@ -190,7 +185,7 @@ class NN_Predict():
 
         action_data_test_set = ActionDataSets('test', axis)
         self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
-        print(f'test_data shape: ({len(self.test_action_data_set)}{(action_data_test_set.data_shape())})')
+        print(f'test_data shape: ({len(self.action_data_test_set)}{(action_data_test_set.data_shape())})')
 
     def predict(self):
         rights = []
