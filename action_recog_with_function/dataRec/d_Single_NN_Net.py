@@ -37,7 +37,7 @@ class MyConvNet(nn.Module):
 
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels=7 * axis,
-                      out_channels=128,
+                      out_channels=32,
                       kernel_size=3,
                       stride=1,
                       padding=1),  # 输入36*63，自上向下扫描
@@ -46,7 +46,7 @@ class MyConvNet(nn.Module):
             nn.AvgPool1d(kernel_size=3, stride=3)
         )
         self.classifier = nn.Sequential(
-            nn.Linear(128 * (36 // 3), 512),
+            nn.Linear(32 * (36 // 3), 512),
             nn.Linear(512, 5)
         )
 
@@ -58,21 +58,21 @@ class MyConvNet(nn.Module):
 
 class MyDilaConvNet(nn.Module):
     def __init__(self, axis):
-        super(MyConvNet, self).__init__()
+        super(MyDilaConvNet, self).__init__()
 
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels=7 * axis,
-                      out_channels=128,
+                      out_channels=32,
                       kernel_size=3,
                       stride=1,
-                      padding=1,
+                      padding=2,
                       dilation=2),  # 输入36*63，自上向下扫描
             nn.Dropout2d(p=0.5),
             nn.ReLU(),
             nn.AvgPool1d(kernel_size=3, stride=3)
         )
         self.classifier = nn.Sequential(
-            nn.Linear(128 * (36 // 3), 512),
+            nn.Linear(32 * (36 // 3), 512),
             nn.Linear(512, 5)
         )
 
