@@ -184,7 +184,7 @@ class NN_train():
 
 
 class NN_Predict():
-    def __init__(self, modelNet, model_name,axis):
+    def __init__(self, modelNet, model_name, axis):
         super(NN_Predict, self).__init__()
         self.model = modelNet
         self.axis = axis
@@ -256,9 +256,23 @@ if __name__ == '__main__':
     from d_Single_NN_Net import MyDnnNet
 
     make_print_to_file()
-    axis = ['9axis', '6axis']
+    axis_all = ['9axis', '6axis']
 
-    myDnnNet = MyDnnNet(63 * 36)
+    for axis in axis_all:
+        myDnnNet = MyDnnNet(7 * int(axis[0]) * 36)
+        models_all = {'myDnnNet': myDnnNet}
 
-    action_train = NN_train(myDnnNet, 'myDnnNet', axis='9axis')
-    action_train.train()
+        for model_name, model in models_all.items():
+            print('===================********begin begin begin*********=================')
+            if hasattr(torch.cuda, 'empty_cache'):
+                torch.cuda.empty_cache()
+
+            nn_train = NN_train(model, model_name, axis=axis)
+            with Timer() as t:
+                nn_train.train()
+            print('training time {0}'.format(str(t.interval)[:5]))
+
+            nn_predict = NN_Predict(model, model_name, axis=axis)
+            with Timer() as t:
+                nn_predict.predict()
+            print('predict time {0}'.format(str(t.interval)[:5]))
