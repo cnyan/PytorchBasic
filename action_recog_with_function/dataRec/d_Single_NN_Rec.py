@@ -242,6 +242,8 @@ if __name__ == '__main__':
     from d_Single_NN_Net import MyDnnNet, MyConvNet
 
     make_print_to_file()
+    if torch.cuda.is_available():
+        torch.cuda.set_device(1)
     axis_all = ['9axis', '6axis']
 
     for axis in axis_all:

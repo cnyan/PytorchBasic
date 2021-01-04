@@ -297,6 +297,8 @@ if __name__ == '__main__':
     from c_Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
 
     make_print_to_file()
+    if torch.cuda.is_available():
+        torch.cuda.set_device(1)
 
     acls = ['xyz-6axis', 'xyz-9axis', 'org-6axis', 'org-9axis', 'awh-9axis']
     acls_scale = [(3, 14, 36), (3, 21, 36), (3, 42, 36), (3, 63, 36), (3, 21, 36)]
