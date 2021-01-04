@@ -295,6 +295,14 @@ if __name__ == '__main__':
     """
     from AUtils import make_print_to_file
     from c_Single_NN_Net import MyConvNet, MyDnn, MyDilConvNet
+    import sys
+
+    need_train = True
+    if len(sys.argv[1:]) != 0:
+        if sys.argv[1] == '0':
+            need_train = True
+        else:
+            need_train = False
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -321,11 +329,13 @@ if __name__ == '__main__':
                 torch.cuda.empty_cache()
 
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
-            # 识别过程
-            nn_train = NN_train(model, model_name, cls, mean_stds[i])
-            with Timer() as t:
-                nn_train.train()
-            print('training time {0}'.format(str(t.interval)[:5]))
+
+            if need_train:
+                # 识别过程
+                nn_train = NN_train(model, model_name, cls, mean_stds[i])
+                with Timer() as t:
+                    nn_train.train()
+                print('training time {0}'.format(str(t.interval)[:5]))
 
             # predict过程test数据集
             nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])

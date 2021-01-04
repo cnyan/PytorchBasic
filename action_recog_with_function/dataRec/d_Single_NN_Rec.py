@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
     need_train = True
     if len(sys.argv[1:]) != 0:
-        if sys.argv[1] == 0:
+        if sys.argv[1] == '0':
             need_train = True
         else:
             need_train = False
