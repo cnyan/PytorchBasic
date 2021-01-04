@@ -184,7 +184,7 @@ class NN_train():
         print('Best val Acc: {:4f}'.format(best_acc))
 
         # load best model weights
-        # model_ft.load_state_dict(best_model_wts)
+        model_ft.load_state_dict(best_model_wts)
 
         if os.path.exists(f'src/model/{self.model_name}_{self.cls}_model.pkl'):
             os.remove(f'src/model/{self.model_name}_{self.cls}_model.pkl')
@@ -318,12 +318,13 @@ if __name__ == '__main__':
                 torch.cuda.empty_cache()
 
             print(f'当前参数：cls={cls},scale={scale},model={model_name}_{cls}')
+            # 识别过程
             nn_train = NN_train(model, model_name, cls, mean_stds[i])
-            # if model_name == 'MyCnn':
-            # with Timer() as t:
-            #     nn_train.train()
-            # print('training time {0}'.format(str(t.interval)[:5]))
+            with Timer() as t:
+                nn_train.train()
+            print('training time {0}'.format(str(t.interval)[:5]))
 
+            # predict过程test数据集
             nn_predict = NN_Predict(model, model_name, cls, mean_stds[i])
             with Timer() as t:
                 nn_predict.predict()
