@@ -260,6 +260,7 @@ if __name__ == '__main__':
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
+            print(f'当前执行参数：model={model_name}_{axis}')
             if hasattr(torch.cuda, 'empty_cache'):
                 torch.cuda.empty_cache()
 
