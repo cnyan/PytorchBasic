@@ -48,14 +48,15 @@ class NN_train():
 
         self.action_data_train_set = ActionDataSets('train', axis)
         self.action_data_valid_set = ActionDataSets('valid', axis)
-        print(f'train_data shape: {(self.action_data_train_set.data_shape())}')
-        print(f'valid_data shape: {(self.action_data_valid_set.data_shape())}')
 
         # 按批加载 pyTorch张量
         self.action_train_data_gen = DataLoader(self.action_data_train_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         self.action_valid_data_gen = DataLoader(self.action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
+        print(f'train_data shape: ({len(self.action_train_data_gen)}{(self.action_data_train_set.data_shape())})')
+        print(f'valid_data shape: ({len(self.action_valid_data_gen)}{(self.action_data_valid_set.data_shape())})')
+
         self.model = copy.deepcopy(modelNet)
 
     def train(self):
@@ -173,15 +174,6 @@ class NN_train():
         plt.show()
         plt.close()
 
-    def showImg(self, data):
-        # plt.imshow(data)
-        # plt.show()
-        # 可视化图像
-        plt.figure(figsize=(3, 3))
-        plt.imshow(data, cmap=plt.cm.gray)
-        plt.axis('on')  # 不显示坐标
-        plt.show()
-
 
 class NN_Predict():
     def __init__(self, modelNet, model_name, axis):
@@ -218,7 +210,7 @@ class NN_Predict():
         # 计算校验集的平均准确度
         right_ratio = 1.0 * np.sum([i[0] for i in rights]) / np.sum([i[1] for i in rights])
         print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.axis, right_ratio, len(labels)))
-
+        AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
                                      classes=[0, 1, 2, 3, 4],
                                      savePath=f'src/plt_img/{self.model_name}_{self.axis}_predict.png',
