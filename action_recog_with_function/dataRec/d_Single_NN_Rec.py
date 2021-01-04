@@ -186,16 +186,17 @@ class NN_Predict():
 
         self.model_name = model_name
 
-        self.action_data_test_set = ActionDataSets('test', axis)
+        action_data_test_set = ActionDataSets('test', axis)
 
-        # self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=2)
-        print(f'test_data shape: ({len(self.action_data_test_set)}{(self.action_data_test_set.data_shape())})')
+        self.test_action_data_set = DataLoader(action_data_test_set, shuffle=True, num_workers=0)
+        print(f'test_data shape: ({len(action_data_test_set)}{(action_data_test_set.data_shape())})')
 
     def predict(self):
         rights = []
         labels = []
-        for data, label in self.action_data_test_set:
-            data = torch.tensor(data)
+        for inputs in self.test_action_data_set:
+            data, label = inputs
+
             data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
@@ -263,8 +264,8 @@ if __name__ == '__main__':
         myDilaConvNet = MyDilaConvNet(int(axis[0]))
 
 
-        # models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet}
-        models_all = {'myDnnNet': myDnnNet}
+        models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet}
+        # models_all = {'myDnnNet': myDnnNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')
