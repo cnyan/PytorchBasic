@@ -240,7 +240,15 @@ if __name__ == '__main__':
     org 6 (42, 36, 3)
     org 9 (63, 36, 3)
     """
+    import sys
+
     need_train = True
+    if len(sys.argv[1:]) != 0:
+        if sys.argv[1] == 0:
+            need_train = True
+        else:
+            need_train = False
+
     from AUtils import make_print_to_file  # 打印日志
     from d_Single_NN_Net import MyDnnNet, MyConvNet
 
