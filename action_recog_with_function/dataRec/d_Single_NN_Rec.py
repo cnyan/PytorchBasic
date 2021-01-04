@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 from dataToTorch import ActionDataSets
 import AUtils
 import warnings
+
 warnings.filterwarnings('ignore')
 
 
@@ -98,7 +99,7 @@ class NN_train():
 
                 for i, data in enumerate(dataloaders[phase]):
                     inputs, labels = data  # 获取输入
-
+                    # print(inputs.shape)
                     # 封装成变量
                     if torch.cuda.is_available():
                         inputs = inputs.cuda()
@@ -236,14 +237,17 @@ if __name__ == '__main__':
     org 9 (63, 36, 3)
     """
     from AUtils import make_print_to_file  # 打印日志
-    from d_Single_NN_Net import MyDnnNet
+    from d_Single_NN_Net import MyDnnNet, MyConvNet
 
     make_print_to_file()
     axis_all = ['9axis', '6axis']
 
     for axis in axis_all:
         myDnnNet = MyDnnNet(7 * int(axis[0]) * 36)
-        models_all = {'myDnnNet': myDnnNet}
+        myConvNet = MyConvNet(int(axis[0]))
+
+        # models_all = {'myDnnNet': myDnnNet}
+        models_all = {'myConvNet': myConvNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
