@@ -53,7 +53,7 @@ class NN_Predict():
         rights = []
         labels = []
         for data, label in self.test_action_data_set:
-            data = data.unsqueeze(0)  # 扩展一个维度
+            # data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
                 data = data.cuda()
