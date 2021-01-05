@@ -58,16 +58,10 @@ class MyConvNet(nn.Module):
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, 1, 1),
-            # nn.Dropout2d(0.5),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2)
-        )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(32 * width * height, 512),
-            nn.Linear(512, 5)
+            nn.Linear(32 * width * height, 5),
+            # nn.Linear(512, 5)
         )
         # self.initialize_weights()
 
@@ -113,16 +107,10 @@ class MyDilConvNet(nn.Module):
             nn.AvgPool2d(3, 3)
         )  # （32，12，7）
 
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(32, 64, 2, 1, 1, dilation=dilation),
-            # nn.Dropout2d(0.5),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2)
-        )  # (64,6,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(32 * width * height, 512),
-            nn.Linear(512, 5)
+            nn.Linear(32 * width * height, 5),
+            # nn.Linear(512, 5)
         )
         # self.initialize_weights()
 

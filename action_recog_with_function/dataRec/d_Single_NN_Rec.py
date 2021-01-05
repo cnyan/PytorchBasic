@@ -73,11 +73,11 @@ class NN_train():
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.10)
-        # exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
+        exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
         # 定义学习率衰减点，训练到50%和75%时学习率缩小为原来的1/10
-        mult_step_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer_ft,
-                                                                   milestones=[num_epochs // 2, num_epochs // 4 * 3],
-                                                                   gamma=0.1)
+        # mult_step_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer_ft,
+        #                                                            milestones=[num_epochs // 2, num_epochs // 4 * 3],
+        #                                                            gamma=0.1)
 
         # best_model_wts = self.model.state_dict()
         best_model_wts = copy.deepcopy(model_ft.state_dict())
@@ -147,8 +147,8 @@ class NN_train():
                     best_model_wts = copy.deepcopy(model_ft.state_dict())
 
                 if phase == 'train':
-                    # exp_lr_scheduler.step()
-                    mult_step_scheduler.step()
+                    exp_lr_scheduler.step()
+                    # mult_step_scheduler.step()
 
         time_elapsed = time.time() - since
         print('-' * 30)
@@ -270,8 +270,9 @@ if __name__ == '__main__':
         myLstmNet = MyLstmNet(int(axis[0]))
         myGruNet = MyGruNet(int(axis[0]))
 
-        # models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet}
-        models_all = {'myLstmNet': myLstmNet, 'myGruNet': myGruNet}
+        models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet,
+                      'myLstmNet':myLstmNet,'myGruNet':myGruNet}
+        # models_all = {'myConvNet': myConvNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')

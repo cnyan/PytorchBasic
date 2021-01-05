@@ -47,8 +47,8 @@ class MyConvNet(nn.Module):
             nn.AvgPool1d(kernel_size=3, stride=3)
         )
         self.classifier = nn.Sequential(
-            nn.Linear(32 * (36 // 3), 512),
-            nn.Linear(512, 5)
+            nn.Linear(32 * (36 // 3), 5),
+            # nn.Linear(512, 5)
         )
 
     def forward(self, x):
@@ -75,8 +75,8 @@ class MyDilaConvNet(nn.Module):
             nn.AvgPool1d(kernel_size=3, stride=3)
         )
         self.classifier = nn.Sequential(
-            nn.Linear(32 * (36 // 3), 512),
-            nn.Linear(512, 5)
+            nn.Linear(32 * (36 // 3), 5),
+            # nn.Linear(512, 5)
         )
 
     def forward(self, x):
