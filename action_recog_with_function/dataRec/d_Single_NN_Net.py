@@ -97,10 +97,10 @@ class MyLstmNet(nn.Module):
             num_layers=1,  # 有几层 RNN layers
             # dropout=0.5,
             batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
-            bidirectional=True,  # 单向LSTM
+            bidirectional=False,  # 单向LSTM
         )
 
-        self.out = nn.Linear(7 * axis * 2 * 2, 5)  # 输出层
+        self.out = nn.Linear(7 * axis * 2, 5)  # 输出层
 
     def forward(self, x):
         # x shape (batch, time_step, input_size)
@@ -113,8 +113,28 @@ class MyLstmNet(nn.Module):
         # 选取最后一个时间点的 r_out 输出
         # 这里 r_out[:, -1, :] 的值也是 h_n 的值
 
-        res = r_out[:, 0, :] + r_out[:, -1, :]
+        res = h_n[-1, :, :]
         out = self.out(res)
         # output_last = output[:,0,:] # 双向LSTM 获取反向的最后一个output
         # output_last = output[:,-1,:] # 双向LSTM 获取正向的最后一个output
         return out
+
+
+class MyGruNet(nn.Module):
+    def __init__(self, axis):
+        super(MyGruNet, self).__init__()
+        self.axis = axis
+
+        self.GRU_layer = nn.GRU(
+            input_size=7 * axis,
+            hidden_size=7 * axis,
+            batch_first=True
+        )
+
+        self.output_linear = nn.Linear(7 * axis, 5)  # 输出层
+
+    def forward(self, x):
+        x = x.view(-1, 36, 7 * self.axis)
+        x, hidden = self.GRU_layer(x)
+        x = self.output_linear(x[:,-1,:])
+        return x

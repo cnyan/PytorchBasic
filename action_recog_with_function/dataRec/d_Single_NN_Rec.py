@@ -256,7 +256,7 @@ if __name__ == '__main__':
             need_train = False
 
     from AUtils import make_print_to_file  # 打印日志
-    from d_Single_NN_Net import MyDnnNet, MyConvNet, MyDilaConvNet, MyLstmNet
+    from d_Single_NN_Net import MyDnnNet, MyConvNet, MyDilaConvNet, MyLstmNet, MyGruNet
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -268,9 +268,10 @@ if __name__ == '__main__':
         myConvNet = MyConvNet(int(axis[0]))
         myDilaConvNet = MyDilaConvNet(int(axis[0]))
         myLstmNet = MyLstmNet(int(axis[0]))
+        myGruNet = MyGruNet(int(axis[0]))
 
         # models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet}
-        models_all = {'myLstmNet': myLstmNet}
+        models_all = {'myLstmNet': myLstmNet, 'myGruNet': myGruNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')
