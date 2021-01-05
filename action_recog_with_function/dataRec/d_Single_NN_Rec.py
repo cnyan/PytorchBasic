@@ -197,7 +197,7 @@ class NN_Predict():
         for inputs in self.test_action_data_set:
             data, label = inputs
 
-            data = data.unsqueeze(0)  # 扩展一个维度
+            # data = data.unsqueeze(0)  # 扩展一个维度
             label = torch.LongTensor([int(label)])
             if torch.cuda.is_available():
                 data = data.to(self.device)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     """
     import sys
 
-    need_train = True
+    need_train = False
     if len(sys.argv[1:]) != 0:
         if sys.argv[1] == '0':
             need_train = True
