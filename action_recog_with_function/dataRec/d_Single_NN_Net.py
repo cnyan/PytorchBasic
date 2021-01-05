@@ -57,6 +57,7 @@ class MyConvNet(nn.Module):
         output = self.classifier(out)
         return output
 
+
 class MyDilaConvNet(nn.Module):
     def __init__(self, axis):
         super(MyDilaConvNet, self).__init__()
@@ -82,3 +83,32 @@ class MyDilaConvNet(nn.Module):
         out = x_1.view(x_1.size(0), -1)
         output = self.classifier(out)
         return output
+
+
+class MyLstmNet(nn.Module):
+    def __init__(self, axis):
+        super(MyLstmNet, self).__init__()
+        self.axis = axis
+        self.lstm = nn.LSTM(  # LSTM 效果要比 nn.RNN() 好多了
+            input_size=7 * axis,  # 图片每行的数据像素点
+            hidden_size=7 * axis,  # rnn hidden unit
+            num_layers=3,  # 有几层 RNN layers
+            # dropout=0.5,
+            batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
+            bidirectional=False  # 单向LSTM
+        )
+
+        self.out = nn.Linear(7 * axis, 5)  # 输出层
+
+    def forward(self, x):
+        # x shape (batch, time_step, input_size)
+        # r_out shape (batch, time_step, output_size)
+        # h_n shape (n_layers, batch, hidden_size)   LSTM 有两个 hidden states, h_n 是分线, h_c 是主线
+        # h_c shape (n_layers, batch, hidden_size)
+        x = x.view(-1, 36, 7 * self.axis)
+        r_out, (h_n, h_c) = self.lstm(x, None)  # None 表示 hidden state 会用全0的 state
+
+        # 选取最后一个时间点的 r_out 输出
+        # 这里 r_out[:, -1, :] 的值也是 h_n 的值
+        out = self.out(r_out[:, -1, :])
+        return out

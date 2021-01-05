@@ -20,7 +20,9 @@ import platform
 
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
-from cnn_base_var import action_window_row, action_window_col
+
+action_window_row = 40
+action_window_col = 42
 
 
 def save_data_img_with_color(data_mat, action_image_dir_path):
@@ -101,7 +103,7 @@ def create_all_image_from_csv(action_root_path, action_image_path, save_model='o
         action_image_dir_path = os.path.join(action_image_path, action_image_dir_num)
 
         if not os.path.exists(action_image_dir_path):
-            os.mkdir(action_image_dir_path)
+            os.makedirs(action_image_dir_path)
 
         print(file_name)
 
@@ -183,10 +185,10 @@ def create_train_valid(action_image_path, valid_size=0.1, test_size=0.1):
 
 if __name__ == '__main__':
     if platform.system() == 'Windows':
-        action_root_path = 'D:/temp/action_windows'
+        action_root_path = 'D:/temp/action_windows-6axis'
         action_image_path = 'D:/home/developer/TrainData/actionImage/allImage'
     else:
-        action_root_path = '/home/yanjilong/DataSets/action_windows'
+        action_root_path = '/home/yanjilong/DataSets/action_windows-6axis'
         action_image_path = '/home/yanjilong/DataSets/actionImage/allImage'
 
     # save_model='color' || 'origin' || 'reshape'
