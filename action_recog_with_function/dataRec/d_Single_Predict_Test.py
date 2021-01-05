@@ -91,7 +91,7 @@ class NN_Predict():
 
 if __name__ == '__main__':
     from AUtils import make_print_to_file  # 打印日志
-    from d_Single_NN_Net import MyDnnNet
+    from d_Single_NN_Net import MyDnnNet,MyConvNet, MyDilaConvNet
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -101,7 +101,10 @@ if __name__ == '__main__':
 
     for axis in axis_all:
         myDnnNet = MyDnnNet(7 * int(axis[0]) * 36)
-        models_all = {'myDnnNet': myDnnNet}
+        myConvNet = MyConvNet(int(axis[0]))
+        myDilaConvNet = MyDilaConvNet(int(axis[0]))
+
+        models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
