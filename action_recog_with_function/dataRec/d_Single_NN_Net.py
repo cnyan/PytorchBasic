@@ -52,7 +52,7 @@ class MyConvNet(nn.Module):
 
     def forward(self, x):
         x_1 = self.conv1(x)
-        print(x_1.shape)
+        # print(x_1.shape)
         out = x_1.view(x_1.size(0), -1)
         output = self.classifier(out)
         return output
