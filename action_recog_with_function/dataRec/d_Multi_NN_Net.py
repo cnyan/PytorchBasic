@@ -27,7 +27,7 @@ class MyMultiConvNet(nn.Module):
                       kernel_size=5,
                       stride=1,
                       padding=2),  # 输入63*36，自上向下扫描
-            # nn.Dropout(p=0.5),
+            nn.Dropout(p=0.5),
             nn.ReLU(),
             # nn.AvgPool1d(kernel_size=2, stride=2)
         )
@@ -39,7 +39,7 @@ class MyMultiConvNet(nn.Module):
         )
         self.conv3_layer = nn.Sequential(
             nn.Conv1d(128, 256, 3, 1, 1),
-            # nn.Dropout2d(p=0.5),
+            nn.Dropout2d(p=0.5),
             nn.ReLU(),
         )
         self.conv4_layer = nn.Sequential(
