@@ -46,9 +46,9 @@ class NN_train():
         action_data_valid_set = ActionDataSets('valid', axis)
 
         # 按批加载 pyTorch张量
-        self.action_train_data_gen = DataLoader(action_data_train_set, batch_size=32, shuffle=True,
+        self.action_train_data_gen = DataLoader(action_data_train_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
-        self.action_valid_data_gen = DataLoader(action_data_valid_set, batch_size=32, shuffle=True,
+        self.action_valid_data_gen = DataLoader(action_data_valid_set, batch_size=64, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         print(f'train_data shape: ({len(action_data_train_set)}{(action_data_train_set.data_shape())})')
         print(f'valid_data shape: ({len(action_data_valid_set)}{(action_data_valid_set.data_shape())})')
@@ -251,7 +251,7 @@ if __name__ == '__main__':
             need_train = False
 
     from AUtils import make_print_to_file  # 打印日志
-    from d_Multi_NN_Net import MyMultiConvNet
+    from d_Multi_NN_Net import MyMultiConvNet,MyMultiResCnnNet
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -260,8 +260,9 @@ if __name__ == '__main__':
 
     for axis in axis_all:
         myMultiConvNet = MyMultiConvNet(int(axis[0]))
+        myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
 
-        models_all = {'myDnnNet': myMultiConvNet}
+        models_all = {'myMultiResCnnNet': myMultiResCnnNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')
