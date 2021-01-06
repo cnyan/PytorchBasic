@@ -262,8 +262,8 @@ if __name__ == '__main__':
         myMultiConvNet = MyMultiConvNet(int(axis[0]))
         myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
 
-        # models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet}
-        models_all = {'myMultiResCnnNet': myMultiResCnnNet}
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet}
+        # models_all = {'myMultiResCnnNet': myMultiResCnnNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')
