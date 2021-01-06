@@ -66,6 +66,7 @@ class MyMultiResCnnNet(nn.Module):
 
         self.res1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
+            nn.Dropout(),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU()
         )
@@ -78,7 +79,7 @@ class MyMultiResCnnNet(nn.Module):
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
-            nn.Dropout(),
+            # nn.Dropout(),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
 
@@ -86,6 +87,7 @@ class MyMultiResCnnNet(nn.Module):
 
         self.res3_layer = nn.Sequential(
             nn.Conv1d(128, 256, 1, 2, 0),
+            nn.Dropout(),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU()
         )
@@ -98,7 +100,7 @@ class MyMultiResCnnNet(nn.Module):
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(256, 256, 1, 1, 0),
-            nn.Dropout(),
+            # nn.Dropout(),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
 
@@ -129,3 +131,44 @@ class MyMultiResCnnNet(nn.Module):
         out = out.view(out.size(0), -1)
         output = self.classifier(out)
         return output
+
+
+class MyConvLstmNet(nn.Module):
+    def __init__(self, axis):
+        super(MyConvLstmNet, self).__init__()
+        self.conv1_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 5, 1, 2),
+            nn.Dropout(p=0.5),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2, dilation=1)
+        )
+        self.conv2_layer = nn.Sequential(
+            nn.Conv1d(128, 256, 3, 1, 1),
+            nn.Dropout(p=0.5),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2, dilation=1)
+        )
+        self.lstm_layer = nn.LSTM(  # LSTM 效果要比 nn.RNN() 好多了
+            input_size=9,  # 图片每行的数据像素点
+            hidden_size=128,  # rnn hidden unit
+            num_layers=1,  # 有几层 RNN layers
+            # dropout=0.5,
+            batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
+            bidirectional=False,  # 单向LSTM
+        )
+        self.classifier = nn.Sequential(
+            nn.Linear(128, 5)
+        )
+
+    def forward(self, x):
+        x = self.conv1_layer(x)
+        x = self.conv2_layer(x)
+        r_out, (h_n, h_c) = self.lstm_layer(x, None)
+        print(r_out[:,-1,:].shape)
+        out = self.classifier(r_out[:,-1,:])
+        return out
+
+
+class MyIncepConvNet(nn.Module):
+    def __init__(self):
+        super(MyIncepConvNet, self).__init__()

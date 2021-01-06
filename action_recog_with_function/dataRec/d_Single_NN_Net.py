@@ -100,7 +100,7 @@ class MyLstmNet(nn.Module):
             bidirectional=False,  # 单向LSTM
         )
 
-        self.out = nn.Linear(7 * axis * 2, 5)  # 输出层
+        self.out = nn.Linear(7 * axis * 2, 5)  # 输出层,双向的话 输入再*2
 
     def forward(self, x):
         # x shape (batch, time_step, input_size)
@@ -136,5 +136,5 @@ class MyGruNet(nn.Module):
     def forward(self, x):
         x = x.view(-1, 36, 7 * self.axis)
         x, hidden = self.GRU_layer(x)
-        x = self.output_linear(x[:,-1,:])
+        x = self.output_linear(x[:, -1, :])
         return x
