@@ -74,7 +74,7 @@ class MyMultiResCnnNet(nn.Module):
 
         self.res1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU()
         )
@@ -87,7 +87,7 @@ class MyMultiResCnnNet(nn.Module):
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
 
@@ -95,7 +95,7 @@ class MyMultiResCnnNet(nn.Module):
 
         self.res3_layer = nn.Sequential(
             nn.Conv1d(128, 256, 1, 2, 0),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU()
         )
@@ -108,7 +108,7 @@ class MyMultiResCnnNet(nn.Module):
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(256, 256, 1, 1, 0),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
 
@@ -116,7 +116,7 @@ class MyMultiResCnnNet(nn.Module):
 
         self.res5_layer = nn.Sequential(
             nn.Conv1d(256, 256, 1, 1, 0),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.AvgPool1d(2, 2)
