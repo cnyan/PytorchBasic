@@ -14,6 +14,10 @@ import torch.nn.functional as F
 
 
 class MyMultiConvNet(nn.Module):
+    """
+    多卷积网络
+    """
+
     def __init__(self, axis):
         super(MyMultiConvNet, self).__init__()
 
@@ -61,6 +65,10 @@ class MyMultiConvNet(nn.Module):
 
 
 class MyMultiResCnnNet(nn.Module):
+    """
+    多卷积残差网络
+    """
+
     def __init__(self, axis):
         super(MyMultiResCnnNet, self).__init__()
 
@@ -134,6 +142,10 @@ class MyMultiResCnnNet(nn.Module):
 
 
 class MyConvLstmNet(nn.Module):
+    """
+    卷积+LSTM
+    """
+
     def __init__(self, axis):
         super(MyConvLstmNet, self).__init__()
         self.conv1_layer = nn.Sequential(
@@ -164,11 +176,46 @@ class MyConvLstmNet(nn.Module):
         x = self.conv1_layer(x)
         x = self.conv2_layer(x)
         r_out, (h_n, h_c) = self.lstm_layer(x, None)
-        print(r_out[:,-1,:].shape)
-        out = self.classifier(r_out[:,-1,:])
+        # print(r_out[:, -1, :].shape)
+        out = self.classifier(r_out[:, -1, :])
         return out
 
 
 class MyIncepConvNet(nn.Module):
+    """
+    inception 网络
+    """
+
     def __init__(self):
         super(MyIncepConvNet, self).__init__()
+
+
+if __name__ == '__main__':
+    # 模型可视化
+    axis = '9axis'
+    myMultiConvNet = MyMultiConvNet(int(axis[0]))
+    myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
+    myConvLstmNet = MyConvLstmNet(int(axis[0]))
+
+    import torch
+    import os
+    import shutil
+    from torchviz import make_dot
+
+    x = torch.randn(1, 63, 36).requires_grad_(True)
+    y = myMultiResCnnNet(x)
+    myConvnet_dot = make_dot(y, params=dict(list(myMultiResCnnNet.named_parameters()) + [('x', x)]))
+    myConvnet_dot.format = 'png'
+    myConvnet_dot.directory = r'src/model_img/myMultiResCnnNet'
+    myConvnet_dot.view()
+
+    import hiddenlayer as hl
+
+    my_hl = hl.build_graph(myMultiResCnnNet, torch.zeros([1, 63, 36]))
+    my_hl.theme = hl.graph.THEMES['blue'].copy()
+    my_hl.save(r'src/model_img/myMultiResCnnNet_hl.png', format='png')
+
+    # import netron
+    #
+    # modelPath = "src/model/myLstmNet_9axis_model.pkl"
+    # netron.start(modelPath)
