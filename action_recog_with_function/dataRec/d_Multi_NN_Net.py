@@ -148,18 +148,25 @@ class MyMultiConvLstmNet(nn.Module):
 
     def __init__(self, axis):
         super(MyMultiConvLstmNet, self).__init__()
+
         self.conv1_layer = nn.Sequential(
-            nn.Conv1d(7 * axis, 128, 3, 1, 1),
-            nn.Dropout(p=0.5),
+            nn.Conv1d(7 * axis, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2)
-        )
+            nn.Conv1d(128, 128, 3, 2, 1),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(128, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
         # self.embedding = nn.Embedding(36,7*axis)
 
         self.lstm_layer = nn.LSTM(  # LSTM 效果要比 nn.RNN() 好多了
             input_size=18,  # 图片每行的数据像素点
             hidden_size=128,  # rnn hidden unit
-            num_layers=2,  # 有几层 RNN layers
+            num_layers=1,  # 有几层 RNN layers
             dropout=0.5,
             batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
             bidirectional=False,  # 单向LSTM
