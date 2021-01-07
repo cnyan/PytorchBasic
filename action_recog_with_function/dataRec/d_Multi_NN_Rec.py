@@ -265,7 +265,7 @@ if __name__ == '__main__':
         myConvConfluence = MyMultiConvConfluence(int(axis[0]))
 
         # models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
-        #               'myConvLstmNet': myConvLstmNet}
+        #               'myConvLstmNet': myConvLstmNet,'myConvConfluence': myConvConfluence}
 
         models_all = {'myConvLstmNet': myConvLstmNet, 'myConvConfluence': myConvConfluence}
 
