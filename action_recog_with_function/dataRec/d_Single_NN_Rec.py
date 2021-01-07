@@ -264,14 +264,14 @@ if __name__ == '__main__':
     axis_all = ['9axis', '6axis']
 
     for axis in axis_all:
-        myDnnNet = MyDnnNet(7 * int(axis[0]) * 36)
-        myConvNet = MyConvNet(int(axis[0]))
-        myDilaConvNet = MyDilaConvNet(int(axis[0]))
-        myLstmNet = MyLstmNet(int(axis[0]))
-        myGruNet = MyGruNet(int(axis[0]))
+        mySingleDnnNet = MyDnnNet(7 * int(axis[0]) * 36)
+        mySingleConvNet = MyConvNet(int(axis[0]))
+        mySingleDilaConvNet = MyDilaConvNet(int(axis[0]))
+        mySingleLstmNet = MyLstmNet(int(axis[0]))
+        mySingleGruNet = MyGruNet(int(axis[0]))
 
-        models_all = {'myDnnNet': myDnnNet, 'myConvNet': myConvNet, 'myDilaConvNet': myDilaConvNet,
-                      'myLstmNet':myLstmNet,'myGruNet':myGruNet}
+        models_all = {'mySingleDnnNet': mySingleDnnNet, 'mySingleConvNet': mySingleConvNet, 'mySingleDilaConvNet': mySingleDilaConvNet,
+                      'mySingleLstmNet':mySingleLstmNet,'mySingleGruNet':mySingleGruNet}
         # models_all = {'myConvNet': myConvNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
