@@ -154,7 +154,7 @@ class MyMultiConvLstmNet(nn.Module):
             # nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 3, 1, 1),
-            nn.Dropout(0.5),
+            # nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
             # nn.Dropout(0.5),
