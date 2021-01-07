@@ -141,30 +141,26 @@ class MyMultiResCnnNet(nn.Module):
         return output
 
 
-class MyConvLstmNet(nn.Module):
+class MyMultiConvLstmNet(nn.Module):
     """
     卷积+LSTM
     """
 
     def __init__(self, axis):
-        super(MyConvLstmNet, self).__init__()
+        super(MyMultiConvLstmNet, self).__init__()
         self.conv1_layer = nn.Sequential(
-            nn.Conv1d(7 * axis, 128, 5, 1, 2),
+            nn.Conv1d(7 * axis, 128, 3, 1, 1),
             nn.Dropout(p=0.5),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2, dilation=1)
+            nn.MaxPool1d(kernel_size=2, stride=2)
         )
-        self.conv2_layer = nn.Sequential(
-            nn.Conv1d(128, 256, 3, 1, 1),
-            nn.Dropout(p=0.5),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2, dilation=1)
-        )
+        # self.embedding = nn.Embedding(36,7*axis)
+
         self.lstm_layer = nn.LSTM(  # LSTM 效果要比 nn.RNN() 好多了
-            input_size=9,  # 图片每行的数据像素点
+            input_size=18,  # 图片每行的数据像素点
             hidden_size=128,  # rnn hidden unit
-            num_layers=1,  # 有几层 RNN layers
-            # dropout=0.5,
+            num_layers=2,  # 有几层 RNN layers
+            dropout=0.5,
             batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
             bidirectional=False,  # 单向LSTM
         )
@@ -174,10 +170,70 @@ class MyConvLstmNet(nn.Module):
 
     def forward(self, x):
         x = self.conv1_layer(x)
-        x = self.conv2_layer(x)
         r_out, (h_n, h_c) = self.lstm_layer(x, None)
         # print(r_out[:, -1, :].shape)
         out = self.classifier(r_out[:, -1, :])
+        return out
+
+
+class MyMultiConvConfluence(nn.Module):
+    """
+    多层卷积融合
+    """
+
+    def __init__(self, axis):
+        super(MyMultiConvConfluence, self).__init__()
+        self.conv1_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 1, 1, 0),
+            # nn.Dropout(0.5),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.AvgPool1d(2, 2)
+        )
+        self.temporal2_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(128, 128, 5, 2, 2),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(128, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+        self.spatial3_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(128, 128, 3, 2, 1),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(128, 128, 1, 1, 0),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+
+        self.confluence4_layer = nn.Sequential(
+            nn.Conv1d(128, 256, 2, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.MaxPool1d(2, 2)
+        )  # 256*9
+
+        self.classifier = nn.Sequential(
+            nn.Linear(256 * 9, 5)
+        )
+
+    def forward(self, x):
+        conv1 = self.conv1_layer(x)
+        temp = self.temporal2_layer(x)
+        spital = self.spatial3_layer(x)
+        out = self.confluence4_layer(conv1 + temp + spital)
+        out = out.view(out.size(0), -1)
+        out = self.classifier(out)
         return out
 
 
@@ -195,7 +251,7 @@ if __name__ == '__main__':
     axis = '9axis'
     myMultiConvNet = MyMultiConvNet(int(axis[0]))
     myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
-    myConvLstmNet = MyConvLstmNet(int(axis[0]))
+    myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
 
     import torch
     import os
