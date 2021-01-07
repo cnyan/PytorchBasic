@@ -151,13 +151,13 @@ class MyMultiConvLstmNet(nn.Module):
 
         self.conv1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
-            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 3, 2, 1),
-            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
-            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Dropout(0.5),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
         )  # 128*18
@@ -167,7 +167,7 @@ class MyMultiConvLstmNet(nn.Module):
             input_size=18,  # 图片每行的数据像素点
             hidden_size=128,  # rnn hidden unit
             num_layers=1,  # 有几层 RNN layers
-            dropout=0.5,
+            # dropout=0.5,
             batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
             bidirectional=False,  # 单向LSTM
         )
@@ -192,7 +192,7 @@ class MyMultiConvConfluence(nn.Module):
         super(MyMultiConvConfluence, self).__init__()
         self.conv1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
-            # nn.Dropout(0.5),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.AvgPool1d(2, 2)
@@ -202,6 +202,7 @@ class MyMultiConvConfluence(nn.Module):
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 5, 2, 2),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
@@ -214,6 +215,7 @@ class MyMultiConvConfluence(nn.Module):
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 3, 2, 1),
+            nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
