@@ -151,13 +151,13 @@ class MyMultiConvLstmNet(nn.Module):
 
         self.conv1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
-            nn.Dropout(0.5),
+            # nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 3, 2, 1),
             nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv1d(128, 128, 1, 1, 0),
-            nn.Dropout(0.5),
+            # nn.Dropout(0.5),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
         )  # 128*18
