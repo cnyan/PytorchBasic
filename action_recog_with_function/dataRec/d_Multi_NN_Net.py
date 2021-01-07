@@ -166,7 +166,7 @@ class MyMultiConvLstmNet(nn.Module):
         self.lstm_layer = nn.LSTM(  # LSTM 效果要比 nn.RNN() 好多了
             input_size=18,  # 图片每行的数据像素点
             hidden_size=128,  # rnn hidden unit
-            num_layers=1,  # 有几层 RNN layers
+            num_layers=2,  # 有几层 RNN layers
             # dropout=0.5,
             batch_first=True,  # input & output 会是以 batch size 为第一维度的特征集 e.g. (batch, time_step, input_size)
             bidirectional=False,  # 单向LSTM
