@@ -105,10 +105,10 @@ if __name__ == '__main__':
         myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
         myMultiConvConfluence = MyMultiConvConfluence(int(axis[0]))
 
-        # models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
-        #               'myConvLstmNet': myConvLstmNet,'myConvConfluence': myConvConfluence}
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
+                      'myMultiConvLstmNet': myMultiConvLstmNet,'myMultiConvConfluence': myMultiConvConfluence}
 
-        models_all = {'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluence': myMultiConvConfluence}
+        # models_all = {'myMultiConvConfluence': myMultiConvConfluence}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

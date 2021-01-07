@@ -270,8 +270,9 @@ if __name__ == '__main__':
         mySingleLstmNet = MyLstmNet(int(axis[0]))
         mySingleGruNet = MyGruNet(int(axis[0]))
 
-        models_all = {'mySingleDnnNet': mySingleDnnNet, 'mySingleConvNet': mySingleConvNet, 'mySingleDilaConvNet': mySingleDilaConvNet,
-                      'mySingleLstmNet':mySingleLstmNet,'mySingleGruNet':mySingleGruNet}
+        models_all = {'mySingleDnnNet': mySingleDnnNet, 'mySingleConvNet': mySingleConvNet,
+                      'mySingleDilaConvNet': mySingleDilaConvNet,
+                      'mySingleLstmNet': mySingleLstmNet, 'mySingleGruNet': mySingleGruNet}
         # models_all = {'myConvNet': myConvNet}
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
