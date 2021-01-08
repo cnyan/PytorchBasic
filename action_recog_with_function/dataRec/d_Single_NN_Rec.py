@@ -248,7 +248,8 @@ if __name__ == '__main__':
     """
     import sys
 
-    need_train = True
+    need_train = True  # 是否需要训练，如果为False，直接进行predict
+
     if len(sys.argv[1:]) != 0:
         if sys.argv[1] == '0':
             need_train = True
@@ -277,17 +278,19 @@ if __name__ == '__main__':
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
             print(f'当前执行参数：model={model_name}_{axis}')
+            try:
+                if hasattr(torch.cuda, 'empty_cache'):
+                    torch.cuda.empty_cache()
 
-            if hasattr(torch.cuda, 'empty_cache'):
-                torch.cuda.empty_cache()
+                if need_train:
+                    nn_train = NN_train(model, model_name, axis=axis)
+                    with Timer() as t:
+                        nn_train.train()
+                    print('training time {0}'.format(str(t.interval)[:5]))
 
-            if need_train:
-                nn_train = NN_train(model, model_name, axis=axis)
+                nn_predict = NN_Predict(model, model_name, axis=axis)
                 with Timer() as t:
-                    nn_train.train()
-                print('training time {0}'.format(str(t.interval)[:5]))
-
-            nn_predict = NN_Predict(model, model_name, axis=axis)
-            with Timer() as t:
-                nn_predict.predict()
-            print('predict time {0}'.format(str(t.interval)[:5]))
+                    nn_predict.predict()
+                print('predict time {0}'.format(str(t.interval)[:5]))
+            except Exception as exc:
+                print(exc.args)

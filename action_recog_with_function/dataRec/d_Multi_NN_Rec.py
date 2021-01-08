@@ -235,15 +235,11 @@ class NN_Predict():
 if __name__ == '__main__':
     """
     窗口长度 36
-    xyz 6 (14, 36, 3)
-    xyz 9 (21, 36, 3)
-    awh 9 (21, 36, 3)
-    org 6 (42, 36, 3)
-    org 9 (63, 36, 3)
     """
     import sys
 
-    need_train = True
+    need_train = True  # 是否需要训练，如果为False，直接进行predict
+
     if len(sys.argv[1:]) != 0:
         if sys.argv[1] == '0':
             need_train = True
@@ -251,23 +247,23 @@ if __name__ == '__main__':
             need_train = False
 
     from AUtils import make_print_to_file  # 打印日志
-    from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluence
+    from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet
 
     make_print_to_file()
     if torch.cuda.is_available():
         torch.cuda.set_device(1)
-    axis_all = ['9axis', '6axis']
+    axis_all = ['6axis', '9axis']
 
     for axis in axis_all:
         myMultiConvNet = MyMultiConvNet(int(axis[0]))
         myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
         myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
-        myMultiConvConfluence = MyMultiConvConfluence(int(axis[0]))
+        myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
 
         models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
-                      'myMultiConvLstmNet': myMultiConvLstmNet,'myMultiConvConfluence': myMultiConvConfluence}
+                      'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
-        # models_all = { 'myMultiConvConfluence': myMultiConvConfluence}
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvLstmNet': myMultiConvLstmNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

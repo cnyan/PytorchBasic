@@ -177,13 +177,13 @@ class MyMultiConvLstmNet(nn.Module):
         return out
 
 
-class MyMultiConvConfluence(nn.Module):
+class MyMultiConvConfluenceNet(nn.Module):
     """
     多层卷积融合
     """
 
     def __init__(self, axis):
-        super(MyMultiConvConfluence, self).__init__()
+        super(MyMultiConvConfluenceNet, self).__init__()
         self.conv1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 128, 1, 1, 0),
             nn.Dropout(0.5),
@@ -263,25 +263,30 @@ if __name__ == '__main__':
     myMultiConvNet = MyMultiConvNet(int(axis[0]))
     myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
     myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
-    myMultiConvConfluence = MyMultiConvConfluence(int(axis[0]))
+    myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
 
     import torch
     import os
     import shutil
     from torchviz import make_dot
 
-    x = torch.randn(1, 63, 36).requires_grad_(True)
-    y = myMultiResCnnNet(x)
-    myConvnet_dot = make_dot(y, params=dict(list(myMultiResCnnNet.named_parameters()) + [('x', x)]))
-    myConvnet_dot.format = 'png'
-    myConvnet_dot.directory = r'src/model_img/myMultiResCnnNet'
-    myConvnet_dot.view()
+    models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
+                  'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
-    import hiddenlayer as hl
+    for model_name,model in models_all.items():
 
-    my_hl = hl.build_graph(myMultiConvLstmNet, torch.zeros([1, 63, 36]))
-    my_hl.theme = hl.graph.THEMES['blue'].copy()
-    my_hl.save(r'src/model_img/myMultiConvLstmNet_hl.png', format='png')
+        x = torch.randn(1, 63, 36).requires_grad_(True)
+        y = model(x)
+        myConvnet_dot = make_dot(y, params=dict(list(model.named_parameters()) + [('x', x)]))
+        myConvnet_dot.format = 'png'
+        myConvnet_dot.directory = f'src/model_img/{model_name}'
+        myConvnet_dot.view()
+
+        import hiddenlayer as hl
+
+        my_hl = hl.build_graph(model, torch.zeros([1, 63, 36]))
+        my_hl.theme = hl.graph.THEMES['blue'].copy()
+        my_hl.save(fr'src/model_img/{model_name}_hl.png', format='png')
 
     # import netron
     #

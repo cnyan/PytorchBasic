@@ -91,7 +91,7 @@ class NN_Predict():
 
 if __name__ == '__main__':
     from AUtils import make_print_to_file  # 打印日志
-    from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluence
+    from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -103,12 +103,12 @@ if __name__ == '__main__':
         myMultiConvNet = MyMultiConvNet(int(axis[0]))
         myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
         myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
-        myMultiConvConfluence = MyMultiConvConfluence(int(axis[0]))
+        myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
 
         models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
-                      'myMultiConvLstmNet': myMultiConvLstmNet,'myMultiConvConfluence': myMultiConvConfluence}
+                      'myMultiConvLstmNet': myMultiConvLstmNet,'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
-        # models_all = {'myMultiConvConfluence': myMultiConvConfluence}
+        models_all = {'myMultiResCnnNet': myMultiResCnnNet,'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
