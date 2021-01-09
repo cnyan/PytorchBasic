@@ -20,27 +20,28 @@ torch.save(model.state_dict(), model_cp,_use_new_zipfile_serialization=False)  #
 import os
 import glob
 import torch
-from d_Multi_NN_Net import MyMultiResCnnNet, MyMultiConvConfluenceNet
+from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet
 import platform
 
-load_model_name = 'myMultiResCnnNet'  # @@@@@@@@@@ 修改1
-new_model_path = 'src/model'  # 1.6版本以上路径
-no_zip_model_path = 'src/model_no_new_zip'  # 低于1.6版本以下路径
-
 if __name__ == '__main__':
-    model_names = glob.glob(os.path.join(new_model_path, f'{load_model_name}*.pkl'))
-    model_names.sort(key=lambda x: int(x[-15]))
 
-    for model_name in model_names:
-        axis  =  int(model_name[-15])
+    new_model_path = 'src/model'  # 1.6版本以上路径
+    no_zip_model_path = 'src/model_no_new_zip'  # 低于1.6版本以下路径
+    axis_all = ['6axis', '9axis']
 
-        model = MyMultiResCnnNet(int(axis))    # @@@@@@@@@@ 修改2
-        model.load_state_dict(torch.load(model_name, map_location='cpu'))
+    for axis in axis_all:
+        myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
+        myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
 
-        if platform.system() == 'Windows':
-            model_name = model_name.split("\\")[-1]
-        else:
-            model_name = model_name.split(r'/')[-1]
+        models_all = {'myMultiResCnnNet': myMultiResCnnNet,
+                      'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
-        torch.save(model.state_dict(), os.path.join(no_zip_model_path, model_name.split(r'/')[-1]),
-                   _use_new_zipfile_serialization=False)  # 训练所有数据后，保存网络的参数
+        for model_name, model_module in models_all.items():
+            model_names = os.path.join(new_model_path, f'{model_name}_{axis}_model.pkl')
+
+            model_module.load_state_dict(torch.load(model_names, map_location='cpu'))
+
+            new_model_save_name = os.path.join(no_zip_model_path, f'{model_name}_{axis}_model.pkl')
+
+            torch.save(model_module.state_dict(), new_model_save_name,
+                       _use_new_zipfile_serialization=False)  # 训练所有数据后，保存网络的参数
