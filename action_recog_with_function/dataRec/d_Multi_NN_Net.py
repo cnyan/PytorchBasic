@@ -94,10 +94,11 @@ class MyMultiResCnnNet(nn.Module):
         )
 
         self.res3_layer = nn.Sequential(
-            nn.Conv1d(128, 256, 1, 2, 0),
+            nn.Conv1d(128, 256, 1, 1, 0),
             nn.Dropout(0.5),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.MaxPool1d(2,2)
         )
 
         self.res4_layer = nn.Sequential(
