@@ -248,6 +248,160 @@ class MyMultiConvConfluenceNet(nn.Module):
         return out
 
 
+class MyMultiTempSpaceConfluenceNet(nn.Module):
+    """
+    时空卷积融合
+    """
+
+    def __init__(self, axis):
+        super(MyMultiTempSpaceConfluenceNet, self).__init__()
+        # self.conv1_layer = nn.Sequential(
+        #     nn.Conv1d(7 * axis, 128, 1, 1, 0),
+        #     nn.Dropout(0.5),
+        #     nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     # nn.AvgPool1d(2, 2)
+        # )
+        self.axis = axis
+        self.temporal1_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+        self.spatial2_layer = nn.Sequential(
+            nn.Conv2d(1, 1, 1, 1, 0),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv2d(1, 1, 3, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv2d(1, 1, 1, 1, 0),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+
+        self.confluence3_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 2, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.AvgPool1d(2, 2)
+        )  # 256*9
+
+        self.confluence4_layer = nn.Sequential(
+            nn.Conv1d(128, 256, 2, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.MaxPool1d(2, 2)
+        )  # 256*9
+
+        self.classifier = nn.Sequential(
+            nn.Linear(256 * 9, 5)
+        )
+
+    def forward(self, x):
+        temp = self.temporal1_layer(x)
+
+        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
+        spital = self.spatial2_layer(x_2d)
+        spital = spital.permute([1,0,2,3]).squeeze(0)
+
+        out = self.confluence3_layer(temp + spital)
+
+        out = self.confluence4_layer(out)
+        out = out.view(out.size(0), -1)
+        out = self.classifier(out)
+        return out
+
+
+class MyMultiTestNet(nn.Module):
+    """
+    时空卷积融合
+    """
+
+    def __init__(self, axis):
+        super(MyMultiTestNet, self).__init__()
+        # self.conv1_layer = nn.Sequential(
+        #     nn.Conv1d(7 * axis, 128, 1, 1, 0),
+        #     nn.Dropout(0.5),
+        #     nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     # nn.AvgPool1d(2, 2)
+        # )
+        self.axis = axis
+        self.temporal1_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
+            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+        self.spatial2_layer = nn.Sequential(
+            nn.Conv2d(1, 1, 1, 1, 0),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv2d(1, 1, 3, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv2d(1, 1, 1, 1, 0),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            # nn.AvgPool1d(2, 2)
+        )  # 128*18
+
+        self.confluence3_layer = nn.Sequential(
+            nn.Conv1d(7 * axis, 128, 2, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.MaxPool1d(2, 2)
+        )  # 256*9
+
+        self.confluence4_layer = nn.Sequential(
+            nn.Conv1d(128, 256, 2, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.MaxPool1d(2, 2)
+        )  # 256*9
+
+        self.classifier = nn.Sequential(
+            nn.Linear(256 * 9, 5)
+        )
+
+    def forward(self, x):
+        temp = self.temporal1_layer(x)
+
+        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
+        spital = self.spatial2_layer(x_2d)
+        spital = spital.permute([1,0,2,3]).squeeze(0)
+
+        out = self.confluence3_layer(temp + spital)
+
+        out = self.confluence4_layer(out)
+        out = out.view(out.size(0), -1)
+        out = self.classifier(out)
+        return out
+
+
 class MyIncepConvNet(nn.Module):
     """
     inception 网络
@@ -273,8 +427,7 @@ if __name__ == '__main__':
     models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
                   'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
 
-    for model_name,model in models_all.items():
-
+    for model_name, model in models_all.items():
         x = torch.randn(1, 63, 36).requires_grad_(True)
         y = model(x)
         myConvnet_dot = make_dot(y, params=dict(list(model.named_parameters()) + [('x', x)]))
