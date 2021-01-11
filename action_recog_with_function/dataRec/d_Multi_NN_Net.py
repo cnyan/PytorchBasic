@@ -362,10 +362,10 @@ class MyMultiTestNet(nn.Module):
             nn.ReLU(),
             nn.Conv2d(1, 1, 3, 1, 1),
             nn.Dropout(0.5),
-            nn.Dropout(0.5),
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv2d(1, 1, 1, 1, 0),
+            nn.Dropout(0.5),
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
