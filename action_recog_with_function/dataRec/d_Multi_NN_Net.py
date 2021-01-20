@@ -342,7 +342,6 @@ class MyMultiTestNet(nn.Module):
         self.axis = axis
         self.temporal1_layer = nn.Sequential(
             nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
-            nn.Dropout(0.5),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
@@ -350,14 +349,12 @@ class MyMultiTestNet(nn.Module):
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
-            nn.Dropout(0.5),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
         )  # 128*18
         self.spatial2_layer = nn.Sequential(
             nn.Conv2d(1, 1, 1, 1, 0),
-            nn.Dropout(0.5),
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv2d(1, 1, 3, 1, 1),
@@ -365,7 +362,6 @@ class MyMultiTestNet(nn.Module):
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv2d(1, 1, 1, 1, 0),
-            nn.Dropout(0.5),
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
