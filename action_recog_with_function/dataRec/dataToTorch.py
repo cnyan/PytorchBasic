@@ -135,8 +135,13 @@ class StandAndExtractFeatures():
         self.axis = axis
 
     def saveStandScalerDataToPandas(self):
-        dataSet = np.load(
-            fr'src/torchData/trainingData/{self.data_category}/{self.data_category}_torch_mat-{self.axis}.npy')
+        if self.data_category == 'other_test':
+            # 实验室其他同学的测试集
+            dataSet = np.load(
+                fr'src/torchData/otherTestData/other_test_torch_mat-{self.axis}.npy')
+        else:
+            dataSet = np.load(
+                fr'src/torchData/trainingData/{self.data_category}/{self.data_category}_torch_mat-{self.axis}.npy')
 
         standScaler = StandardScaler(with_mean=True, with_std=True)
 
@@ -266,7 +271,13 @@ if __name__ == '__main__':
     #     break
 
     # 从numpy数据中读取数据，经过正则化之后，保持下来正则化数据
-    for data_category in ['train', 'test']:
-        for axis in ['9axis', '6axis']:
-            standAndExtractFeatures = StandAndExtractFeatures(data_category, axis)
-            standAndExtractFeatures.saveStandScalerDataToPandas()
+    # for data_category in ['train', 'test']:
+    #     for axis in ['9axis', '6axis']:
+    #         standAndExtractFeatures = StandAndExtractFeatures(data_category, axis)
+    #         standAndExtractFeatures.saveStandScalerDataToPandas()
+
+    # 实验室其它同学的测试集数据
+    for axis in ['9axis', '6axis']:
+        torch_data_path = f'src/torchData/otherTestData/other_test_torch_mat-{axis}.npy'
+        standAndExtractFeatures = StandAndExtractFeatures('other_test', axis)
+        standAndExtractFeatures.saveStandScalerDataToPandas()

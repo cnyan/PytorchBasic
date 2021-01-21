@@ -5,7 +5,7 @@
 @Author: 闫继龙
 @Version: ??
 @License: Apache Licence
-@CreateTime: 2021/1/20 23:13
+@CreateTime: 2021/1/21 15:35
 @Describe：
 
 """
@@ -19,6 +19,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+import warnings
+
+warnings.filterwarnings('ignore')
 
 
 class ML_Features_Rec():
@@ -30,26 +33,14 @@ class ML_Features_Rec():
         print(f'=========当前模式 {model_name}-{axis}=============')
 
     def read_features(self,axis):
-        train_features_path = fr'src/ml_cf_features/train_features_mat-{axis}.npy'
-        test_features_path = fr'src/ml_cf_features/test_features_mat-{axis}.npy'
-
-        train_data = np.load(train_features_path)  # [7000 rows x 181 columns]
+        test_features_path = fr'src/ml_cf_features/other_test_features_mat-{axis}.npy'
         test_data = np.load(test_features_path)  # [1000 rows x 181 columns]
 
-        print(f'train data shape:{train_data.shape}')
         print(f'test data shape:{test_data.shape}')
-        return train_data, test_data
-
-    def train(self):
-        train_data, test_data = self.data
-        Xtrain = train_data[:, :-1]
-        ytrain = train_data[:, -1]
-
-        train_model = self.model.fit(Xtrain, ytrain)
-        joblib.dump(train_model, fr'src/ml_cf_model/{self.model_name}_model-{self.axis}.pkl')
+        return test_data
 
     def predict(self):
-        train_data, test_data = self.data
+        test_data = self.data
         Xtest = test_data[:, :-1]
         ytest = test_data[:, -1]
 
@@ -57,7 +48,7 @@ class ML_Features_Rec():
         y_predict = knn_model.predict(Xtest)
 
         AUtils.plot_confusion_matrix(ytest, y_predict, [0, 1, 2, 3, 4],
-                                     fr'src/ml_cf_plt_img/{self.model_name}_predict-{self.axis}.jpg',
+                                     fr'src/ml_cf_plt_img/{self.model_name}_others_test_predict-{self.axis}.jpg',
                                      title=fr'{self.model_name}-{self.axis} Confusion matrix')
         AUtils.metrics(ytest, y_predict)
 
@@ -66,17 +57,13 @@ if __name__ == '__main__':
 
     for axis in ['9axis', '6axis']:
         knn_model = ML_Features_Rec(KNeighborsClassifier(n_neighbors=1), 'knn', axis=axis)
-        # knn_model.train()
         knn_model.predict()
 
         svm_model = ML_Features_Rec(SVC(kernel='rbf', class_weight='balanced'), 'svc', axis=axis)
-        # svm_model.train()
         svm_model.predict()
 
         nb_model = ML_Features_Rec(GaussianNB(), 'nb', axis=axis)
-        # nb_model.train()
         nb_model.predict()
 
         rf_model = ML_Features_Rec(RandomForestClassifier(), 'rf', axis=axis)
-         #rf_model.train()
         rf_model.predict()

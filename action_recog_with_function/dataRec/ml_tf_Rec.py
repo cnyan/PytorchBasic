@@ -65,17 +65,17 @@ if __name__ == '__main__':
 
     for axis in ['9axis', '6axis']:
         knn_model = ML_Features_Rec(KNeighborsClassifier(n_neighbors=1), 'knn', axis=axis)
-        knn_model.train()
+        # knn_model.train()
         knn_model.predict()
 
         svm_model = ML_Features_Rec(SVC(kernel='rbf', class_weight='balanced'), 'svc', axis=axis)
-        svm_model.train()
+        # svm_model.train()
         svm_model.predict()
 
         nb_model = ML_Features_Rec(GaussianNB(), 'nb', axis=axis)
-        nb_model.train()
+        # nb_model.train()
         nb_model.predict()
 
         rf_model = ML_Features_Rec(RandomForestClassifier(), 'rf', axis=axis)
-        rf_model.train()
+        # rf_model.train()
         rf_model.predict()
