@@ -9,6 +9,7 @@
 @Describe：
 
 """
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -252,6 +253,9 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     """
     时空卷积融合
     """
+    """
+    时空卷积融合
+    """
 
     def __init__(self, axis):
         super(MyMultiTempSpaceConfluenceNet, self).__init__()
@@ -313,9 +317,9 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     def forward(self, x):
         temp = self.temporal1_layer(x)
 
-        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
+        x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
         spital = self.spatial2_layer(x_2d)
-        spital = spital.permute([1,0,2,3]).squeeze(0)
+        spital = spital.permute([1, 0, 2, 3]).squeeze(0)
 
         out = self.confluence3_layer(temp + spital)
 
@@ -368,11 +372,11 @@ class MyMultiTestNet(nn.Module):
         )  # 128*18
 
         self.confluence3_layer = nn.Sequential(
-            nn.Conv1d(7 * axis, 128, 2, 1, 1),
+            nn.Conv1d(7 * axis * 2, 128, 2, 1, 1),
             nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.MaxPool1d(2, 2)
+            nn.AvgPool1d(2, 2)
         )  # 256*9
 
         self.confluence4_layer = nn.Sequential(
@@ -390,25 +394,20 @@ class MyMultiTestNet(nn.Module):
     def forward(self, x):
         temp = self.temporal1_layer(x)
 
-        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
+        x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
         spital = self.spatial2_layer(x_2d)
-        spital = spital.permute([1,0,2,3]).squeeze(0)
+        spital = spital.permute([1, 0, 2, 3]).squeeze(0)
 
-        out = self.confluence3_layer(temp + spital)
+        input = torch.cat((temp, spital), dim=1)
 
+        out = self.confluence3_layer(input)
         out = self.confluence4_layer(out)
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
         return out
 
 
-class MyIncepConvNet(nn.Module):
-    """
-    inception 网络
-    """
 
-    def __init__(self):
-        super(MyIncepConvNet, self).__init__()
 
 
 if __name__ == '__main__':
@@ -418,6 +417,7 @@ if __name__ == '__main__':
     myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
     myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
     myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
+    myMultiTestNet = MyMultiTestNet(int(axis[0]))
 
     import torch
     import os
@@ -426,6 +426,7 @@ if __name__ == '__main__':
 
     models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
                   'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
+    models_all = {'myMultiTestNet': myMultiTestNet}
 
     for model_name, model in models_all.items():
         x = torch.randn(1, 63, 36).requires_grad_(True)

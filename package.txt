@@ -29,3 +29,11 @@ conda list -e > requirements_conda.txt
 pip批量安装requirements.txt文件中包含的组件依赖
 
 conda install --yes --file requirements.txt
+
+scp 命令.
+从ubuntu下载
+scp -r lab1008@192.168.0.154:/home/yanjilong/dev/PytorchBasic/action_recog_with_function/  D:/home/scp/action_recog_with_function
+
+
+
+

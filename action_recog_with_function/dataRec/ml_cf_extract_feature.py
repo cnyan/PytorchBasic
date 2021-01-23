@@ -15,7 +15,7 @@ import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 from dataToTorch import ActionDataSets
-from dataTestToTorch import ActionTestDataSets
+from dataOtherTestToTorch import ActionTestDataSets
 import AUtils
 import time
 import warnings
@@ -71,22 +71,23 @@ class CF_features():
 if __name__ == '__main__':
     from d_Multi_NN_Net import MyMultiTempSpaceConfluenceNet, MyMultiConvConfluenceNet
 
-    # for data_category in ['train', 'test']:
-    #     for axis in ['9axis', '6axis']:
-    #
-    #         myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
-    #
-    #         models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
-    #
-    #         for model_name, model in models_all.items():
-    #             print('===================********begin begin begin*********=================')
-    #             print(f'当前执行参数：model={model_name}_{axis}')
-    #
-    #             if hasattr(torch.cuda, 'empty_cache'):
-    #                 torch.cuda.empty_cache()
-    #
-    #             cf_features = CF_features(model, model_name, axis=axis, data_category=data_category)
-    #             cf_features.predict()
+    # 运动员数据集处理
+    for data_category in ['train', 'test']:
+        for axis in ['9axis', '6axis']:
+
+            myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
+
+            models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
+
+            for model_name, model in models_all.items():
+                print('===================********begin begin begin*********=================')
+                print(f'当前执行参数：model={model_name}_{axis}')
+
+                if hasattr(torch.cuda, 'empty_cache'):
+                    torch.cuda.empty_cache()
+
+                cf_features = CF_features(model, model_name, axis=axis, data_category=data_category)
+                cf_features.predict()
 
     # 其他人的测试集
     for axis in ['9axis', '6axis']:

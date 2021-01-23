@@ -26,7 +26,7 @@ np.set_printoptions(suppress=True)
 
 class DataToTorch():
     """
-    将窗口数据转为训练集和数据集、测试集
+    将窗口数据转为训练集和数据集、测试集,窗口正则化、提取时频特征
     """
 
     def __init__(self, windowDataFoldPath, axis):
@@ -125,7 +125,7 @@ class ActionDataSets(Dataset):
         return data.shape
 
 
-class StandAndExtractFeatures():
+class StandAndExtractTfFeatures():
     """
     # 从numpy数据中读取数据，分别保存正则化、特征提取之后的数据
     """
@@ -134,7 +134,7 @@ class StandAndExtractFeatures():
         self.data_category = data_category
         self.axis = axis
 
-    def saveStandScalerDataToPandas(self):
+    def saveStandScalerData(self):
         if self.data_category == 'other_test':
             # 实验室其他同学的测试集
             dataSet = np.load(
@@ -253,9 +253,9 @@ if __name__ == '__main__':
             action_root_path = f'/home/yanjilong/dataSets/DataRec/action_windows-{axis}'
 
         dataToTorch = DataToTorch(action_root_path, axis)
-        # dataToTorch.readWindowsToTorchData()
+        dataToTorch.readWindowsToTorchData()
 
-    # # 读取数据
+    # # 读取数据显示
     # train_action_data_sets = ActionDataSets(data_category='train', axis='9axis')
     # for data, label in train_action_data_sets:
     #     print(data.shape)
@@ -270,14 +270,14 @@ if __name__ == '__main__':
     #     print(labels.data)
     #     break
 
-    # 从numpy数据中读取数据，经过正则化之后，保持下来正则化数据
-    # for data_category in ['train', 'test']:
-    #     for axis in ['9axis', '6axis']:
-    #         standAndExtractFeatures = StandAndExtractFeatures(data_category, axis)
-    #         standAndExtractFeatures.saveStandScalerDataToPandas()
+    # 从numpy数据中读取数据，经过正则化之后，提取时频特征,用于机器学习算法分类，不需要验证集
+    for data_category in ['train', 'test']:
+        for axis in ['9axis', '6axis']:
+            standAndExtractFeatures = StandAndExtractTfFeatures(data_category, axis)
+            standAndExtractFeatures.saveStandScalerData()
 
     # 实验室其它同学的测试集数据
     for axis in ['9axis', '6axis']:
         torch_data_path = f'src/torchData/otherTestData/other_test_torch_mat-{axis}.npy'
-        standAndExtractFeatures = StandAndExtractFeatures('other_test', axis)
-        standAndExtractFeatures.saveStandScalerDataToPandas()
+        standAndExtractFeatures = StandAndExtractTfFeatures('other_test', axis)
+        standAndExtractFeatures.saveStandScalerData()
