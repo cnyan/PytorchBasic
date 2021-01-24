@@ -257,6 +257,7 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     时空卷积融合
     """
 
+
     def __init__(self, axis):
         super(MyMultiTempSpaceConfluenceNet, self).__init__()
         # self.conv1_layer = nn.Sequential(
@@ -317,9 +318,9 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     def forward(self, x):
         temp = self.temporal1_layer(x)
 
-        x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
+        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
         spital = self.spatial2_layer(x_2d)
-        spital = spital.permute([1, 0, 2, 3]).squeeze(0)
+        spital = spital.permute([1,0,2,3]).squeeze(0)
 
         out = self.confluence3_layer(temp + spital)
 
@@ -348,7 +349,7 @@ class MyMultiTestNet(nn.Module):
             nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
+            nn.Conv1d(7 * axis, 7 * axis, 3, 1, 1),
             nn.Dropout(0.5),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
@@ -372,7 +373,7 @@ class MyMultiTestNet(nn.Module):
         )  # 128*18
 
         self.confluence3_layer = nn.Sequential(
-            nn.Conv1d(7 * axis * 2, 128, 2, 1, 1),
+            nn.Conv1d(7 * axis, 128, 2, 1, 1),
             nn.Dropout(0.5),
             nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
@@ -398,9 +399,8 @@ class MyMultiTestNet(nn.Module):
         spital = self.spatial2_layer(x_2d)
         spital = spital.permute([1, 0, 2, 3]).squeeze(0)
 
-        input = torch.cat((temp, spital), dim=1)
+        out = self.confluence3_layer(temp + spital)
 
-        out = self.confluence3_layer(input)
         out = self.confluence4_layer(out)
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
@@ -408,6 +408,104 @@ class MyMultiTestNet(nn.Module):
 
 
 
+class TempInception(nn.Module):
+    def __init__(self, axis):
+        super(TempInception, self).__init__()
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(7 * axis, 7 * axis * 4, 1, 1, 0),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv1d(7 * axis, 7 * axis * 4, 1, 1, 0),
+            # nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+            nn.Conv1d(7 * axis * 4, 7 * axis * 4, 3, 1, 1),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv1d(7 * axis, 7 * axis * 4, 1, 1, 0),
+            # nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+            nn.Conv1d(7 * axis * 4, 7 * axis * 4, 5, 1, 2),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+        )
+
+        self.conv4 = nn.Sequential(
+            nn.Conv1d(7 * axis * 4, 7 * axis * 1, 1, 1, 0),
+            nn.Dropout(0.5),
+            nn.BatchNorm1d(7 * axis * 1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        out1 = self.conv1(x)
+        out2 = self.conv2(x)
+        out3 = self.conv3(x)
+        out = out1 + out2 + out3
+        out = self.conv4(out)
+        return out
+
+
+class SpitalInception(nn.Module):
+    def __init__(self, axis):
+        super(SpitalInception, self).__init__()
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(1, 4, 1, 1, 0),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(1, 4, 1, 1, 0),
+            # nn.Dropout2d(0.5),
+            nn.BatchNorm2d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+            nn.Conv2d(4, 4, 3, 1, 1),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(1, 4, 1, 1, 0),
+            # nn.Dropout2d(0.5),
+            nn.BatchNorm2d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+            nn.Conv2d(4, 4, 5, 1, 2),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(4, 1, 1, 1, 0),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        out1 = self.conv1(x)
+        out2 = self.conv2(x)
+        out3 = self.conv3(x)
+        out = out1 + out2 + out3
+        out = self.conv4(out)
+        return out
 
 
 if __name__ == '__main__':
