@@ -70,7 +70,7 @@ class NN_Predict():
 
         AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
-                                     classes=[0, 1, 2, 3, 4],
+                                     classes=['Action0', 'Action1', 'Action2', 'Action3', 'Action4'],
                                      savePath=f'src/test_plt_img/{self.model_name}_{self.axis}_predict.png',
                                      title=f'{self.model_name}_{self.axis}_predict')
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet, 'myMultiTestNet': myMultiTestNet}
+        models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

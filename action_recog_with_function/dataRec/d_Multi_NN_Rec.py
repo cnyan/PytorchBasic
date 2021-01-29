@@ -213,7 +213,7 @@ class NN_Predict():
         print("模式{}-{},准确率：{:.3f},识别个数：{}".format(self.model_name, self.axis, right_ratio, len(labels)))
         AUtils.metrics(np.array(labels), np.array([i[3] for i in rights]).flatten())
         AUtils.plot_confusion_matrix(np.array(labels), np.array([i[3] for i in rights]).flatten(),
-                                     classes=[0, 1, 2, 3, 4],
+                                     classes=['Action0', 'Action1', 'Action2', 'Action3', 'Action4'],
                                      savePath=f'src/plt_img/{self.model_name}_{self.axis}_predict.png',
                                      title=f'{self.model_name}_{self.axis}_predict')
 
@@ -276,11 +276,11 @@ if __name__ == '__main__':
             if hasattr(torch.cuda, 'empty_cache'):
                 torch.cuda.empty_cache()
 
-            if need_train:
-                nn_train = NN_train(model, model_name, axis=axis)
-                with Timer() as t:
-                    nn_train.train()
-                print('training time {0}'.format(str(t.interval)[:5]))
+            # if need_train:
+            #     nn_train = NN_train(model, model_name, axis=axis)
+            #     with Timer() as t:
+            #         nn_train.train()
+            #     print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, axis=axis)
             with Timer() as t:
