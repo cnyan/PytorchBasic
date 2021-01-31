@@ -51,7 +51,7 @@ class DataToTorch():
             data_mat = data_mat[:int(len(data_mat) / self.action_window_row) * self.action_window_row, :]  # 确保是窗口长度的倍数
             data_mat = np.reshape(data_mat, (-1, int(self.action_window_row), int(self.action_window_col)))
             # print(data_mat.shape)
-            data_mat = data_mat[:self.num_of_windows, :, ]  # 每个动作取2000个
+            data_mat = data_mat[:self.num_of_windows, :, ]  # 每个动作取180个
             # print(data_mat.shape)
             for i, df in enumerate(data_mat):
                 df = df.flatten()
