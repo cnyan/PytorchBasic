@@ -256,6 +256,10 @@ class Kmeans_fine_grained():
         accuracy = accuracy_score(tsne_targets, labels)
         print(f'{self.axis}_{self.action_name} accuracy:{accuracy}')
 
+    def predict_kmeans(self):
+        pass
+
+
     def matplotlib(self):
         print(f'======== 绘制三维图像 {self.axis}_{self.action_name} =============')
         from mpl_toolkits.mplot3d import Axes3D
@@ -273,29 +277,32 @@ class Kmeans_fine_grained():
         tsne_data_node5 = np.array([x for x in data_targets if x[3] == 5])
         tsne_data_node6 = np.array([x for x in data_targets if x[3] == 6])
 
+
         fig = plt.figure()
-        ax = Axes3D(fig)
-        ax.set_title(f'{self.action_name}-{self.axis} scatter plot')
-        # ax = plt.subplot(111, projection='3d')
+        #ax = Axes3D(fig)
+        # plt.title=('{self.action_name}-{self.axis} scatter plot')
+        ax = plt.subplot(111, projection='3d')
         # 调整视角
         ax.view_init(elev=10, azim=20)  # 仰角,方位角
 
-        ax.scatter(tsne_data_node0[:, 0], tsne_data_node0[:, 1], tsne_data_node0[:, 2], c='r', label='node-0')
-        ax.scatter(tsne_data_node1[:, 0], tsne_data_node1[:, 1], tsne_data_node1[:, 2], c='y', label='node-1')
-        ax.scatter(tsne_data_node2[:, 0], tsne_data_node2[:, 1], tsne_data_node2[:, 2], c='m', label='node-2')
-        ax.scatter(tsne_data_node3[:, 0], tsne_data_node3[:, 1], tsne_data_node3[:, 2], c='g', label='node-3')
-        ax.scatter(tsne_data_node4[:, 0], tsne_data_node4[:, 1], tsne_data_node4[:, 2], c='b', label='node-4')
-        ax.scatter(tsne_data_node5[:, 0], tsne_data_node5[:, 1], tsne_data_node5[:, 2], c='k', label='node-5')
-        ax.scatter(tsne_data_node6[:, 0], tsne_data_node6[:, 1], tsne_data_node6[:, 2], c='orange', label='node-6')
+        ax.scatter(tsne_data_node0[:, 0], tsne_data_node0[:, 1], tsne_data_node0[:, 2], c='r', label='sensor-0')
+        ax.scatter(tsne_data_node1[:, 0], tsne_data_node1[:, 1], tsne_data_node1[:, 2], c='y', label='sensor-1')
+        ax.scatter(tsne_data_node2[:, 0], tsne_data_node2[:, 1], tsne_data_node2[:, 2], c='m', label='sensor-2')
+        ax.scatter(tsne_data_node3[:, 0], tsne_data_node3[:, 1], tsne_data_node3[:, 2], c='g', label='sensor-3')
+        ax.scatter(tsne_data_node4[:, 0], tsne_data_node4[:, 1], tsne_data_node4[:, 2], c='b', label='sensor-4')
+        ax.scatter(tsne_data_node5[:, 0], tsne_data_node5[:, 1], tsne_data_node5[:, 2], c='k', label='sensor-5')
+        ax.scatter(tsne_data_node6[:, 0], tsne_data_node6[:, 1], tsne_data_node6[:, 2], c='orange', label='sensor-6')
 
+        # ax.set_title(f'{self.action_name}-{self.axis} scatter plot')
         ax.set_zlabel('X')  # 坐标轴
         ax.set_ylabel('Y')
         ax.set_xlabel('Z')
-
         ax.legend()
 
-        plt.show()
+        plt.title(f'{self.action_name}-{self.axis} scatter plot')
         plt.savefig(f'src/fine_grained_features/tsne_plt/tense_plt_{self.axis}_{self.action_name}.jpg')
+        plt.legend()
+        plt.show()
         plt.close()
 
 
@@ -310,12 +317,13 @@ if __name__ == '__main__':
 
         for model_name, model in models_all.items():
             extractFeatures = Extract_1D_2D_features(model, model_name, axis)
-            extractFeatures.extract_features()
+            # extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
     for axis in axis_all:
         for action_name in actions_all:
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name)
-            kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.matplotlib()
+            # kmeans_fine_grained.get_tsne_data()
+            # kmeans_fine_grained.train_kmeans()
+            # kmeans_fine_grained.matplotlib()
