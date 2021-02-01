@@ -238,7 +238,7 @@ if __name__ == '__main__':
     """
     import sys
 
-    need_train = False  # 是否需要训练，如果为False，直接进行predict
+    need_train = True  # 是否需要训练，如果为False，直接进行predict
 
     if len(sys.argv[1:]) != 0:
         if sys.argv[1] == '0':
@@ -276,11 +276,11 @@ if __name__ == '__main__':
             if hasattr(torch.cuda, 'empty_cache'):
                 torch.cuda.empty_cache()
 
-            # if need_train:
-            #     nn_train = NN_train(model, model_name, axis=axis)
-            #     with Timer() as t:
-            #         nn_train.train()
-            #     print('training time {0}'.format(str(t.interval)[:5]))
+            if need_train:
+                nn_train = NN_train(model, model_name, axis=axis)
+                with Timer() as t:
+                    nn_train.train()
+                print('training time {0}'.format(str(t.interval)[:5]))
 
             nn_predict = NN_Predict(model, model_name, axis=axis)
             with Timer() as t:
