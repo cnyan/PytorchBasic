@@ -19,10 +19,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import torch.nn.functional as F
 from sklearn.decomposition import PCA
+import math
 import joblib
 from scipy.stats import mode
 from torchvision import models, transforms
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
@@ -247,7 +248,7 @@ class Kmeans_fine_grained():
             np.save(f'src/fine_grained_features/tsne_model/tsne_params_{self.axis}.npy', tsne_params)
         else:
             tsne_params_value = np.load(f'src/fine_grained_features/tsne_model/tsne_params_{self.axis}.npy',
-                                  allow_pickle=True).item()
+                                        allow_pickle=True).item()
 
             self.Tsne.set_params(**tsne_params_value)
 
@@ -327,20 +328,17 @@ class FG__vector_Predict_with_kmeans():
         # self.action_name = action_name
 
         self.Tsne = TSNE(n_components=3, init='pca', random_state=0)
-        tsne_params_value = np.load(f'src/fine_grained_features/tsne_model/tsne_params_{self.axis}.npy',
-                                    allow_pickle=True).item()
-        self.Tsne.set_params(**tsne_params_value)
 
-        self.kmeans_model_action0 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action0.pkl')
-        self.kmeans_model_action1 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action1.pkl')
-        self.kmeans_model_action2 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action2.pkl')
-        self.kmeans_model_action3 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action3.pkl')
-        self.kmeans_model_action4 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
+        # self.kmeans_model_action0 = joblib.load(
+        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action0.pkl')
+        # self.kmeans_model_action1 = joblib.load(
+        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action1.pkl')
+        # self.kmeans_model_action2 = joblib.load(
+        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action2.pkl')
+        # self.kmeans_model_action3 = joblib.load(
+        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action3.pkl')
+        # self.kmeans_model_action4 = joblib.load(
+        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
 
         self.modelNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
         self.modelNet.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
@@ -356,6 +354,7 @@ class FG__vector_Predict_with_kmeans():
         self.all_cluster_label_dict = np.load(
             f'src/fine_grained_features/cluster_label_dict/all_cluster_label_dict_{self.axis}.npy',
             allow_pickle=True).item()
+        # print(self.all_cluster_label_dict)
 
     def calculate_fg_with_test_window_data(self):
         data_targets_path = f'D:/home/DataRec/action_windows-{self.axis}/action_window_1.csv'
@@ -397,30 +396,30 @@ class FG__vector_Predict_with_kmeans():
             tsne_data = np.array(tsne_data, dtype=np.float16)
             # print(tsne_data)
 
-            if action_class == 0:
-                kmeans_predicted = self.kmeans_model_action0.predict(tsne_data)
-            elif action_class == 1:
-                kmeans_predicted = self.kmeans_model_action1.predict(tsne_data)
-            elif action_class == 2:
-                kmeans_predicted = self.kmeans_model_action2.predict(tsne_data)
-            elif action_class == 3:
-                kmeans_predicted = self.kmeans_model_action3.predict(tsne_data)
-            elif action_class == 4:
-                kmeans_predicted = self.kmeans_model_action4.predict(tsne_data)
-            else:
-                kmeans_predicted = 'error'
-
-            # print(kmeans_predicted)
             cluster_label_dict = self.all_cluster_label_dict[f'action{action_class}']
 
             vector_scores = []
-            for index, sensor_predicted in enumerate(kmeans_predicted):
+            for index in range(7):
                 sensor_num = f'sensor-{index}'
                 # 余弦相似度
                 vector_score = self.cosine_similarity(tsne_data[index], cluster_label_dict[sensor_num])
-                # vector_score = self.cosine_similarity(tsne_data[index], cluster_label_dict[sensor_num])
                 vector_scores.append(round(vector_score, 1))
             print(vector_scores)
+
+            # if action_class == 0:
+            #     kmeans_predicted = self.kmeans_model_action0.predict(tsne_data)
+            # elif action_class == 1:
+            #     kmeans_predicted = self.kmeans_model_action1.predict(tsne_data)
+            # elif action_class == 2:
+            #     kmeans_predicted = self.kmeans_model_action2.predict(tsne_data)
+            # elif action_class == 3:
+            #     kmeans_predicted = self.kmeans_model_action3.predict(tsne_data)
+            # elif action_class == 4:
+            #     kmeans_predicted = self.kmeans_model_action4.predict(tsne_data)
+            # else:
+            #     kmeans_predicted = 'error'
+
+            # print(kmeans_predicted)
 
     def cosine_similarity(self, x, y, norm=True):
         """ 计算两个向量x和y的余弦相似度 """
@@ -429,7 +428,7 @@ class FG__vector_Predict_with_kmeans():
         zero_list = [0] * len(x)
         zero_list = np.array(zero_list)
         if x.all() == zero_list.all() or y.all() == zero_list.all():
-            return float(1) if x == y else float(0)
+            return float(1) if x.all() == y.all() else float(0)
 
         # method 1
         res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
