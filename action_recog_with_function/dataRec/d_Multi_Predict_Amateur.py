@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         torch.cuda.set_device(1)
 
-    axis_all = ['9axis', '6axis']
+    axis_all = ['6axis','9axis']
 
     for axis in axis_all:
         myMultiConvNet = MyMultiConvNet(int(axis[0]))
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
+        models_all = {'myMultiTestNet': myMultiTestNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

@@ -33,9 +33,9 @@ warnings.filterwarnings('ignore')
 
 
 
-class Extract_1D_2D_features():
+class Extract_origin_features():
     def __init__(self, axis, data_category):
-        super(Extract_1D_2D_features, self).__init__()
+        super(Extract_origin_features, self).__init__()
 
         self.axis = axis
         self.data_category = data_category
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     for axis in axis_all:
         for data_category in data_categorys:
             # 抽取训练集、测试集多维度卷积融合特征
-            extractFeatures = Extract_1D_2D_features(axis, data_category=data_category)
+            extractFeatures = Extract_origin_features(axis, data_category=data_category)
             # extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']

@@ -12,6 +12,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 
 class MyMultiConvNet(nn.Module):
@@ -253,10 +254,6 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     """
     时空卷积融合
     """
-    """
-    时空卷积融合
-    """
-
 
     def __init__(self, axis):
         super(MyMultiTempSpaceConfluenceNet, self).__init__()
@@ -318,9 +315,9 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
     def forward(self, x):
         temp = self.temporal1_layer(x)
 
-        x_2d = x.unsqueeze(0).permute([1,0,2,3])  # 扩展一个维度
+        x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
         spital = self.spatial2_layer(x_2d)
-        spital = spital.permute([1,0,2,3]).squeeze(0)
+        spital = spital.permute([1, 0, 2, 3]).squeeze(0)
 
         out = self.confluence3_layer(temp + spital)
 
@@ -349,7 +346,7 @@ class MyMultiTestNet(nn.Module):
             nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(7 * axis, 7 * axis, 3, 1, 1),
+            nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
             nn.Dropout(0.5),
             nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
@@ -388,9 +385,9 @@ class MyMultiTestNet(nn.Module):
             nn.MaxPool1d(2, 2)
         )  # 256*9
 
-        self.classifier = nn.Sequential(
-            nn.Linear(256 * 9, 5)
-        )
+        self.globel_avgpool =  nn.AdaptiveAvgPool1d(output_size=1)
+
+        self.classifier = nn.Linear(256 , 5)
 
     def forward(self, x):
         temp = self.temporal1_layer(x)
@@ -400,12 +397,11 @@ class MyMultiTestNet(nn.Module):
         spital = spital.permute([1, 0, 2, 3]).squeeze(0)
 
         out = self.confluence3_layer(temp + spital)
-
         out = self.confluence4_layer(out)
+        out = self.globel_avgpool(out)
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
         return out
-
 
 
 class TempInception(nn.Module):

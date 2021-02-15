@@ -7,7 +7,7 @@
 @License: Apache Licence
 @CreateTime: 2021/1/21 16:30
 @Describe：
-
+测试集是实验室其他同学的动作数据
 """
 
 import joblib

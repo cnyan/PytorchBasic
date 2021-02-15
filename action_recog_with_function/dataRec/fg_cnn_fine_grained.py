@@ -27,9 +27,12 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import pairwise_distances
+from sklearn.metrics.pairwise import cosine_similarity
 from torch import nn
 from dataToTorch import ActionDataSets
 import torch
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import warnings
 
@@ -329,16 +332,16 @@ class FG__vector_Predict_with_kmeans():
 
         self.Tsne = TSNE(n_components=3, init='pca', random_state=0)
 
-        # self.kmeans_model_action0 = joblib.load(
-        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action0.pkl')
-        # self.kmeans_model_action1 = joblib.load(
-        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action1.pkl')
-        # self.kmeans_model_action2 = joblib.load(
-        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action2.pkl')
-        # self.kmeans_model_action3 = joblib.load(
-        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action3.pkl')
-        # self.kmeans_model_action4 = joblib.load(
-        #     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
+        self.kmeans_model_action0 = joblib.load(
+            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action0.pkl')
+        self.kmeans_model_action1 = joblib.load(
+            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action1.pkl')
+        self.kmeans_model_action2 = joblib.load(
+            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action2.pkl')
+        self.kmeans_model_action3 = joblib.load(
+            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action3.pkl')
+        self.kmeans_model_action4 = joblib.load(
+            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
 
         self.modelNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
         self.modelNet.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
@@ -403,7 +406,9 @@ class FG__vector_Predict_with_kmeans():
                 sensor_num = f'sensor-{index}'
                 # 余弦相似度
                 vector_score = self.cosine_similarity(tsne_data[index], cluster_label_dict[sensor_num])
+                # vector_score = self.distance_seuclidean(tsne_data[index], cluster_label_dict[sensor_num])
                 vector_scores.append(round(vector_score, 1))
+
             print(vector_scores)
 
             # if action_class == 0:
@@ -418,21 +423,39 @@ class FG__vector_Predict_with_kmeans():
             #     kmeans_predicted = self.kmeans_model_action4.predict(tsne_data)
             # else:
             #     kmeans_predicted = 'error'
+            #
+            # vector_scores = []
+            # for index,kmeans_v in enumerate(kmeans_predicted):
+            #     sensor_num = f'sensor-{kmeans_v}'
+            #     # 余弦相似度
+            #     vector_score = self.cosine_similarity(tsne_data[index], cluster_label_dict[sensor_num])
+            #     # vector_score = self.distance_seuclidean(tsne_data[index], cluster_label_dict[sensor_num])
+            #     vector_scores.append(round(vector_score, 1))
+            #
+            # print(vector_scores)
 
-            # print(kmeans_predicted)
+
+    def distance_seuclidean(self,x,y):
+        X= np.vstack([x,y])
+        distance = pairwise_distances(X, metric='seuclidean')
+        # distance = pairwise_distances(X, metric='mahalanobis')
+        return distance[0][1]
+
 
     def cosine_similarity(self, x, y, norm=True):
         """ 计算两个向量x和y的余弦相似度 """
         # 计算余弦相似度
-        assert len(x) == len(y), "len(x) != len(y)"
-        zero_list = [0] * len(x)
-        zero_list = np.array(zero_list)
-        if x.all() == zero_list.all() or y.all() == zero_list.all():
-            return float(1) if x.all() == y.all() else float(0)
-
-        # method 1
-        res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
-        cos = sum(res[:, 0]) / (np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])))
+        # assert len(x) == len(y), "len(x) != len(y)"
+        # zero_list = [0] * len(x)
+        # zero_list = np.array(zero_list)
+        # if x.all() == zero_list.all() or y.all() == zero_list.all():
+        #     return float(1) if x.all() == y.all() else float(0)
+        #
+        # # method 1
+        # res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
+        # cos = sum(res[:, 0]) / (np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])))
+        X = np.vstack([x, y])
+        cos = cosine_similarity(X)[0][1]
         return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
 
     def get_conv1d_activation(self, name):
@@ -448,6 +471,7 @@ class FG__vector_Predict_with_kmeans():
             self.conv2d_features[name] = output.detach().cpu().numpy()
 
         return hook
+
 
 
 class Get_cluster_label_dict():

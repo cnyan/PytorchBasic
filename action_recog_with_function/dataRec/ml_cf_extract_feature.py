@@ -36,6 +36,9 @@ class CF_features():
         self.model.eval()
         self.model_name = model_name
 
+        self.conv4layer_features = {}
+        self.model.confluence4_layer.register_forward_hook(self.get_conv4layer_activation("confluence4_layer"))
+
         if data_category == 'other_test':
             # 提取实验室其他同学的cnn特征
             action_data_test_set = ActionTestDataSets(axis)
@@ -58,14 +61,21 @@ class CF_features():
                 data = data.cuda()
 
             output = self.model(data)
-            cf_features_data = output.cpu().data.numpy()[0]
-            cf_features_data = np.append(cf_features_data, int(label))
 
+            cf_features_data = self.conv4layer_features["confluence4_layer"]  # 2304
+            cf_features_data = np.append(cf_features_data, int(label))
             cf_features_set.append(cf_features_data)
 
         cf_features_set = np.array(cf_features_set)
         print(cf_features_set.shape)
         np.save(savePath, cf_features_set)
+
+    def get_conv4layer_activation(self, name):
+        # 定义钩子
+        def hook(model, input, output):
+            self.conv4layer_features[name] = output.detach().cpu().numpy().flatten()
+
+        return hook
 
 
 if __name__ == '__main__':

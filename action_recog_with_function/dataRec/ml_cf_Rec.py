@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB,MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -73,8 +73,8 @@ if __name__ == '__main__':
         # svm_model.train()
         svm_model.predict()
 
-        nb_model = ML_Features_Rec(GaussianNB(), 'GaussianNB', axis=axis)
-        # nb_model.train()
+        nb_model = ML_Features_Rec(MultinomialNB(), 'MultinomialNB', axis=axis)
+        nb_model.train()
         nb_model.predict()
 
         rf_model = ML_Features_Rec(RandomForestClassifier(), 'RandomForest', axis=axis)
