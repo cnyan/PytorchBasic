@@ -20,7 +20,8 @@ torch.save(model.state_dict(), model_cp,_use_new_zipfile_serialization=False)  #
 import os
 import glob
 import torch
-from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet
+from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet, \
+    MyMultiTempSpaceConfluenceNet
 import platform
 
 if __name__ == '__main__':
@@ -32,9 +33,11 @@ if __name__ == '__main__':
     for axis in axis_all:
         myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
         myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
+        myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
 
         models_all = {'myMultiResCnnNet': myMultiResCnnNet,
-                      'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
+                      'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
+                      'myMultiTempSpaceConfluenceNet':myMultiTempSpaceConfluenceNet}
 
         for model_name, model_module in models_all.items():
             model_names = os.path.join(new_model_path, f'{model_name}_{axis}_model.pkl')

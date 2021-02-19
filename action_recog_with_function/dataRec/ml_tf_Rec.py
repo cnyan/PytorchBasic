@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB,MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     for axis in ['9axis', '6axis']:
 
         knn_model = ML_Features_Rec(KNeighborsClassifier(n_neighbors=5), 'KNeighbors', axis=axis)
-        # knn_model.train()
+        #knn_model.train()
         knn_model.predict()
 
         svm_model = ML_Features_Rec(SVC(kernel='rbf', class_weight='balanced'), 'SVM', axis=axis)

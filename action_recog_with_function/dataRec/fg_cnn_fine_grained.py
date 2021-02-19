@@ -405,7 +405,7 @@ class FG__vector_Predict_with_kmeans():
             for index in range(7):
                 sensor_num = f'sensor-{index}'
                 # 余弦相似度
-                vector_score = self.cosine_similarity(tsne_data[index], cluster_label_dict[sensor_num])
+                vector_score = self.cosine_similarity_method(tsne_data[index], cluster_label_dict[sensor_num])
                 # vector_score = self.distance_seuclidean(tsne_data[index], cluster_label_dict[sensor_num])
                 vector_scores.append(round(vector_score, 1))
 
@@ -442,7 +442,7 @@ class FG__vector_Predict_with_kmeans():
         return distance[0][1]
 
 
-    def cosine_similarity(self, x, y, norm=True):
+    def cosine_similarity_method(self, x, y, norm=True):
         """ 计算两个向量x和y的余弦相似度 """
         # 计算余弦相似度
         # assert len(x) == len(y), "len(x) != len(y)"
@@ -454,9 +454,11 @@ class FG__vector_Predict_with_kmeans():
         # # method 1
         # res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
         # cos = sum(res[:, 0]) / (np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])))
-        X = np.vstack([x, y])
+
+        X = np.vstack([np.abs(x), np.abs(y)])
         cos = cosine_similarity(X)[0][1]
-        return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
+        return cos
+        # return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
 
     def get_conv1d_activation(self, name):
         # 定义钩子

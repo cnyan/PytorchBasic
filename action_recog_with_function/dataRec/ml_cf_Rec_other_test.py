@@ -62,7 +62,7 @@ if __name__ == '__main__':
         svm_model = ML_Features_Rec(SVC(kernel='rbf', class_weight='balanced'), 'SVM', axis=axis)
         svm_model.predict()
 
-        nb_model = ML_Features_Rec(MultinomialNB(), 'MultinomialNB', axis=axis)
+        nb_model = ML_Features_Rec(GaussianNB(), 'GaussianNB', axis=axis)
         nb_model.predict()
 
         rf_model = ML_Features_Rec(RandomForestClassifier(), 'RandomForest', axis=axis)
