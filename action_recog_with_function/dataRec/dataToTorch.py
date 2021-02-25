@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler,MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import torch
 import joblib
 from sklearn.decomposition import PCA
@@ -136,15 +136,17 @@ class StandAndExtractTfFeatures():
         self.axis = axis
 
     def saveStandScalerData(self):
+        file_name = ''
         if self.data_category == 'other_test':
             # 实验室其他同学的测试集
-            dataSet = np.load(
-                fr'src/torchData/otherTestData/other_test_torch_mat-{self.axis}.npy')
+            file_name = fr'src/torchData/otherTestData/other_test_torch_mat-{self.axis}.npy'
         else:
-            dataSet = np.load(
-                fr'src/torchData/trainingData/{self.data_category}/{self.data_category}_torch_mat-{self.axis}.npy')
+            file_name = fr'src/torchData/trainingData/{self.data_category}/{self.data_category}_torch_mat-{self.axis}.npy'
 
+
+        dataSet = np.load(file_name)
         standScaler = StandardScaler(with_mean=True, with_std=True)
+        print(f'正则，特征提取，降维-fileName = {file_name}, dataSet shape =({dataSet.shape})')
 
         columns = ['c' + str(i) for i in range(0, 36)]
         columns_stand = ['c' + str(i) for i in range(0, 7 * int(self.axis[0]))]
