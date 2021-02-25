@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
 import torch
 import joblib
 from sklearn.decomposition import PCA

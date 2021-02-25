@@ -26,6 +26,7 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
     :param title:
     :return:
     """
+    plt.figure(dpi=512)
     cm = confusion_matrix(y_label, y_predict)
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)

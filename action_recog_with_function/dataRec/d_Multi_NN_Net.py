@@ -257,70 +257,65 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
 
     def __init__(self, axis):
         super(MyMultiTempSpaceConfluenceNet, self).__init__()
-        # self.conv1_layer = nn.Sequential(
-        #     nn.Conv1d(7 * axis, 128, 1, 1, 0),
-        #     nn.Dropout(0.5),
-        #     nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-        #     nn.ReLU(),
-        #     # nn.AvgPool1d(2, 2)
-        # )
+
         self.axis = axis
         self.temporal1_layer = nn.Sequential(
-            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
-            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv1d(in_channels=36, out_channels=256, kernel_size=1, stride=1, padding=0),
+            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(7 * axis, 7 * axis, 5, 1, 2),
-            nn.Dropout(0.5),
-            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv1d(256, 256, 3, 1, 2,dilation=2),
+            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(7 * axis, 7 * axis, 1, 1, 0),
-            nn.BatchNorm1d(7 * axis, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv1d(256, 36, 1, 1, 0),
+            nn.BatchNorm1d(36, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
-        )  # 128*18
+        )  # 输入大小（7*axis，36）
         self.spatial2_layer = nn.Sequential(
-            nn.Conv2d(1, 1, 1, 1, 0),
-            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv2d(1, 128, 1, 1, 0),
+            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv2d(1, 1, 3, 1, 1),
-            nn.Dropout(0.5),
-            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv2d(128, 128, 3, 1, 2,dilation=2),
+            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv2d(1, 1, 1, 1, 0),
+            nn.Conv2d(128, 1, 1, 1, 0),
             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             # nn.AvgPool1d(2, 2)
         )  # 128*18
 
         self.confluence3_layer = nn.Sequential(
-            nn.Conv1d(7 * axis, 128, 2, 1, 1),
-            nn.Dropout(0.5),
-            nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv2d(1, 128, 2, 1, 1),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.AvgPool1d(2, 2)
+            nn.AvgPool2d(2, 2)
         )  # 256*9
 
         self.confluence4_layer = nn.Sequential(
-            nn.Conv1d(128, 256, 2, 1, 1),
-            nn.Dropout(0.5),
-            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Conv2d(128, 256, 2, 1, 1),
+            nn.Dropout2d(0.5),
+            nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.MaxPool1d(2, 2)
+            nn.AvgPool2d(2, 2)
         )  # 256*9
 
         self.classifier = nn.Sequential(
-            nn.Linear(256 * 9, 5)
+            nn.Linear(256 * (math.ceil((7 * axis) / 4)) * 9, 5),
         )
 
     def forward(self, x):
-        temp = self.temporal1_layer(x)
+        x_1d = x.permute([0,2,1])
+        temp = self.temporal1_layer(x_1d)
+        temp = temp.unsqueeze(0).permute([1, 0, 3, 2])
 
         x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
-        spital = self.spatial2_layer(x_2d)
-        spital = spital.permute([1, 0, 2, 3]).squeeze(0)
+        space = self.spatial2_layer(x_2d)
 
-        out = self.confluence3_layer(temp + spital)
+        input = temp + space  # [64, 1, 42, 36]
+        # input_2d = input.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
 
+        out = self.confluence3_layer(input)
         out = self.confluence4_layer(out)
         out = out.view(out.size(0), -1)
         out = self.classifier(out)

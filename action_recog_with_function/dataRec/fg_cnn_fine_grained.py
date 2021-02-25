@@ -506,7 +506,7 @@ class Matplotlib_tsne():
         actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
         for axis in axiss:
-            plt.figure(figsize=(20, 14), dpi=108)
+            plt.figure(figsize=(20, 14), dpi=516)
             plt.style.use('seaborn')
             for index, action_name in enumerate(actions_all):
                 data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'

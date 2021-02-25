@@ -69,7 +69,7 @@ class NN_train():
         dataloaders = {'train': self.action_train_data_gen, 'valid': self.action_valid_data_gen}
 
         # 构建模型:损失函数和优化模型
-        num_epochs = 80
+        num_epochs = 60
         criterion = nn.CrossEntropyLoss()  # criterion:惩罚规则-- 损失函数
         # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.1, momentum=0.9, weight_decay=0.01)
         optimizer_ft = optim.Adam(model_ft.parameters(), lr=0.001, weight_decay=0.10)
@@ -100,7 +100,7 @@ class NN_train():
 
                 for i, data in enumerate(dataloaders[phase]):
                     inputs, labels = data  # 获取输入
-                    # print(inputs.shape)
+                    # print(inputs.shape) # [64, 42, 36]
                     # 封装成变量
                     if torch.cuda.is_available():
                         inputs = inputs.to(self.device)
@@ -267,7 +267,7 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiTestNet': myMultiTestNet}
+        models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
