@@ -173,12 +173,12 @@ class StandAndExtractTfFeatures():
         df_features_data = np.array(df_features_data)
         # print(df_features_data.shape)
         dfStandSavePath = fr'src/ml_standData/{self.data_category}_stand_mat-{self.axis}.csv'
-        featuresSavePath = fr'src/ml_tf_Features/{self.data_category}_features_mat-{self.axis}.npy'
+        df_stand_data.to_csv(dfStandSavePath)
 
         # 数据降维
         pca_feature = self.decomposition(df_features_data, self.axis, self.data_category)  # 列宽52 + 1label:
 
-        df_stand_data.to_csv(dfStandSavePath)
+        featuresSavePath = fr'src/ml_tf_Features/{self.data_category}_features_mat-{self.axis}.npy'
         np.save(featuresSavePath, pca_feature)
 
     def extractFeatures(self, data: DataFrame, columns):
