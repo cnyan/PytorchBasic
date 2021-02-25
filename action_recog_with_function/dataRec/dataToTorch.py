@@ -106,6 +106,7 @@ class ActionDataSets(Dataset):
         self.torch_data = np.load(torch_data_path)
         self.axis = int(axis[0])
         self.standScaler = StandardScaler(with_mean=True, with_std=True)
+        # self.standScaler = MinMaxScaler()
 
     def __len__(self):
         return len(self.torch_data)
@@ -146,7 +147,8 @@ class StandAndExtractTfFeatures():
         standScaler = StandardScaler(with_mean=True, with_std=True)
 
         columns = ['c' + str(i) for i in range(0, 36)]
-        df_stand_data = DataFrame(columns=columns)
+        columns_stand = ['c' + str(i) for i in range(0, 7 * int(self.axis[0]))]
+        df_stand_data = DataFrame(columns=columns_stand)
         df_features_data = []
 
         for data in dataSet:
@@ -159,7 +161,7 @@ class StandAndExtractTfFeatures():
             df_features = self.extractFeatures(df_stand, columns)
             df_features = np.append(df_features, label)  # len = 36列*5+1=181
 
-            df_stand_data = df_stand_data.append(df_stand, ignore_index=True)
+            df_stand_data = df_stand_data.append(df_stand.T, ignore_index=True)
             df_features_data.append(df_features)
 
         df_features_data = np.array(df_features_data)
@@ -253,7 +255,7 @@ if __name__ == '__main__':
             action_root_path = f'/home/yanjilong/dataSets/DataRec/action_windows-{axis}'
 
         dataToTorch = DataToTorch(action_root_path, axis)
-        dataToTorch.readWindowsToTorchData()
+        # dataToTorch.readWindowsToTorchData()
 
     # # 读取数据显示
     # train_action_data_sets = ActionDataSets(data_category='train', axis='9axis')

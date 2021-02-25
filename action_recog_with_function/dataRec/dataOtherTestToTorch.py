@@ -16,7 +16,7 @@ import os
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
 import torch
 
 np.set_printoptions(suppress=True)
@@ -86,6 +86,7 @@ class ActionTestDataSets(Dataset):
         self.torch_data = np.load(torch_data_path)
         self.axis = int(axis[0])
         self.standScaler = StandardScaler(with_mean=True, with_std=True)
+        # self.standScaler = MinMaxScaler()
 
     def __len__(self):
         return len(self.torch_data)
