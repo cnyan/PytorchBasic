@@ -155,6 +155,12 @@ class StandAndExtractTfFeatures():
         df_stand_data = DataFrame(columns=columns_stand)
         df_features_data = []
 
+        dfStandSavePath = fr'src/ml_standData/{self.data_category}_stand_mat-{self.axis}.csv'
+        featuresSavePath = fr'src/ml_tf_Features/{self.data_category}_features_mat-{self.axis}.npy'
+
+        if os.path.exists(dfStandSavePath):
+            os.remove(dfStandSavePath)
+
         with tqdm(total=len(dataSet)) as pbar:  # 设置进度条
             for data in dataSet:
                 pbar.update(1)  # 更新进度条
@@ -167,18 +173,14 @@ class StandAndExtractTfFeatures():
                 df_features = self.extractFeatures(df_stand, columns)
                 df_features = np.append(df_features, label)  # len = 36列*5+1=181
 
-                df_stand_data = df_stand_data.append(DataFrame(np.array(df_stand).T,columns=columns_stand), ignore_index=True)
+                # df_stand_data = df_stand_data.append(DataFrame(np.array(df_stand).T,columns=columns_stand), ignore_index=True)
+                DataFrame(np.array(df_stand)).T.to_csv(dfStandSavePath,mode='a',header=False)
                 df_features_data.append(df_features)
 
         df_features_data = np.array(df_features_data)
         # print(df_features_data.shape)
-        dfStandSavePath = fr'src/ml_standData/{self.data_category}_stand_mat-{self.axis}.csv'
-        df_stand_data.to_csv(dfStandSavePath)
-
         # 数据降维
         pca_feature = self.decomposition(df_features_data, self.axis, self.data_category)  # 列宽52 + 1label:
-
-        featuresSavePath = fr'src/ml_tf_Features/{self.data_category}_features_mat-{self.axis}.npy'
         np.save(featuresSavePath, pca_feature)
 
     def extractFeatures(self, data: DataFrame, columns):
