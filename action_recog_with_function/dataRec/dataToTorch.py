@@ -20,6 +20,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import torch
 import joblib
 from sklearn.decomposition import PCA
+from tqdm import tqdm, trange
 
 np.set_printoptions(suppress=True)
 
@@ -149,22 +150,25 @@ class StandAndExtractTfFeatures():
         print(f'正则，特征提取，降维-fileName = {file_name}, dataSet shape =({dataSet.shape})')
 
         columns = ['c' + str(i) for i in range(0, 36)]
-        columns_stand = ['c' + str(i) for i in range(0, 7 * int(self.axis[0]))]
+        columns_stand = ['c' + str(i) for i in range(0, (7 * int(self.axis[0])))]
+
         df_stand_data = DataFrame(columns=columns_stand)
         df_features_data = []
 
-        for data in dataSet:
-            label = data[-1]
-            data = data[:-1].reshape(-1, 7 * int(self.axis[0])).T  # 转置，从[36,7*axis]转为[7*axis,36]
+        with tqdm(total=len(dataSet)) as pbar:  # 设置进度条
+            for data in dataSet:
+                pbar.update(1)  # 更新进度条
+                label = data[-1]
+                data = data[:-1].reshape(-1, 7 * int(self.axis[0])).T  # 转置，从[36,7*axis]转为[7*axis,36]
 
-            data = standScaler.fit_transform(data)
-            df_stand = DataFrame(data, columns=columns)
+                data = standScaler.fit_transform(data)
+                df_stand = DataFrame(data, columns=columns)
 
-            df_features = self.extractFeatures(df_stand, columns)
-            df_features = np.append(df_features, label)  # len = 36列*5+1=181
+                df_features = self.extractFeatures(df_stand, columns)
+                df_features = np.append(df_features, label)  # len = 36列*5+1=181
 
-            df_stand_data = df_stand_data.append(df_stand.T, ignore_index=True)
-            df_features_data.append(df_features)
+                df_stand_data = df_stand_data.append(DataFrame(np.array(df_stand).T,columns=columns_stand), ignore_index=True)
+                df_features_data.append(df_features)
 
         df_features_data = np.array(df_features_data)
         # print(df_features_data.shape)
