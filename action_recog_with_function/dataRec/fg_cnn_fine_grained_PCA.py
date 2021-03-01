@@ -24,6 +24,7 @@ import joblib
 from scipy.stats import mode
 from torchvision import models, transforms
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
@@ -54,7 +55,7 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
             nn.Conv1d(in_channels=36, out_channels=256, kernel_size=1, stride=1, padding=0),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(256, 256, 3, 1, 2,dilation=2),
+            nn.Conv1d(256, 256, 3, 1, 2, dilation=2),
             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(256, 36, 1, 1, 0),
@@ -66,7 +67,7 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
             nn.Conv2d(1, 128, 1, 1, 0),
             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, 1, 2,dilation=2),
+            nn.Conv2d(128, 128, 3, 1, 2, dilation=2),
             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv2d(128, 1, 1, 1, 0),
@@ -96,7 +97,7 @@ class MyMultiTempSpaceConfluenceNet(nn.Module):
         )
 
     def forward(self, x):
-        x_1d = x.permute([0,2,1])
+        x_1d = x.permute([0, 2, 1])
         temp = self.temporal1_layer(x_1d)
         temp = temp.unsqueeze(0).permute([1, 0, 3, 2])
 
@@ -173,6 +174,9 @@ class Extract_1D_2D_features():
             conv1d_features = conv1d_features.permute([0, 2, 1]).squeeze(0).numpy()
             conv2d_features = conv2d_features.permute([1, 0, 2, 3]).squeeze(0).squeeze(0).numpy()
 
+            # print(conv1d_features.shape)
+            # print(conv2d_features.shape)
+
             fusion_features = conv1d_features + conv2d_features
             fusion_features = fusion_features.flatten().tolist()
 
@@ -227,7 +231,7 @@ class Kmeans_fine_grained():
             fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/test_features_{axis}_{action_name}.npy'
             self.fusion_features = np.load(fusion_features_path)
 
-        self.Tsne = TSNE(n_components=3, init='pca', random_state=0)
+        self.pca = PCA(n_components=3, svd_solver='auto', whiten=True)
 
         self.Kmeans = KMeans(n_clusters=7, random_state=0)
 
@@ -240,7 +244,7 @@ class Kmeans_fine_grained():
         data = []
         targets = []
         for fusion_feature in self.fusion_features:  # 动作数据
-            fusion_feature = fusion_feature.reshape(-1, int(self.axis[0]), 36)  # (7, 6, 36)
+            fusion_feature = fusion_feature.reshape(-1, int(self.axis[0]), 36)  # (7, 6, 36) 给一个窗口数据，按节点编号打标签
             for label, feature in enumerate(fusion_feature):
                 feature = feature.flatten()
                 targets.append(label)
@@ -251,16 +255,13 @@ class Kmeans_fine_grained():
         print(data.shape)
 
         if self.data_category == 'train':
-            tsne_fit = self.Tsne.fit(data)
-            tsne_params = tsne_fit.get_params()
-            np.save(f'src/fine_grained_features/tsne_model/tsne_params_{self.axis}.npy', tsne_params)
+            pca_fit = self.pca.fit(data)
+            # tsne_params = tsne_fit.get_params()
+            joblib.dump(pca_fit,f'src/fine_grained_features/tsne_model/pca_model_{self.axis}.pkl')
         else:
-            tsne_params_value = np.load(f'src/fine_grained_features/tsne_model/tsne_params_{self.axis}.npy',
-                                        allow_pickle=True).item()
+            self.pca = joblib.load(f'src/fine_grained_features/tsne_model/pca_model_{self.axis}.pkl')
 
-            self.Tsne.set_params(**tsne_params_value)
-
-        tsne_data = self.Tsne.fit_transform(data)
+        tsne_data = self.pca.transform(data)
 
         # self.matplotlib(tsne_data)
 
@@ -272,20 +273,20 @@ class Kmeans_fine_grained():
         tsne_data_targets = np.array(tsne_data_targets)
 
         print(tsne_data_targets.shape)
-        print(f'{self.data_category}_tsne_data_{self.axis}_{self.action_name} shape:{tsne_data_targets.shape}')
+        print(f'{self.data_category}_tsne_pca_data_{self.axis}_{self.action_name} shape:{tsne_data_targets.shape}')
         np.save(
-            f'src/fine_grained_features/tsne_data/{self.data_category}_tsne_data_{self.axis}_{self.action_name}.npy',
+            f'src/fine_grained_features/tsne_data/{self.data_category}_pca_data_{self.axis}_{self.action_name}.npy',
             tsne_data_targets)
 
     def train_kmeans(self):
-        data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{self.axis}_{self.action_name}.npy'
+        data_targets_path = f'src/fine_grained_features/tsne_data/train_pca_data_{self.axis}_{self.action_name}.npy'
         data_targets = np.load(data_targets_path)
         tsne_data = data_targets[:, :3]
         tsne_targets = data_targets[:, 3]
 
         kmeans_model = self.Kmeans.fit(tsne_data)
         joblib.dump(kmeans_model,
-                    f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_{self.action_name}.pkl')
+                    f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_{self.action_name}.pkl')
 
         kmeans_cluster = kmeans_model.cluster_centers_  # 聚类的核心
         predicted = kmeans_model.predict(tsne_data)
@@ -301,7 +302,7 @@ class Kmeans_fine_grained():
         # print(kmeans_cluster_label_dict)
 
         np.save(
-            f'src/fine_grained_features/cluster_label_dict/cluster_label_dict_{self.axis}_{self.action_name}.npy',
+            f'src/fine_grained_features/cluster_label_dict/cluster_label_pca_dict_{self.axis}_{self.action_name}.npy',
             kmeans_cluster_label_dict)
 
         # 计算准确度
@@ -309,13 +310,13 @@ class Kmeans_fine_grained():
         print(f'train_{self.axis}_{self.action_name} accuracy:{accuracy}')
 
     def predict_kmeans(self):
-        data_targets_path = f'src/fine_grained_features/tsne_data/test_tsne_data_{self.axis}_{self.action_name}.npy'
+        data_targets_path = f'src/fine_grained_features/tsne_data/test_pca_data_{self.axis}_{self.action_name}.npy'
         data_targets = np.load(data_targets_path)
         tsne_data = data_targets[:, :3]
         tsne_targets = data_targets[:, 3]
 
         kmeans_model = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_{self.action_name}.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_{self.action_name}.pkl')
 
         predicted = kmeans_model.predict(tsne_data)
 
@@ -335,21 +336,21 @@ class FG__vector_Predict_with_kmeans():
         self.axis = axis
         # self.action_name = action_name
 
-        self.Tsne = TSNE(n_components=3, init='pca', random_state=0)
+        self.pca = joblib.load(f'src/fine_grained_features/tsne_model/pca_model_{self.axis}.pkl')
 
         self.kmeans_model_action0 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action0.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_action0.pkl')
         self.kmeans_model_action1 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action1.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_action1.pkl')
         self.kmeans_model_action2 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action2.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_action2.pkl')
         self.kmeans_model_action3 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action3.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_action3.pkl')
         self.kmeans_model_action4 = joblib.load(
-            f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
+            f'src/fine_grained_features/kmeans_model/kmeans_model_pca_{self.axis}_action4.pkl')
 
         self.modelNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
-        self.modelNet.load_state_dict(torch.load(f'src/model/MyMultiTempSpaceConfluenceNet_{axis}_model.pkl', map_location='cpu'))
+        self.modelNet.load_state_dict(torch.load(f'src/model/myMultiTempSpaceConfluenceNet_{axis}_model.pkl', map_location='cpu'))
         self.modelNet.eval()
 
         self.conv1d_features = {}
@@ -360,7 +361,7 @@ class FG__vector_Predict_with_kmeans():
         self.toTensor = transforms.ToTensor()
 
         self.all_cluster_label_dict = np.load(
-            f'src/fine_grained_features/cluster_label_dict/all_cluster_label_dict_{self.axis}.npy',
+            f'src/fine_grained_features/cluster_label_dict/all_cluster_label_pca_dict_{self.axis}.npy',
             allow_pickle=True).item()
         # print(self.all_cluster_label_dict)
 
@@ -373,7 +374,7 @@ class FG__vector_Predict_with_kmeans():
         data_mat = data_mat[:int(len(data_mat) / 36) * 36, :]  # 确保是窗口长度的倍数
         data_mat = np.reshape(data_mat, (-1, 36, int(self.axis[0]) * 7))
         # print(data_mat.shape)
-        data_mat = data_mat[:200, :, ]  # 每个动作取200个
+        data_mat = data_mat[:5, :, ]  # 每个动作取200个
 
         for df in data_mat:
             data = np.array(df)[:, :].T  # 转为42*36  data = np.array(df)[2:-2, :].T  # 转为36*63
@@ -403,11 +404,12 @@ class FG__vector_Predict_with_kmeans():
                 true_node_labels.append(node_label)
                 fusion_data.append(feature)
 
-            tsne_data = self.Tsne.fit_transform(np.array(fusion_data))
+            tsne_data = self.pca.transform(np.array(fusion_data))
             tsne_data = np.array(tsne_data, dtype=np.float16)
             # print(tsne_data)
 
             cluster_label_dict = self.all_cluster_label_dict[f'action{action_class}']
+            print(cluster_label_dict)
 
             vector_scores = []
             for index in range(7):
@@ -442,13 +444,11 @@ class FG__vector_Predict_with_kmeans():
             #
             # print(vector_scores)
 
-
-    def distance_seuclidean(self,x,y):
-        X= np.vstack([x,y])
+    def distance_seuclidean(self, x, y):
+        X = np.vstack([x, y])
         distance = pairwise_distances(X, metric='seuclidean')
         # distance = pairwise_distances(X, metric='mahalanobis')
         return distance[0][1]
-
 
     def cosine_similarity_method(self, x, y, norm=True):
         """ 计算两个向量x和y的余弦相似度 """
@@ -483,10 +483,9 @@ class FG__vector_Predict_with_kmeans():
         return hook
 
 
-
 class Get_cluster_label_dict():
     """
-    将不同动作、不同传感器的kmeans簇新组合成一个完整的字典
+    将不同动作、不同传感器的kmeans簇新组合成一个完整的字典，用于在线识别
     """
 
     def __init__(self, axis):
@@ -497,10 +496,10 @@ class Get_cluster_label_dict():
         actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
         all_cluster_label_dict = {}
         for action_name in actions_all:
-            dict_path = f'src/fine_grained_features/cluster_label_dict/cluster_label_dict_{self.axis}_{action_name}.npy'
+            dict_path = f'src/fine_grained_features/cluster_label_dict/cluster_label_pca_dict_{self.axis}_{action_name}.npy'
             cluster_label_dict = np.load(dict_path, allow_pickle=True).item()
             all_cluster_label_dict[action_name] = cluster_label_dict
-        np.save(f'src/fine_grained_features/cluster_label_dict/all_cluster_label_dict_{self.axis}.npy',
+        np.save(f'src/fine_grained_features/cluster_label_dict/all_cluster_label_pca_dict_{self.axis}.npy',
                 all_cluster_label_dict)
 
 
@@ -517,7 +516,7 @@ class Matplotlib_tsne():
             plt.figure(figsize=(20, 14), dpi=516)
             plt.style.use('seaborn')
             for index, action_name in enumerate(actions_all):
-                data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
+                data_targets_path = f'src/fine_grained_features/tsne_data/train_pca_data_{axis}_{action_name}.npy'
                 data_targets = np.load(data_targets_path)
 
                 tsne_data_node0 = np.array([x for x in data_targets if x[3] == 0])
@@ -544,14 +543,14 @@ class Matplotlib_tsne():
                            label='sensor-6')
 
                 # ax.set_title(f'{self.action_name}-{self.axis} scatter plot')
-                ax.set_zlabel('X', fontsize=20)  # 坐标轴
+                ax.set_zlabel('Z', fontsize=20)  # 坐标轴
                 ax.set_ylabel('Y', fontsize=20)
-                ax.set_xlabel('Z', fontsize=20)
+                ax.set_xlabel('X', fontsize=20)
                 ax.legend()
                 plt.subplots_adjust(hspace=0.4)
                 plt.title(f'{action_name}', fontsize=30)
                 plt.legend()
-            plt.savefig(f'src/fine_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg')
+            plt.savefig(f'src/fine_grained_features/tsne_plt/tense_pca_plt_scatter-{axis}.jpg')
             plt.show()
             plt.close()
 
@@ -569,7 +568,7 @@ if __name__ == '__main__':
             for data_category in data_categorys:
                 # 抽取训练集、测试集多维度卷积融合特征
                 extractFeatures = Extract_1D_2D_features(model, model_name, axis, data_category=data_category)
-                extractFeatures.extract_features()
+                # extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 

@@ -33,7 +33,7 @@ class ML_Features_Rec():
         print(f'=========当前模式 {model_name}-{axis}=============')
 
     def read_features(self,axis):
-        test_features_path = fr'src/ml_cf_features/other_test_features_mat-{axis}.npy'
+        test_features_path = fr'src/ml_cf_features_pca/other_test_features_pca_mat-{axis}.npy'
         test_data = np.load(test_features_path)  # [1000 rows x 181 columns]
 
         print(f'test data shape:{test_data.shape}')

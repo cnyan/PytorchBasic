@@ -238,7 +238,7 @@ if __name__ == '__main__':
     """
     import sys
 
-    need_train = True  # 是否需要训练，如果为False，直接进行predict
+    need_train = False  # 是否需要训练，如果为False，直接进行predict
 
     if len(sys.argv[1:]) != 0:
         if sys.argv[1] == '0':

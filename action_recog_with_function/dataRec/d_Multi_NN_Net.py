@@ -506,6 +506,7 @@ if __name__ == '__main__':
     myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
     myMultiConvLstmNet = MyMultiConvLstmNet(int(axis[0]))
     myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
+    myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
     myMultiTestNet = MyMultiTestNet(int(axis[0]))
 
     import torch
@@ -515,7 +516,7 @@ if __name__ == '__main__':
 
     models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
                   'myMultiConvConfluenceNet': myMultiConvConfluenceNet}
-    models_all = {'myMultiTestNet': myMultiTestNet}
+    models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
     for model_name, model in models_all.items():
         x = torch.randn(1, 63, 36).requires_grad_(True)
