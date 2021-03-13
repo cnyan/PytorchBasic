@@ -138,9 +138,9 @@ class Decomposition():
 
 
 if __name__ == '__main__':
-    from d_Multi_NN_Net import MyMultiTempSpaceConfluenceNet, MyMultiConvConfluenceNet
+    from fg_cnn_fine_grained import MyMultiTempSpaceConfluenceNet
 
-    is_extract_cnn = False
+    is_extract_cnn = True
 
     if is_extract_cnn:
         # 运动员数据集处理
