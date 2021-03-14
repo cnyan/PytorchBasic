@@ -34,6 +34,7 @@ from dataToTorch import ActionDataSets
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+from d_Multi_NN_Net import MyMultiConvNet_2
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -41,91 +42,86 @@ warnings.filterwarnings('ignore')
 standScaler = StandardScaler(with_mean=True, with_std=True)
 
 
-class MyMultiTempSpaceConfluenceNet(nn.Module):
-    """
-    时空卷积融合
-    """
-
-    def __init__(self, axis):
-        super(MyMultiTempSpaceConfluenceNet, self).__init__()
-
-        self.axis = axis
-        self.temporal1_layer = nn.Sequential(
-            nn.Conv1d(in_channels=36, out_channels=256, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.Conv1d(256, 256, 3, 1, 2,dilation=2),
-            nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.Conv1d(256, 36, 1, 1, 0),
-            nn.BatchNorm1d(36, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            # nn.AvgPool1d(2, 2)
-        )  # 输入大小（7*axis，36）
-        self.spatial2_layer = nn.Sequential(
-            nn.Conv2d(1, 128, 1, 1, 0),
-            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, 1, 2,dilation=2),
-            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.Conv2d(128, 1, 1, 1, 0),
-            nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            # nn.AvgPool1d(2, 2)
-        )  # 128*18
-
-        self.confluence3_layer = nn.Sequential(
-            nn.Conv2d(1, 128, 2, 1, 1),
-            nn.Dropout2d(0.5),
-            nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.AvgPool2d(2, 2)
-        )  # 256*9
-
-        self.confluence4_layer = nn.Sequential(
-            nn.Conv2d(128, 256, 2, 1, 1),
-            nn.Dropout2d(0.5),
-            nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
-            nn.AvgPool2d(2, 2)
-        )  # 256*9
-
-        self.classifier = nn.Sequential(
-            nn.Linear(256 * (math.ceil((7 * axis) / 4)) * 9, 5),
-        )
-
-    def forward(self, x):
-        x_1d = x.permute([0,2,1])
-        temp = self.temporal1_layer(x_1d)
-        temp = temp.unsqueeze(0).permute([1, 0, 3, 2])
-
-        x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
-        space = self.spatial2_layer(x_2d)
-
-        input = temp + space  # [64, 1, 42, 36]
-        # input_2d = input.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
-
-        out = self.confluence3_layer(input)
-        out = self.confluence4_layer(out)
-        out = out.view(out.size(0), -1)
-        out = self.classifier(out)
-        return out
+# class MyMultiTempSpaceConfluenceNet(nn.Module):
+#     """
+#     时空卷积融合
+#     """
+#
+#     def __init__(self, axis):
+#         super(MyMultiTempSpaceConfluenceNet, self).__init__()
+#
+#         self.axis = axis
+#         self.temporal1_layer = nn.Sequential(
+#             nn.Conv1d(in_channels=36, out_channels=256, kernel_size=1, stride=1, padding=0),
+#             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.Conv1d(256, 256, 3, 1, 2,dilation=2),
+#             nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.Conv1d(256, 36, 1, 1, 0),
+#             nn.BatchNorm1d(36, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             # nn.AvgPool1d(2, 2)
+#         )  # 输入大小（7*axis，36）
+#         self.spatial2_layer = nn.Sequential(
+#             nn.Conv2d(1, 128, 1, 1, 0),
+#             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.Conv2d(128, 128, 3, 1, 2,dilation=2),
+#             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.Conv2d(128, 1, 1, 1, 0),
+#             nn.BatchNorm2d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             # nn.AvgPool1d(2, 2)
+#         )  # 128*18
+#
+#         self.confluence3_layer = nn.Sequential(
+#             nn.Conv2d(1, 128, 2, 1, 1),
+#             nn.Dropout2d(0.5),
+#             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.AvgPool2d(2, 2)
+#         )  # 256*9
+#
+#         self.confluence4_layer = nn.Sequential(
+#             nn.Conv2d(128, 256, 2, 1, 1),
+#             nn.Dropout2d(0.5),
+#             nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+#             nn.ReLU(),
+#             nn.AvgPool2d(2, 2)
+#         )  # 256*9
+#
+#         self.classifier = nn.Sequential(
+#             nn.Linear(256 * (math.ceil((7 * axis) / 4)) * 9, 5),
+#         )
+#
+#     def forward(self, x):
+#         x_1d = x.permute([0,2,1])
+#         temp = self.temporal1_layer(x_1d)
+#         temp = temp.unsqueeze(0).permute([1, 0, 3, 2])
+#
+#         x_2d = x.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
+#         space = self.spatial2_layer(x_2d)
+#
+#         input = temp + space  # [64, 1, 42, 36]
+#         # input_2d = input.unsqueeze(0).permute([1, 0, 2, 3])  # 扩展一个维度
+#
+#         out = self.confluence3_layer(input)
+#         out = self.confluence4_layer(out)
+#         out = out.view(out.size(0), -1)
+#         out = self.classifier(out)
+#         return out
 
 
 class Extract_1D_2D_features():
-    def __init__(self, modelNet, model_name, axis, data_category):
+    def __init__(self,model,model_name, axis, data_category):
         super(Extract_1D_2D_features, self).__init__()
 
-        self.model = modelNet
-        self.conv1d_features = {}
-        self.conv2d_features = {}
-
-        self.model.temporal1_layer.register_forward_hook(self.get_conv1d_activation("temporal1_layer"))
-        self.model.spatial2_layer.register_forward_hook(self.get_conv1d_activation("spatial2_layer"))
-
+        self.model = model
         self.axis = axis
         self.data_category = data_category
+
         self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
         self.model.load_state_dict(torch.load(f'src/model/{model_name}_{axis}_model.pkl', map_location='cpu'))
@@ -138,20 +134,6 @@ class Extract_1D_2D_features():
         self.action_train_data_gen = DataLoader(action_data_set, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         print(f'{data_category}data shape: ({len(action_data_set)}{(action_data_set.data_shape())})')
-
-    def get_conv1d_activation(self, name):
-        # 定义钩子
-        def hook(model, input, output):
-            self.conv1d_features[name] = output.detach().cpu()
-
-        return hook
-
-    def get_conv2d_activation(self, name):
-        # 定义钩子
-        def hook(model, input, output):
-            self.conv2d_features[name] = output.detach().cpu()
-
-        return hook
 
     def extract_features(self):
         print(f'==============  提取{self.data_category}-{self.axis}的卷积特征=============')
@@ -166,15 +148,9 @@ class Extract_1D_2D_features():
             data, label = inputs
             label = int(label)
 
-            output = self.model(data)
-
-            conv1d_features = self.conv1d_features["temporal1_layer"]
-            conv2d_features = self.conv1d_features["spatial2_layer"]
-            conv1d_features = conv1d_features.permute([0, 2, 1]).squeeze(0).numpy()
-            conv2d_features = conv2d_features.permute([1, 0, 2, 3]).squeeze(0).squeeze(0).numpy()
-
-            fusion_features = conv1d_features + conv2d_features
-            fusion_features = fusion_features.flatten().tolist()
+            output,mix_data = self.model(data)
+            mix_data = mix_data.squeeze(0).detach().numpy()
+            fusion_features = mix_data.flatten().tolist()
 
             if label == 0:
                 features_action0.append(fusion_features)
@@ -291,6 +267,9 @@ class Kmeans_fine_grained():
         predicted = kmeans_model.predict(tsne_data)
         kmeans_cluster_label_dict = {}  # 保存聚类后的簇心，和标签值
 
+        # 聚类结果
+        kmeans_data = np.c_[tsne_data,predicted]
+
         # 排列标签
         labels = np.zeros_like(predicted)
         for i in range(7):
@@ -303,7 +282,9 @@ class Kmeans_fine_grained():
         np.save(
             f'src/fine_grained_features/cluster_label_dict/cluster_label_dict_{self.axis}_{self.action_name}.npy',
             kmeans_cluster_label_dict)
-
+        np.save(
+            f'src/fine_grained_features/kmeans_data/{self.data_category}_kmeans_data_{self.axis}_{self.action_name}.npy',
+            kmeans_data)
         # 计算准确度
         accuracy = accuracy_score(tsne_targets, labels)
         print(f'train_{self.axis}_{self.action_name} accuracy:{accuracy}')
@@ -319,6 +300,9 @@ class Kmeans_fine_grained():
 
         predicted = kmeans_model.predict(tsne_data)
 
+        # 聚类结果
+        kmeans_data = np.c_[tsne_data, predicted]
+
         # 排列标签
         labels = np.zeros_like(predicted)
         for i in range(7):
@@ -328,6 +312,9 @@ class Kmeans_fine_grained():
         # 计算准确度
         accuracy = accuracy_score(tsne_targets, labels)
         print(f'test_{self.axis}_{self.action_name} accuracy:{accuracy}')
+        np.save(
+            f'src/fine_grained_features/kmeans_data/{self.data_category}_kmeans_data_{self.axis}_{self.action_name}.npy',
+            kmeans_data)
 
 
 class FG__vector_Predict_with_kmeans():
@@ -348,14 +335,10 @@ class FG__vector_Predict_with_kmeans():
         self.kmeans_model_action4 = joblib.load(
             f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_action4.pkl')
 
-        self.modelNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
-        self.modelNet.load_state_dict(torch.load(f'src/model/MyMultiTempSpaceConfluenceNet_{axis}_model.pkl', map_location='cpu'))
-        self.modelNet.eval()
+        self.modelNet = MyMultiConvNet_2(int(axis[0]))
 
-        self.conv1d_features = {}
-        self.conv2d_features = {}
-        self.modelNet.temporal1_layer.register_forward_hook(self.get_conv1d_activation("temporal1_layer"))
-        self.modelNet.spatial2_layer.register_forward_hook(self.get_conv1d_activation("spatial2_layer"))
+        self.modelNet.load_state_dict(torch.load(f'src/model/MyMultiConvNet_2_{axis}_model.pkl', map_location='cpu'))
+        self.modelNet.eval()
 
         self.toTensor = transforms.ToTensor()
 
@@ -363,6 +346,8 @@ class FG__vector_Predict_with_kmeans():
             f'src/fine_grained_features/cluster_label_dict/all_cluster_label_dict_{self.axis}.npy',
             allow_pickle=True).item()
         # print(self.all_cluster_label_dict)
+        # for k,v in self.all_cluster_label_dict.items():
+        #     print(k,v)
 
     def calculate_fg_with_test_window_data(self):
         data_targets_path = f'D:/home/DataRec/action_windows-{self.axis}/action_window_1.csv'
@@ -381,19 +366,15 @@ class FG__vector_Predict_with_kmeans():
             data = self.toTensor(data)
             data = data.to(torch.float32)
             # data = data.unsqueeze(0)  # 扩展一个维度
-            output = self.modelNet(data)
+            output,mix_data = self.modelNet(data)
 
             prob = F.softmax(output, dim=1)
             action_score = torch.max(prob, 1)[0].data.numpy()[0]
             action_class = torch.max(prob, 1)[1].data.numpy()[0]  # 最大值下标
 
             # 计算细粒度
-            conv1d_features = self.conv1d_features["temporal1_layer"]
-            conv2d_features = self.conv1d_features["spatial2_layer"]
-            conv1d_features = conv1d_features.permute([0, 2, 1]).squeeze(0).numpy()
-            conv2d_features = conv2d_features.permute([1, 0, 2, 3]).squeeze(0).squeeze(0).numpy()
-
-            fusion_features = conv1d_features + conv2d_features
+            mix_data = mix_data.squeeze(0).detach().numpy()
+            fusion_features = mix_data.flatten()
             fusion_features = fusion_features.reshape(-1, int(self.axis[0]), 36)
 
             true_node_labels = []
@@ -468,20 +449,6 @@ class FG__vector_Predict_with_kmeans():
         return cos
         # return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
 
-    def get_conv1d_activation(self, name):
-        # 定义钩子
-        def hook(model, input, output):
-            self.conv1d_features[name] = output.detach().cpu()
-
-        return hook
-
-    def get_conv2d_activation(self, name):
-        # 定义钩子
-        def hook(model, input, output):
-            self.conv2d_features[name] = output.detach().cpu()
-
-        return hook
-
 
 
 class Get_cluster_label_dict():
@@ -511,13 +478,15 @@ class Matplotlib_tsne():
     def matplotlib(self):
         print(f'======== 绘制三维图像  =============')
         axiss = ['6axis', '9axis']
+        data_category = ['train','valid']
         actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
         for axis in axiss:
             plt.figure(figsize=(20, 14), dpi=516)
             plt.style.use('seaborn')
             for index, action_name in enumerate(actions_all):
-                data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
+                data_targets_path = f'src/fine_grained_features/kmeans_data/train_kmeans_data_{axis}_{action_name}.npy'
+                # data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
                 data_targets = np.load(data_targets_path)
 
                 tsne_data_node0 = np.array([x for x in data_targets if x[3] == 0])
@@ -532,7 +501,7 @@ class Matplotlib_tsne():
                 # plt.title=('{self.action_name}-{self.axis} scatter plot')
                 ax = plt.subplot(2, 3, index + 1, projection='3d')
                 # 调整视角
-                ax.view_init(elev=10, azim=20)  # 仰角,方位角
+                ax.view_init(elev=40, azim=60)  # 仰角,方位角
 
                 ax.scatter(tsne_data_node0[:, 0], tsne_data_node0[:, 1], tsne_data_node0[:, 2], c='r', label='sensor-0')
                 ax.scatter(tsne_data_node1[:, 0], tsne_data_node1[:, 1], tsne_data_node1[:, 2], c='y', label='sensor-1')
@@ -561,15 +530,15 @@ if __name__ == '__main__':
     axis_all = ['6axis', '9axis']
     data_categorys = ['train', 'test']
     for axis in axis_all:
-        myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
+        myMultiConvNet_2 = MyMultiConvNet_2(int(axis[0]))
 
-        models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
+        models_all = {'myMultiConvNet_2': myMultiConvNet_2}
 
         for model_name, model in models_all.items():
             for data_category in data_categorys:
                 # 抽取训练集、测试集多维度卷积融合特征
-                extractFeatures = Extract_1D_2D_features(model, model_name, axis, data_category=data_category)
-                extractFeatures.extract_features()
+                extractFeatures = Extract_1D_2D_features(model,model_name, axis, data_category=data_category)
+                # extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
@@ -577,19 +546,19 @@ if __name__ == '__main__':
         for action_name in actions_all:
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='train')
-            kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.train_kmeans()
+            # kmeans_fine_grained.get_tsne_data()
+            # kmeans_fine_grained.train_kmeans()
 
     for axis in axis_all:
         for action_name in actions_all:
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='test')
-            kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.predict_kmeans()
+            # kmeans_fine_grained.get_tsne_data()
+            # kmeans_fine_grained.predict_kmeans()
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
-    matplotlib_tsne.matplotlib()
+    # matplotlib_tsne.matplotlib()
 
     for axis in axis_all:
         get_cluster_label_dict = Get_cluster_label_dict(axis)

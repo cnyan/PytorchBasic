@@ -40,8 +40,8 @@ class CF_features():
         self.model.eval()
         self.model_name = model_name
 
-        self.conv4layer_features = {}
-        self.model.confluence4_layer.register_forward_hook(self.get_conv4layer_activation("confluence4_layer"))
+        self.globel_avgpool_features = {}
+        self.model.globel_avgpool.register_forward_hook(self.get_globel_avgpool_activation("globel_avgpool"))
 
         if data_category == 'other_test':
             # 提取实验室其他同学的cnn特征
@@ -66,7 +66,7 @@ class CF_features():
 
             output = self.model(data)
 
-            cf_features_data = self.conv4layer_features["confluence4_layer"]  # 2304
+            cf_features_data = self.globel_avgpool_features["globel_avgpool"]  # 2304
             cf_features_data = np.append(cf_features_data, int(label))
             cf_features_set.append(cf_features_data)
 
@@ -74,10 +74,10 @@ class CF_features():
         print(cf_features_set.shape)
         np.save(savePath, cf_features_set)
 
-    def get_conv4layer_activation(self, name):
+    def get_globel_avgpool_activation(self, name):
         # 定义钩子
         def hook(model, input, output):
-            self.conv4layer_features[name] = output.detach().cpu().numpy().flatten()
+            self.globel_avgpool_features[name] = output.detach().cpu().numpy().flatten()
 
         return hook
 
@@ -138,7 +138,7 @@ class Decomposition():
 
 
 if __name__ == '__main__':
-    from fg_cnn_fine_grained import MyMultiTempSpaceConfluenceNet
+    from fg_cnn_fine_grained import MyMultiConvNet_2
 
     is_extract_cnn = True
 
@@ -147,9 +147,9 @@ if __name__ == '__main__':
         for data_category in ['train', 'test']:
             for axis in ['9axis', '6axis']:
 
-                myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
+                myMultiConvNet_2 = MyMultiConvNet_2(int(axis[0]))
 
-                models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
+                models_all = {'myMultiConvNet_2': myMultiConvNet_2}
 
                 for model_name, model in models_all.items():
                     print('===================********begin begin begin*********=================')
@@ -163,8 +163,8 @@ if __name__ == '__main__':
 
         # 其他人的测试集
         for axis in ['9axis', '6axis']:
-            myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
-            models_all = {'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
+            myMultiConvNet_2 = MyMultiConvNet_2(int(axis[0]))
+            models_all = {'myMultiConvNet_2': myMultiConvNet_2}
 
             for model_name, model in models_all.items():
                 print('===================********begin begin begin*********=================')
