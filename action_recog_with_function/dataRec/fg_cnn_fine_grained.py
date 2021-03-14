@@ -115,7 +115,7 @@ standScaler = StandardScaler(with_mean=True, with_std=True)
 
 
 class Extract_1D_2D_features():
-    def __init__(self,model,model_name, axis, data_category):
+    def __init__(self, model, model_name, axis, data_category):
         super(Extract_1D_2D_features, self).__init__()
 
         self.model = model
@@ -148,7 +148,7 @@ class Extract_1D_2D_features():
             data, label = inputs
             label = int(label)
 
-            output,mix_data = self.model(data)
+            output, mix_data = self.model(data)
             mix_data = mix_data.squeeze(0).detach().numpy()
             fusion_features = mix_data.flatten().tolist()
 
@@ -196,12 +196,15 @@ class Kmeans_fine_grained():
         self.action_name = action_name
         self.data_category = data_category
 
-        if data_category == 'train':
-            fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/{data_category}_features_{axis}_{action_name}.npy'
-            self.fusion_features = np.load(fusion_features_path)
-        else:
-            fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/test_features_{axis}_{action_name}.npy'
-            self.fusion_features = np.load(fusion_features_path)
+        # if data_category == 'train':
+        #     fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/{data_category}_features_{axis}_{action_name}.npy'
+        #     self.fusion_features = np.load(fusion_features_path)
+        # else:
+        #     fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/test_features_{axis}_{action_name}.npy'
+        #     self.fusion_features = np.load(fusion_features_path)
+
+        fusion_features_path = f'src/fine_grained_features/conv1d_2d_features/{data_category}_features_{axis}_{action_name}.npy'
+        self.fusion_features = np.load(fusion_features_path)
 
         self.Tsne = TSNE(n_components=3, init='pca', random_state=0)
 
@@ -268,7 +271,7 @@ class Kmeans_fine_grained():
         kmeans_cluster_label_dict = {}  # 保存聚类后的簇心，和标签值
 
         # 聚类结果
-        kmeans_data = np.c_[tsne_data,predicted]
+        kmeans_data = np.c_[tsne_data, predicted]
 
         # 排列标签
         labels = np.zeros_like(predicted)
@@ -366,7 +369,7 @@ class FG__vector_Predict_with_kmeans():
             data = self.toTensor(data)
             data = data.to(torch.float32)
             # data = data.unsqueeze(0)  # 扩展一个维度
-            output,mix_data = self.modelNet(data)
+            output, mix_data = self.modelNet(data)
 
             prob = F.softmax(output, dim=1)
             action_score = torch.max(prob, 1)[0].data.numpy()[0]
@@ -423,13 +426,11 @@ class FG__vector_Predict_with_kmeans():
             #
             # print(vector_scores)
 
-
-    def distance_seuclidean(self,x,y):
-        X= np.vstack([x,y])
+    def distance_seuclidean(self, x, y):
+        X = np.vstack([x, y])
         distance = pairwise_distances(X, metric='seuclidean')
         # distance = pairwise_distances(X, metric='mahalanobis')
         return distance[0][1]
-
 
     def cosine_similarity_method(self, x, y, norm=True):
         """ 计算两个向量x和y的余弦相似度 """
@@ -448,7 +449,6 @@ class FG__vector_Predict_with_kmeans():
         cos = cosine_similarity(X)[0][1]
         return cos
         # return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
-
 
 
 class Get_cluster_label_dict():
@@ -478,16 +478,28 @@ class Matplotlib_tsne():
     def matplotlib(self):
         print(f'======== 绘制三维图像  =============')
         axiss = ['6axis', '9axis']
-        data_category = ['train','valid']
+        data_category = ['train', 'valid']
         actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
         for axis in axiss:
             plt.figure(figsize=(20, 14), dpi=516)
             plt.style.use('seaborn')
             for index, action_name in enumerate(actions_all):
-                data_targets_path = f'src/fine_grained_features/kmeans_data/train_kmeans_data_{axis}_{action_name}.npy'
-                # data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
-                data_targets = np.load(data_targets_path)
+                # data_targets_path = f'src/fine_grained_features/kmeans_data/train_kmeans_data_{axis}_{action_name}.npy'
+                # data_targets = np.load(data_targets_path)
+
+                train_data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
+                valid_data_targets_path = f'src/fine_grained_features/tsne_data/valid_tsne_data_{axis}_{action_name}.npy'
+                test_data_targets_path = f'src/fine_grained_features/tsne_data/test_tsne_data_{axis}_{action_name}.npy'
+                train_data_targets = np.load(train_data_targets_path)
+                valid_data_targets = np.load(valid_data_targets_path)
+                test_data_targets = np.load(test_data_targets_path)
+                data_targets = np.r_[train_data_targets,valid_data_targets,test_data_targets]
+
+                tsne_data = data_targets[:, :3]
+                tsne_label = data_targets[:, 3]
+                tsne_data_stand = MinMaxScaler().fit_transform(tsne_data)
+                data_targets = np.c_[tsne_data_stand, tsne_label]
 
                 tsne_data_node0 = np.array([x for x in data_targets if x[3] == 0])
                 tsne_data_node1 = np.array([x for x in data_targets if x[3] == 1])
@@ -501,7 +513,7 @@ class Matplotlib_tsne():
                 # plt.title=('{self.action_name}-{self.axis} scatter plot')
                 ax = plt.subplot(2, 3, index + 1, projection='3d')
                 # 调整视角
-                ax.view_init(elev=40, azim=60)  # 仰角,方位角
+                ax.view_init(elev=20, azim=30)  # 仰角,方位角
 
                 ax.scatter(tsne_data_node0[:, 0], tsne_data_node0[:, 1], tsne_data_node0[:, 2], c='r', label='sensor-0')
                 ax.scatter(tsne_data_node1[:, 0], tsne_data_node1[:, 1], tsne_data_node1[:, 2], c='y', label='sensor-1')
@@ -558,11 +570,12 @@ if __name__ == '__main__':
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
-    # matplotlib_tsne.matplotlib()
+    matplotlib_tsne.matplotlib()
 
-    for axis in axis_all:
-        get_cluster_label_dict = Get_cluster_label_dict(axis)
-        get_cluster_label_dict.getClusterLabelDict()
+    # for axis in axis_all:
+    #     get_cluster_label_dict = Get_cluster_label_dict(axis)
+    #     get_cluster_label_dict.getClusterLabelDict()
+    #
+    # fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('6axis', 'action0')
+    # fg_vector_Predict_with_kmeans.calculate_fg_with_test_window_data()
 
-    fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('6axis', 'action0')
-    fg_vector_Predict_with_kmeans.calculate_fg_with_test_window_data()
