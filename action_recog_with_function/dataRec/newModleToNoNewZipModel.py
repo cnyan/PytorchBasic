@@ -21,7 +21,7 @@ import os
 import glob
 import torch
 from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet, \
-    MyMultiTempSpaceConfluenceNet
+    MyMultiTempSpaceConfluenceNet,MyMultiTestNet,MyMultiConvNet_2,MyMultiConvNet_3
 import platform
 
 if __name__ == '__main__':
@@ -31,6 +31,7 @@ if __name__ == '__main__':
     axis_all = ['6axis', '9axis']
 
     for axis in axis_all:
+        myMultiConvNet_2 = MyMultiConvNet_2(int(axis[0]))
         myMultiResCnnNet = MyMultiResCnnNet(int(axis[0]))
         myMultiConvConfluenceNet = MyMultiConvConfluenceNet(int(axis[0]))
         myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
@@ -39,6 +40,7 @@ if __name__ == '__main__':
                       'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet':myMultiTempSpaceConfluenceNet}
 
+        models_all = {'myMultiConvNet_2':myMultiConvNet_2}
         for model_name, model_module in models_all.items():
             model_names = os.path.join(new_model_path, f'{model_name}_{axis}_model.pkl')
 

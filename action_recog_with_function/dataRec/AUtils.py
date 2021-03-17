@@ -32,7 +32,7 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 
     plt.title(title)
-    plt.colorbar()
+    # plt.colorbar()
     tick_marks = np.arange(len(classes))
     # plt.xticks(tick_marks, classes, rotation=45)  # 参数： rotation=45，label倾斜45°
     plt.xticks(tick_marks, classes)
@@ -44,11 +44,11 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
                  color="white" if cm[i, j] > thresh else "black")
     plt.tight_layout()
     plt.gcf().subplots_adjust(bottom=0.15)
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-    plt.savefig(savePath)
+    plt.xlabel('True label')
+    plt.ylabel('Predicted label')
+    plt.savefig(savePath,bbox_inches='tight')
     # if platform.system()=='Windows':
-    plt.show()
+    # plt.show()
     plt.close()
 
 
