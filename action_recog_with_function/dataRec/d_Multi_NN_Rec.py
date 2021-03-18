@@ -112,7 +112,7 @@ class NN_train():
                         inputs, labels = inputs, labels
 
                     # 前向算法
-                    outputs,mixdata = model_ft(inputs)
+                    outputs, mixdata = model_ft(inputs)
                     _, preds = torch.max(outputs.data, 1)
                     loss = criterion(outputs, labels)  # 损失函数
                     # 梯度参数清0
@@ -163,14 +163,14 @@ class NN_train():
         self.plt_image(train_loss, valid_loss, right_ratio)
 
     def plt_image(self, train_loss, valid_loss, right_ratio):
-        plt.title(f'{self.model_name}_{self.axis} training')
+        # plt.title(f'{self.model_name}_{self.axis} training')
         plt.plot(train_loss, label='Train Loss')
         plt.plot(valid_loss, label='Valid Loss')
         plt.plot(right_ratio, label='Valid Accuracy')
         plt.xlabel('epoch')
         plt.ylabel('Loss & Accuracy')
         plt.legend()
-        plt.savefig(f"src/plt_img/{self.model_name}_{self.axis}_train_loss.png")
+        plt.savefig(f"src/plt_img/{self.model_name}_{self.axis}_train_loss.png", dpi=100)
         plt.show()
         plt.close()
 
@@ -206,7 +206,7 @@ class NN_Predict():
                 data = data.to(self.device)
 
             labels.append(label)
-            output,mixdata = self.model(data)
+            output, mixdata = self.model(data)
 
             right = self.rightness(output, label)
             rights.append(right)
@@ -251,7 +251,7 @@ if __name__ == '__main__':
 
     from AUtils import make_print_to_file  # 打印日志
     from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet, \
-        MyMultiTempSpaceConfluenceNet, MyMultiTestNet,MyMultiConvNet_2,MyMultiConvNet_3
+        MyMultiTempSpaceConfluenceNet, MyMultiTestNet, MyMultiConvNet_2, MyMultiConvNet_3
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -272,7 +272,7 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiConvNet_2': myMultiConvNet_2}
+        models_all = { 'myMultiConvNet_2': myMultiConvNet_2}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

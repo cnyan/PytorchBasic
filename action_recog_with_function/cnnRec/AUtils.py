@@ -44,8 +44,8 @@ def plot_confusion_matrix(y_label, y_predict, classes, savePath,
                  color="white" if cm[i, j] > thresh else "black")
     plt.tight_layout()
     plt.gcf().subplots_adjust(bottom=0.15)
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
+    plt.xlabel('True label')
+    plt.ylabel('Predicted label')
     plt.savefig(savePath)
     # if platform.system()=='Windows':
     plt.show()

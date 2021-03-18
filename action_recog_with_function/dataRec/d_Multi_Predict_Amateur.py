@@ -114,7 +114,7 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiConvNet_2': myMultiConvNet_2}
+        models_all = { 'myMultiConvNet_2': myMultiConvNet_2}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')

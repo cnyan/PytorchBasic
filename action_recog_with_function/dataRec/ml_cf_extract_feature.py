@@ -138,7 +138,7 @@ class Decomposition():
 
 
 if __name__ == '__main__':
-    from fg_cnn_fine_grained import MyMultiConvNet_2
+    from d_Multi_NN_Net import MyMultiConvNet_2
 
     is_extract_cnn = True
 

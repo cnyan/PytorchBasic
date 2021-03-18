@@ -485,16 +485,16 @@ class Matplotlib_tsne():
             plt.figure(figsize=(20, 14), dpi=516)
             plt.style.use('seaborn')
             for index, action_name in enumerate(actions_all):
-                # data_targets_path = f'src/fine_grained_features/kmeans_data/train_kmeans_data_{axis}_{action_name}.npy'
-                # data_targets = np.load(data_targets_path)
+                data_targets_path = f'src/fine_grained_features/kmeans_data/train_kmeans_data_{axis}_{action_name}.npy'
+                data_targets = np.load(data_targets_path)
 
-                train_data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
-                valid_data_targets_path = f'src/fine_grained_features/tsne_data/valid_tsne_data_{axis}_{action_name}.npy'
-                test_data_targets_path = f'src/fine_grained_features/tsne_data/test_tsne_data_{axis}_{action_name}.npy'
-                train_data_targets = np.load(train_data_targets_path)
-                valid_data_targets = np.load(valid_data_targets_path)
-                test_data_targets = np.load(test_data_targets_path)
-                data_targets = np.r_[train_data_targets,valid_data_targets,test_data_targets]
+                # train_data_targets_path = f'src/fine_grained_features/tsne_data/train_tsne_data_{axis}_{action_name}.npy'
+                # valid_data_targets_path = f'src/fine_grained_features/tsne_data/valid_tsne_data_{axis}_{action_name}.npy'
+                # test_data_targets_path = f'src/fine_grained_features/tsne_data/test_tsne_data_{axis}_{action_name}.npy'
+                # train_data_targets = np.load(train_data_targets_path)
+                # valid_data_targets = np.load(valid_data_targets_path)
+                # test_data_targets = np.load(test_data_targets_path)
+                # data_targets = np.r_[train_data_targets,valid_data_targets,test_data_targets]
 
                 tsne_data = data_targets[:, :3]
                 tsne_label = data_targets[:, 3]
@@ -550,7 +550,7 @@ if __name__ == '__main__':
             for data_category in data_categorys:
                 # 抽取训练集、测试集多维度卷积融合特征
                 extractFeatures = Extract_1D_2D_features(model,model_name, axis, data_category=data_category)
-                # extractFeatures.extract_features()
+                #extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
@@ -572,10 +572,10 @@ if __name__ == '__main__':
     matplotlib_tsne = Matplotlib_tsne()
     matplotlib_tsne.matplotlib()
 
-    # for axis in axis_all:
-    #     get_cluster_label_dict = Get_cluster_label_dict(axis)
-    #     get_cluster_label_dict.getClusterLabelDict()
-    #
-    # fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('6axis', 'action0')
-    # fg_vector_Predict_with_kmeans.calculate_fg_with_test_window_data()
+    for axis in axis_all:
+        get_cluster_label_dict = Get_cluster_label_dict(axis)
+        get_cluster_label_dict.getClusterLabelDict()
+
+    fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('6axis', 'action0')
+    fg_vector_Predict_with_kmeans.calculate_fg_with_test_window_data()
 
