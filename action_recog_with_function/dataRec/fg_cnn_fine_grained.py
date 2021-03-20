@@ -392,13 +392,17 @@ class FG__vector_Predict_with_kmeans():
             # print(tsne_data)
 
             cluster_label_dict = self.all_cluster_label_dict[f'action{action_class}']
+            cluster_keys = cluster_label_dict.keys()
 
             vector_scores = []
             for index in range(7):
                 sensor_num = f'sensor-{index}'
-                # 余弦相似度
-                vector_score = self.cosine_similarity_method(tsne_data[index], cluster_label_dict[sensor_num])
-                # vector_score = self.distance_seuclidean(tsne_data[index], cluster_label_dict[sensor_num])
+                if sensor_num in cluster_keys:
+                    # 余弦相似度
+                    vector_score = self.cosine_similarity_method(tsne_data[index], cluster_label_dict[sensor_num])
+                    # vector_score = self.distance_seuclidean(tsne_data[index], cluster_label_dict[sensor_num])
+                else:
+                    vector_score = 0.8
                 vector_scores.append(round(vector_score, 1))
 
             print(vector_scores)
@@ -570,12 +574,12 @@ if __name__ == '__main__':
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
-    matplotlib_tsne.matplotlib()
+    # matplotlib_tsne.matplotlib()
 
     for axis in axis_all:
         get_cluster_label_dict = Get_cluster_label_dict(axis)
         get_cluster_label_dict.getClusterLabelDict()
 
-    fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('6axis', 'action0')
+    fg_vector_Predict_with_kmeans = FG__vector_Predict_with_kmeans('9axis', 'action0')
     fg_vector_Predict_with_kmeans.calculate_fg_with_test_window_data()
 
