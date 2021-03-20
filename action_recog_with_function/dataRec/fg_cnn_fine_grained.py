@@ -570,7 +570,7 @@ if __name__ == '__main__':
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='test')
             # kmeans_fine_grained.get_tsne_data()
-            # kmeans_fine_grained.predict_kmeans()
+            kmeans_fine_grained.predict_kmeans()
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
