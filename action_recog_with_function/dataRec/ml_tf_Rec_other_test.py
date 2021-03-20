@@ -80,13 +80,13 @@ if __name__ == '__main__':
 
         # 开始画图
         index = 1
-        plt.figure(figsize=(10, 10))
+        plt.figure(figsize=(20, 5))
 
         classes = ['Action0', 'Action1', 'Action2', 'Action3', 'Action4']
-        savePath = f'src/ml_tf_plt_img/Classifier_Confusion_Matrix_amateur_{axis}.png'
+        savePath = f'src/ml_tf_plt_img/Classifier_Confusion_Matrix_Amateur_{axis}.png'
         for key, (y_label, y_predict) in true_predict_dict.items():
 
-            plt.subplot(220 + index)
+            plt.subplot(140 + index)
             index += 1
 
             cm = confusion_matrix(y_label, y_predict)

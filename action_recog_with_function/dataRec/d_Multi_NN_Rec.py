@@ -21,6 +21,9 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from dataToTorch import ActionDataSets
 import AUtils
+import itertools
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -219,6 +222,7 @@ class NN_Predict():
                                      classes=['Action0', 'Action1', 'Action2', 'Action3', 'Action4'],
                                      savePath=f'src/plt_img/{self.model_name}_{self.axis}_predict.png',
                                      title=f'{self.model_name}_{self.axis}_predict')
+        return np.array(labels), np.array([i[3] for i in rights]).flatten()
 
     # 自定义计算准确度的函数
     def rightness(self, predict, label):
@@ -268,11 +272,14 @@ if __name__ == '__main__':
         myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
         myMultiTestNet = MyMultiTestNet(int(axis[0]))
 
+        true_predict_dict = {} # 记录分类结果
+
         models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = { 'myMultiConvNet_2': myMultiConvNet_2}
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvNet_2': myMultiConvNet_2,
+                      'myMultiConvNet_3': myMultiConvNet_3}
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
@@ -289,5 +296,46 @@ if __name__ == '__main__':
 
             nn_predict = NN_Predict(model, model_name, axis=axis)
             with Timer() as t:
-                nn_predict.predict()
+                y_label, y_predict = nn_predict.predict()
             print('predict time {0}'.format(str(t.interval)[:5]))
+
+            if model_name == 'myMultiConvNet':
+                classifier_name = 'CNN'
+            elif  model_name == 'myMultiConvNet_2':
+                classifier_name = 'Inception-CNN'
+            else:
+                classifier_name = 'MFF-CNN'
+
+            true_predict_dict[classifier_name] = (y_label, y_predict)
+
+        index = 1
+        plt.figure(figsize=(15, 5))
+
+        classes = ['Action0', 'Action1', 'Action2', 'Action3', 'Action4']
+        savePath = f'src/plt_img/Classifier_Confusion_Matrix_Major_{axis}.png'
+        for key, (y_label, y_predict) in true_predict_dict.items():
+
+            plt.subplot(140 + index)
+            index += 1
+
+            cm = confusion_matrix(y_label, y_predict)
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+            plt.title(key)
+            # plt.colorbar()
+            tick_marks = np.arange(len(classes))
+            plt.xticks(tick_marks, classes)
+            plt.yticks(tick_marks, classes)
+
+            plt.ylim(len(cm) - 0.5, -0.5)
+            thresh = cm.max() / 2.
+            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                plt.text(j, i, '{:.2f}'.format(cm[i, j]), horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+            plt.tight_layout()
+            plt.gcf().subplots_adjust(bottom=0.15)
+            plt.xlabel('True label')
+            plt.ylabel('Predicted label')
+        plt.savefig(savePath, bbox_inches='tight')
+        plt.show()
+        plt.close()
