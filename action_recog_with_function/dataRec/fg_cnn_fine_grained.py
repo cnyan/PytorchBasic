@@ -536,7 +536,7 @@ class Matplotlib_tsne():
                 plt.subplots_adjust(hspace=0.4)
                 plt.title(f'{action_name}', fontsize=30)
                 plt.legend()
-            plt.savefig(f'src/fine_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg')
+            plt.savefig(f'src/fine_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg',bbox_inches='tight')
             plt.show()
             plt.close()
 
@@ -574,7 +574,7 @@ if __name__ == '__main__':
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
-    # matplotlib_tsne.matplotlib()
+    matplotlib_tsne.matplotlib()
 
     for axis in axis_all:
         get_cluster_label_dict = Get_cluster_label_dict(axis)

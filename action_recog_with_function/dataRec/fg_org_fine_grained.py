@@ -32,7 +32,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-
 class Extract_origin_features():
     def __init__(self, axis, data_category):
         super(Extract_origin_features, self).__init__()
@@ -45,7 +44,6 @@ class Extract_origin_features():
         self.action_train_data_gen = DataLoader(action_data_set, shuffle=True,
                                                 num_workers=2)  # 分成数组（len/128）个batch，每个batch长度是128
         print(f'{data_category}data shape: ({len(action_data_set)}{(action_data_set.data_shape())})')
-
 
     def extract_features(self):
         print(f'==============  提取{self.data_category}-{self.axis}的卷积特征=============')
@@ -88,16 +86,21 @@ class Extract_origin_features():
         print(f'features_action3.shape:{features_action3.shape}')
         print(f'features_action4.shape:{features_action4.shape}')
 
-        np.save(f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action0.npy',
-                features_action0)
-        np.save(f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action1.npy',
-                features_action1)
-        np.save(f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action2.npy',
-                features_action2)
-        np.save(f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action3.npy',
-                features_action3)
-        np.save(f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action4.npy',
-                features_action4)
+        np.save(
+            f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action0.npy',
+            features_action0)
+        np.save(
+            f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action1.npy',
+            features_action1)
+        np.save(
+            f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action2.npy',
+            features_action2)
+        np.save(
+            f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action3.npy',
+            features_action3)
+        np.save(
+            f'src/fine_org_grained_features/conv1d_2d_features/{self.data_category}_features_{self.axis}_action4.npy',
+            features_action4)
 
 
 class Kmeans_fine_grained():
@@ -252,7 +255,7 @@ class Matplotlib_tsne():
                 plt.subplots_adjust(hspace=0.4)
                 plt.title(f'{action_name}', fontsize=30)
                 plt.legend()
-            plt.savefig(f'src/fine_org_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg')
+            plt.savefig(f'src/fine_org_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg', bbox_inches='tight')
             plt.show()
             plt.close()
 
@@ -274,15 +277,15 @@ if __name__ == '__main__':
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='train')
             # kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.train_kmeans()
+            # kmeans_fine_grained.train_kmeans()
 
     for axis in axis_all:
         for action_name in actions_all:
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='test')
             # kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.predict_kmeans()
+            # kmeans_fine_grained.predict_kmeans()
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
-    # matplotlib_tsne.matplotlib()
+    matplotlib_tsne.matplotlib()

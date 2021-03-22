@@ -281,6 +281,117 @@ class MyInception_3d(nn.Module):
         return outputs
 
 
+
+
+class MyMultiConvNet_4(nn.Module):
+    """
+    纯Inception结构
+    """
+
+    def __init__(self, axis):
+        super(MyMultiConvNet_4, self).__init__()
+
+        self.conv1_layer = nn.Sequential(
+            MyInception_4d(1, 4, axis),
+        )  # (64,32 * 4 ,* 7*axis,36)
+
+        self.conv2_layer = nn.Sequential(
+            nn.Conv1d(4 * 4*36, 1024, 2, 1, 1),
+            nn.BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #nn.Dropout2d(0.5),
+            nn.ReLU(),
+            nn.AvgPool1d(3, 3)
+        )  # 256*9
+
+        self.conv3_layer = nn.Sequential(
+            nn.Conv1d(1024, 2048, 2, 1, 1),
+            nn.BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #nn.Dropout2d(0.5),
+            nn.ReLU(),
+            nn.AvgPool1d(3, 3)
+        )  # 256*9
+        self.globel_avgpool = nn.AdaptiveAvgPool1d((1))  # (256,7*axis,3)
+
+        self.classifier = nn.Sequential(
+            nn.Linear(2048 *1, 5),
+        )
+
+    def forward(self, x):
+        x = x.permute([0,2,1])
+        out = self.conv1_layer(x)
+        out = self.conv2_layer(out)
+        out = self.conv3_layer(out)
+        out = self.globel_avgpool(out)
+
+        out = out.view(out.size(0), -1)
+        output = self.classifier(out)
+        return output, 0
+
+
+class MyInception_4d(nn.Module):
+    def __init__(self, input_size, output_size, axis=0):
+        super(MyInception_4d, self).__init__()
+        self.conv_size = output_size * 2*36
+        dim_size = (input_size // 4) if input_size > 4 else 4
+        self.axis = axis
+        self.output_size = output_size*36
+        self.input_size = input_size*36
+
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(self.input_size, self.output_size, 1, 1, 0),
+            # nn.Dropout2d(0.5),
+            nn.BatchNorm1d(self.output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv1d(self.input_size, self.conv_size, 3, 1,1),
+            nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(self.conv_size, self.output_size, 1, 1, 0),
+            nn.BatchNorm1d(self.output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+        self.conv3 = nn.Sequential(
+            nn.Conv1d(self.input_size, self.conv_size, 3, 1, 1),
+            nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(self.conv_size,self.conv_size, 3, 1, 1),
+            nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+            nn.Conv1d(self.conv_size, self.output_size, 1, 1, 0),
+            nn.BatchNorm1d(self.output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+        # self.conv3 = nn.Sequential(
+        #     nn.Conv1d(7 * axis * input_size, 7 * axis * dim_size, 1, 1, 0),
+        #     nn.BatchNorm1d(7 * axis * dim_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     nn.Conv1d(7 * axis * dim_size, 7 * axis * conv_size, 5, 1, 2),
+        #     nn.BatchNorm1d(7 * axis * conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     nn.Conv1d(7 * axis * conv_size, 7 * axis * output_size, 1, 1, 0),
+        #     nn.BatchNorm1d(7 * axis * output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        # )
+        self.conv4 = nn.Sequential(
+            nn.MaxPool1d(3, 1, 1),
+            nn.Conv1d(self.input_size, self.output_size, 1, 1, 0),
+            nn.BatchNorm1d(self.output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        x1 = self.conv1(x)
+        x2 = self.conv2(x)
+        x3 = self.conv3(x)
+        x4 = self.conv4(x)
+        outputs = [x1, x2, x3, x4]
+        outputs = torch.cat(outputs, dim=1)
+        return outputs
+
+
 class MyMultiResCnnNet(nn.Module):
     """
     多卷积残差网络
