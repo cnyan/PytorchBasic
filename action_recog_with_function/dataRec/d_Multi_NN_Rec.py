@@ -255,7 +255,7 @@ if __name__ == '__main__':
 
     from AUtils import make_print_to_file  # 打印日志
     from d_Multi_NN_Net import MyMultiConvNet, MyMultiResCnnNet, MyMultiConvLstmNet, MyMultiConvConfluenceNet, \
-        MyMultiTempSpaceConfluenceNet, MyMultiTestNet, MyMultiConvNet_2, MyMultiConvNet_3,MyMultiConvNet_4
+        MyMultiTempSpaceConfluenceNet, MyMultiTestNet, MyMultiConvNet_2, MyMultiConvNet_3, MyMultiConvNet_4
 
     make_print_to_file()
     if torch.cuda.is_available():
@@ -273,15 +273,14 @@ if __name__ == '__main__':
         myMultiTempSpaceConfluenceNet = MyMultiTempSpaceConfluenceNet(int(axis[0]))
         myMultiTestNet = MyMultiTestNet(int(axis[0]))
 
-        true_predict_dict = {} # 记录分类结果
+        true_predict_dict = {}  # 记录分类结果
 
         models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiResCnnNet': myMultiResCnnNet,
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvNet_2': myMultiConvNet_2,
-                      'myMultiConvNet_3': myMultiConvNet_3}
-
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvNet_3': myMultiConvNet_3,
+                      'myMultiConvNet_2': myMultiConvNet_2, }
 
         for model_name, model in models_all.items():
             print('===================********begin begin begin*********=================')
@@ -303,10 +302,10 @@ if __name__ == '__main__':
 
             if model_name == 'myMultiConvNet':
                 classifier_name = 'CNN'
-            elif  model_name == 'myMultiConvNet_2':
+            elif model_name == 'myMultiConvNet_3':
                 classifier_name = 'Inception-CNN'
             else:
-                classifier_name = 'MFF-CNN'
+                classifier_name = 'MDFF-CNN'
 
             true_predict_dict[classifier_name] = (y_label, y_predict)
 

@@ -512,7 +512,7 @@ class Matplotlib_tsne():
                 tsne_data_node4 = np.array([x for x in data_targets if x[3] == 4])
                 tsne_data_node5 = np.array([x for x in data_targets if x[3] == 5])
                 tsne_data_node6 = np.array([x for x in data_targets if x[3] == 6])
-
+                print(tsne_data_node0.shape)
                 # ax = Axes3D(fig)
                 # plt.title=('{self.action_name}-{self.axis} scatter plot')
                 ax = plt.subplot(2, 3, index + 1, projection='3d')
@@ -554,7 +554,7 @@ if __name__ == '__main__':
             for data_category in data_categorys:
                 # 抽取训练集、测试集多维度卷积融合特征
                 extractFeatures = Extract_1D_2D_features(model,model_name, axis, data_category=data_category)
-                #extractFeatures.extract_features()
+                # extractFeatures.extract_features()
 
     actions_all = ['action0', 'action1', 'action2', 'action3', 'action4']
 
@@ -570,7 +570,7 @@ if __name__ == '__main__':
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='test')
             # kmeans_fine_grained.get_tsne_data()
-            kmeans_fine_grained.predict_kmeans()
+            # kmeans_fine_grained.predict_kmeans()
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()

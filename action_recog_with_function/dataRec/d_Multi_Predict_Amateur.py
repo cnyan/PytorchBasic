@@ -122,8 +122,8 @@ if __name__ == '__main__':
                       'myMultiConvLstmNet': myMultiConvLstmNet, 'myMultiConvConfluenceNet': myMultiConvConfluenceNet,
                       'myMultiTempSpaceConfluenceNet': myMultiTempSpaceConfluenceNet}
 
-        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvNet_2': myMultiConvNet_2,
-                      'myMultiConvNet_3': myMultiConvNet_3}
+        models_all = {'myMultiConvNet': myMultiConvNet, 'myMultiConvNet_3': myMultiConvNet_3,
+                      'myMultiConvNet_2': myMultiConvNet_2, }
 
 
         for model_name, model in models_all.items():
@@ -140,10 +140,10 @@ if __name__ == '__main__':
 
             if model_name == 'myMultiConvNet':
                 classifier_name = 'CNN'
-            elif  model_name == 'myMultiConvNet_2':
+            elif  model_name == 'myMultiConvNet_3':
                 classifier_name = 'Inception-CNN'
             else:
-                classifier_name = 'MFF-CNN'
+                classifier_name = 'MDFF-CNN'
 
             true_predict_dict[classifier_name] = (y_label, y_predict)
 

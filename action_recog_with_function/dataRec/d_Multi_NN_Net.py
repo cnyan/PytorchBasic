@@ -116,8 +116,8 @@ class MyInception_2d(nn.Module):
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(input_size, output_size, 1, 1, 0),
-            nn.BatchNorm2d(output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            # nn.Dropout2d(),
+            # nn.BatchNorm2d(output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            nn.Dropout2d(),
             nn.ReLU(),
         )
         self.conv2 = nn.Sequential(
@@ -133,6 +133,9 @@ class MyInception_2d(nn.Module):
             nn.Conv1d(36 * input_size, 36 * conv_size, 5, 1, 2),
             nn.BatchNorm1d(36 * conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
+            # nn.Conv1d(36 * conv_size, 36 * conv_size, 3, 1, 1),
+            # nn.BatchNorm1d(36 * conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            # nn.ReLU(),
             nn.Conv1d(36 * conv_size, 36 * output_size, 1, 1, 0),
             nn.BatchNorm1d(36 * output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
@@ -242,12 +245,12 @@ class MyInception_3d(nn.Module):
         )
 
         self.conv3 = nn.Sequential(
-            nn.Conv2d(input_size, conv_size, 3, 1, 1),
+            nn.Conv2d(input_size, conv_size, 5, 1, 2),
             nn.BatchNorm2d(conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv2d(conv_size, conv_size, 3, 1, 1),
-            nn.BatchNorm2d(conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            nn.ReLU(),
+            # nn.Conv2d(conv_size, conv_size, 3, 1, 1),
+            # nn.BatchNorm2d(conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            # nn.ReLU(),
             nn.Conv2d(conv_size, output_size, 1, 1, 0),
             nn.BatchNorm2d(output_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
