@@ -144,7 +144,6 @@ class StandAndExtractTfFeatures():
         else:
             file_name = fr'src/torchData/trainingData/{self.data_category}/{self.data_category}_torch_mat-{self.axis}.npy'
 
-
         dataSet = np.load(file_name)
         standScaler = StandardScaler(with_mean=True, with_std=True)
         print(f'正则，特征提取，降维-fileName = {file_name}, dataSet shape =({dataSet.shape})')
@@ -174,7 +173,7 @@ class StandAndExtractTfFeatures():
                 df_features = np.append(df_features, label)  # len = 36列*5+1=181
 
                 # df_stand_data = df_stand_data.append(DataFrame(np.array(df_stand).T,columns=columns_stand), ignore_index=True)
-                DataFrame(np.array(df_stand)).T.to_csv(dfStandSavePath,mode='a',header=False)
+                DataFrame(np.array(df_stand)).T.to_csv(dfStandSavePath, mode='a', header=False)
                 df_features_data.append(df_features)
 
         df_features_data = np.array(df_features_data)
