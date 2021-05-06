@@ -304,7 +304,7 @@ if __name__ == '__main__':
                 classifier_name = 'CNN'
             elif model_name == 'myMultiConvNet_3':
                 classifier_name = 'Inception-CNN'
-            else:
+            elif model_name == 'myMultiConvNet_2':
                 classifier_name = 'MDFF-CNN'
 
             true_predict_dict[classifier_name] = (y_label, y_predict)

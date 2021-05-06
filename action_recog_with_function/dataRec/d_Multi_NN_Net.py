@@ -63,7 +63,7 @@ class MyMultiConvNet(nn.Module):
 
 class MyMultiConvNet_2(nn.Module):
     """
-    改进的Inception结构，加入一维卷积
+    改进的Inception结构，加入一维卷积 MDFF-CNN
     """
 
     def __init__(self, axis):

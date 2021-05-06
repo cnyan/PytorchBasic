@@ -23,7 +23,7 @@ import math
 import joblib
 from scipy.stats import mode
 from torchvision import models, transforms
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler,minmax_scale
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
@@ -262,6 +262,8 @@ class Kmeans_fine_grained():
         tsne_data = data_targets[:, :3]
         tsne_targets = data_targets[:, 3]
 
+        tsne_data = minmax_scale(tsne_data)
+
         kmeans_model = self.Kmeans.fit(tsne_data)
         joblib.dump(kmeans_model,
                     f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_{self.action_name}.pkl')
@@ -297,6 +299,8 @@ class Kmeans_fine_grained():
         data_targets = np.load(data_targets_path)
         tsne_data = data_targets[:, :3]
         tsne_targets = data_targets[:, 3]
+
+        tsne_data = minmax_scale(tsne_data)
 
         kmeans_model = joblib.load(
             f'src/fine_grained_features/kmeans_model/kmeans_model_{self.axis}_{self.action_name}.pkl')
@@ -448,7 +452,7 @@ class FG__vector_Predict_with_kmeans():
         # # method 1
         # res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
         # cos = sum(res[:, 0]) / (np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])))
-
+        x = minmax_scale(x)
         X = np.vstack([np.abs(x), np.abs(y)])
         cos = cosine_similarity(X)[0][1]
         return cos
@@ -471,6 +475,7 @@ class Get_cluster_label_dict():
             dict_path = f'src/fine_grained_features/cluster_label_dict/cluster_label_dict_{self.axis}_{action_name}.npy'
             cluster_label_dict = np.load(dict_path, allow_pickle=True).item()
             all_cluster_label_dict[action_name] = cluster_label_dict
+        print(all_cluster_label_dict)
         np.save(f'src/fine_grained_features/cluster_label_dict/all_cluster_label_dict_{self.axis}.npy',
                 all_cluster_label_dict)
 
@@ -500,10 +505,10 @@ class Matplotlib_tsne():
                 # test_data_targets = np.load(test_data_targets_path)
                 # data_targets = np.r_[train_data_targets,valid_data_targets,test_data_targets]
 
-                tsne_data = data_targets[:, :3]
-                tsne_label = data_targets[:, 3]
-                tsne_data_stand = MinMaxScaler().fit_transform(tsne_data)
-                data_targets = np.c_[tsne_data_stand, tsne_label]
+                # tsne_data = data_targets[:, :3]
+                # tsne_label = data_targets[:, 3]
+                # tsne_data_stand = MinMaxScaler().fit_transform(tsne_data)
+                # data_targets = np.c_[tsne_data, tsne_label]
 
                 tsne_data_node0 = np.array([x for x in data_targets if x[3] == 0])
                 tsne_data_node1 = np.array([x for x in data_targets if x[3] == 1])
@@ -537,7 +542,7 @@ class Matplotlib_tsne():
                 plt.title(f'{action_name}', fontsize=30)
                 plt.legend()
             plt.savefig(f'src/fine_grained_features/tsne_plt/tense_plt_scatter-{axis}.jpg',bbox_inches='tight')
-            plt.show()
+            # plt.show()
             plt.close()
 
 
@@ -563,14 +568,14 @@ if __name__ == '__main__':
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='train')
             # kmeans_fine_grained.get_tsne_data()
-            # kmeans_fine_grained.train_kmeans()
+            kmeans_fine_grained.train_kmeans()
 
     for axis in axis_all:
         for action_name in actions_all:
             # 降维后做kmeans训练
             kmeans_fine_grained = Kmeans_fine_grained(axis, action_name, data_category='test')
             # kmeans_fine_grained.get_tsne_data()
-            # kmeans_fine_grained.predict_kmeans()
+            kmeans_fine_grained.predict_kmeans()
 
     # 绘制三维视图
     matplotlib_tsne = Matplotlib_tsne()
