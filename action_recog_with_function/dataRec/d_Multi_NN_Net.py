@@ -75,7 +75,7 @@ class MyMultiConvNet_2(nn.Module):
         )  # (64,32 * 4 ,* 7*axis,36)
 
         self.confluence2_layer = nn.Sequential(
-            nn.Conv2d(16* 4, 128, 3, 1, 1),
+            nn.Conv2d(16 * 4, 128, 3, 1, 1),
             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.AvgPool2d(2, 2),
@@ -86,10 +86,10 @@ class MyMultiConvNet_2(nn.Module):
             nn.AvgPool2d(2, 2),
         )  # 256*9
 
-        self.globel_avgpool = nn.AdaptiveAvgPool2d((3,3))  # (256,7*axis,3)
+        self.globel_avgpool = nn.AdaptiveAvgPool2d((3, 3))  # (256,7*axis,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(256*9, 5),
+            nn.Linear(256 * 9, 5),
         )
 
     def forward(self, x):
@@ -108,7 +108,7 @@ class MyMultiConvNet_2(nn.Module):
 class MyInception_2d(nn.Module):
     def __init__(self, input_size, output_size, axis=0):
         super(MyInception_2d, self).__init__()
-        conv_size = output_size*4
+        conv_size = output_size * 4
         # dim_size = (input_size // 4) if input_size > 4 else 4
         self.axis = axis
         self.out_size = output_size
@@ -190,7 +190,7 @@ class MyMultiConvNet_3(nn.Module):
         self.conv2_layer = nn.Sequential(
             nn.Conv2d(16 * 4, 128, 2, 1, 1),
             nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(2, 2)
         )  # 256*9
@@ -198,14 +198,14 @@ class MyMultiConvNet_3(nn.Module):
         self.conv3_layer = nn.Sequential(
             nn.Conv2d(128, 256, 2, 1, 1),
             nn.BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool2d(2, 2)
         )  # 256*9
         self.globel_avgpool = nn.AdaptiveAvgPool2d((3, 3))  # (256,7*axis,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(256 *9, 5),
+            nn.Linear(256 * 9, 5),
         )
 
     def forward(self, x):
@@ -284,8 +284,6 @@ class MyInception_3d(nn.Module):
         return outputs
 
 
-
-
 class MyMultiConvNet_4(nn.Module):
     """
     纯Inception结构
@@ -299,9 +297,9 @@ class MyMultiConvNet_4(nn.Module):
         )  # (64,32 * 4 ,* 7*axis,36)
 
         self.conv2_layer = nn.Sequential(
-            nn.Conv1d(4 * 4*36, 1024, 2, 1, 1),
+            nn.Conv1d(4 * 4 * 36, 1024, 2, 1, 1),
             nn.BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool1d(3, 3)
         )  # 256*9
@@ -309,18 +307,18 @@ class MyMultiConvNet_4(nn.Module):
         self.conv3_layer = nn.Sequential(
             nn.Conv1d(1024, 2048, 2, 1, 1),
             nn.BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-            #nn.Dropout2d(0.5),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.AvgPool1d(3, 3)
         )  # 256*9
         self.globel_avgpool = nn.AdaptiveAvgPool1d((1))  # (256,7*axis,3)
 
         self.classifier = nn.Sequential(
-            nn.Linear(2048 *1, 5),
+            nn.Linear(2048 * 1, 5),
         )
 
     def forward(self, x):
-        x = x.permute([0,2,1])
+        x = x.permute([0, 2, 1])
         out = self.conv1_layer(x)
         out = self.conv2_layer(out)
         out = self.conv3_layer(out)
@@ -334,11 +332,11 @@ class MyMultiConvNet_4(nn.Module):
 class MyInception_4d(nn.Module):
     def __init__(self, input_size, output_size, axis=0):
         super(MyInception_4d, self).__init__()
-        self.conv_size = output_size * 2*36
+        self.conv_size = output_size * 2 * 36
         dim_size = (input_size // 4) if input_size > 4 else 4
         self.axis = axis
-        self.output_size = output_size*36
-        self.input_size = input_size*36
+        self.output_size = output_size * 36
+        self.input_size = input_size * 36
 
         self.conv1 = nn.Sequential(
             nn.Conv1d(self.input_size, self.output_size, 1, 1, 0),
@@ -347,7 +345,7 @@ class MyInception_4d(nn.Module):
             nn.ReLU(),
         )
         self.conv2 = nn.Sequential(
-            nn.Conv1d(self.input_size, self.conv_size, 3, 1,1),
+            nn.Conv1d(self.input_size, self.conv_size, 3, 1, 1),
             nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(self.conv_size, self.output_size, 1, 1, 0),
@@ -359,7 +357,7 @@ class MyInception_4d(nn.Module):
             nn.Conv1d(self.input_size, self.conv_size, 3, 1, 1),
             nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
-            nn.Conv1d(self.conv_size,self.conv_size, 3, 1, 1),
+            nn.Conv1d(self.conv_size, self.conv_size, 3, 1, 1),
             nn.BatchNorm1d(self.conv_size, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
             nn.ReLU(),
             nn.Conv1d(self.conv_size, self.output_size, 1, 1, 0),
